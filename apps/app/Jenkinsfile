@@ -3,13 +3,13 @@ pipeline {
     agent any
     environment {
         ENV_TYPE = "production"
-        PORT = 3465
+        PORT = 3469
         NAMESPACE = "navaibe-ru"
         REGISTRY_HOSTNAME = "linesgreen"
-        PROJECT = "app-first-start"
+        PROJECT = "second-app-deploy"
         SERVICE="app"
         REGISTRY = "registry.hub.docker.com"
-        DEPLOYMENT_NAME = "app-first-start-deployment"
+        DEPLOYMENT_NAME = "second-app-deploy-deployment"
         IMAGE_NAME = "${env.BUILD_ID}_${env.ENV_TYPE}_${env.GIT_COMMIT}"
         DOCKER_BUILD_NAME = "${env.REGISTRY_HOSTNAME}/${env.PROJECT}:${env.IMAGE_NAME}"
     }
@@ -27,8 +27,8 @@ pipeline {
                        export NVM_DIR="$HOME/.nvm"
                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
                        nvm use --lts
-                       yarn install
-                       yarn test
+                       pnpm install
+                       pnpm test
                     '''
                 }
             }
@@ -40,7 +40,7 @@ pipeline {
                        export NVM_DIR="$HOME/.nvm"
                        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
                        nvm use --lts
-                       yarn test:e2e
+                       pnpm test:e2e
                     '''
                 }
             }

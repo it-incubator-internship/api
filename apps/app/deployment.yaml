@@ -21,3 +21,9 @@ spec:
            ports:
              - containerPort: PORT_CONTAINER
 
+           env:
+             - name: PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: second-app-deploy-production-config-secret
+                   key: PORT
