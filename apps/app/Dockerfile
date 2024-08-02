@@ -5,7 +5,6 @@ ARG service
 ENV SERVICE=$service
 ENV PORT=$port
 # Set to a non-root built-in user `node`
-
 # Установка pnpm
 RUN npm install -g pnpm
 
