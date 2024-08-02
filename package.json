@@ -7,6 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "build:app": "nest build app",
+    "build:payments": "nest build payments",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -18,6 +20,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/app/test/jest-e2e.json",
+    "test/payments:e2e": "jest --config ./apps/payments/test/jest-e2e.json",
     "start:payments": "node dist/apps/payments/main",
     "start:app": "node dist/apps/app/main"
   },
