@@ -150,6 +150,10 @@ const config = {
       {
         "fromEnvVar": null,
         "value": "debian-openssl-1.1.x"
+      },
+      {
+        "fromEnvVar": null,
+        "value": "linux-musl-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -176,8 +180,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../prisma/client\"\n  binaryTargets = [\"native\", \"debian-openssl-1.1.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_APP_URL\")\n}\n\nmodel User {\n  id    String  @id @default(uuid()) @db.Uuid\n  email String  @unique\n  name  String?\n  posts Post[]\n\n  @@map(\"user\")\n}\n\nmodel Post {\n  id        String   @id @default(uuid()) @db.Uuid\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  title     String\n  content   String?\n  published Boolean  @default(false)\n  viewCount Int      @default(0)\n  author    User?    @relation(fields: [authorId], references: [id])\n  authorId  String?  @db.Uuid\n\n  @@map(\"post\")\n}\n",
-  "inlineSchemaHash": "2fcb454f0cc4fcd6be4c0138b4b2aa8993cebb3a0240484baf879373261063c2",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../prisma/client\"\n  binaryTargets = [\"native\", \"debian-openssl-1.1.x\", \"linux-musl-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_APP_URL\")\n}\n\nmodel User {\n  id    String  @id @default(uuid()) @db.Uuid\n  email String  @unique\n  name  String?\n  posts Post[]\n\n  @@map(\"user\")\n}\n\nmodel Post {\n  id        String   @id @default(uuid()) @db.Uuid\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  title     String\n  content   String?\n  published Boolean  @default(false)\n  viewCount Int      @default(0)\n  author    User?    @relation(fields: [authorId], references: [id])\n  authorId  String?  @db.Uuid\n\n  @@map(\"post\")\n}\n",
+  "inlineSchemaHash": "ec7bc07f92d824f241433ee1c0c549d0c03dde8b4db25e808624fad6117a9ccf",
   "copyEngine": true
 }
 config.dirname = '/'
