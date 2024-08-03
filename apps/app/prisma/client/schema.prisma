@@ -5,8 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../prisma/client"
+  provider      = "prisma-client-js"
+  output        = "../prisma/client"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 datasource db {
