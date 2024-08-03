@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../prisma/client"
 }
 
 datasource db {
@@ -20,6 +21,8 @@ model User {
   email String @unique
   name  String?
   posts Post[]
+
+  @@map("user")
 }
 
 model Post {
@@ -32,4 +35,6 @@ model Post {
   viewCount Int      @default(0)
   author    User?    @relation(fields: [authorId], references: [id])
   authorId  String?  @db.Uuid
+
+  @@map("post")
 }

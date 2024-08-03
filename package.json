@@ -12,6 +12,7 @@
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
+    "start:app/debug": "nest start app --debug --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/app/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -23,8 +24,8 @@
     "test/payments:e2e": "jest --config ./apps/payments/test/jest-e2e.json",
     "start:payments": "node dist/apps/payments/main",
     "start:app": "node dist/apps/app/main",
-    "migrate:app": "npx prisma migrate dev --name fix_uuid_type --schema=./apps/app/prisma/schema.prisma",
-    "tool:app": "npx prisma migrate reset --schema=./apps/app/prisma/schema.prisma"
+    "migrate:app": "npx prisma migrate dev --name change_tables_name --schema=./apps/app/prisma/schema.prisma",
+    "tool:app": "npx prisma migrate dev --name init --schema=./apps/app/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
