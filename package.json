@@ -25,7 +25,7 @@
     "start:payments": "node dist/apps/payments/main",
     "start:app": "node dist/apps/app/main",
     "migrate:app": "npx prisma migrate dev --name change_tables_name --schema=./apps/app/prisma/schema.prisma",
-    "tool:app": "npx prisma migrate dev --name init --schema=./apps/app/prisma/schema.prisma"
+    "tool:app": "npx prisma generate --schema=./apps/app/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
