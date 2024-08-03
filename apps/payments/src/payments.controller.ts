@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
-import { PaymentsService } from './payments.service';
+import { PaymentService } from './payments.service';
 
 @Controller()
-export class PaymentsController {
-  constructor(private readonly paymentsService: PaymentsService) {}
+export class PaymentController {
+  constructor(private readonly paymentsService: PaymentService) {}
 
   @Get()
   getHello(): string {
