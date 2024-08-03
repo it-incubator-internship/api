@@ -3,8 +3,7 @@ import { PaymentController } from './payments.controller';
 import { PaymentService } from './payments.service';
 
 describe('PaymentsController', () => {
-  let paymentsController: TResult;
-
+  let paymentsController: any;
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [PaymentController],
