@@ -6,9 +6,10 @@ export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async createUser({ data }: any) {
-    await this.prismaService.user.create({
+    return this.prismaService.user.create({
       data: {
-        ...data,
+        email: data.email,
+        name: data.name,
       },
     });
   }
