@@ -14,7 +14,46 @@ export class UserRepository {
     });
   }
 
+  async updateUser({ data }: any) {
+    return this.prismaService.user.update({
+      where: { id: data.id },
+      data,
+    });
+  }
+
   async getAllUsers() {
     return this.prismaService.user.findMany();
+  }
+
+  async findUserById(id: string) {
+    return this.prismaService.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+  }
+
+  //   async findUserByConfirmationCode(code: string) {
+  //     return this.prismaService.user.findUnique({
+  //       where: {
+  //         code: code,
+  //       },
+  //     });
+  //   }
+
+  //   async findUserByRecoveryCode(code: string) {
+  //     return this.prismaService.user.findUnique({
+  //       where: {
+  //         code: code,
+  //       },
+  //     });
+  //   }
+
+  async findUserByEmail(email: string) {
+    return this.prismaService.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
   }
 }
