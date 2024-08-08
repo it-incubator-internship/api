@@ -1,5 +1,6 @@
 import { BadRequestError, CustomError } from './custom-error';
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
+import { Response, Request } from 'express';
 
 @Catch(CustomError)
 export class CustomExceptionFilter implements ExceptionFilter {
