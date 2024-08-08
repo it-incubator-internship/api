@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
-import { UserController } from './controller/user.controller';
-import { UserService } from './service/user.service';
-import { UserRepository } from './repository/user.repository';
+import { UserController } from './user/controller/user.controller';
+import { UserService } from './user/service/user.service';
+import { UserRepository } from './user/repository/user.repository';
 import { PrismaService } from '../../common/db/service/prisma-connection.service';
 
-const commands = [];
-const repositories = [UserRepository];
+const userCommands = [];
+const userRepositories = [UserRepository];
+const userService = [UserService];
 
 @Module({
   imports: [],
   controllers: [UserController],
-  providers: [UserService, ...repositories, PrismaService],
+  providers: [...userRepositories, ...userService, PrismaService],
 })
 export class UserModule {}
