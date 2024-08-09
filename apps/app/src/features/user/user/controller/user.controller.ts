@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { UserService } from '../service/user.service';
-import { ErrorResulter } from '../../../../../../common/utils/result/object-result';
 
 @Controller('users')
 export class UserController {
@@ -11,7 +10,7 @@ export class UserController {
     console.log(postData);
     const result = await this.userService.createUser({ data: postData });
 
-    if (!result.isSuccess) return ErrorResulter.proccesError(result.error);
+    if (!result.isSuccess) throw result.error;
 
     return result.value;
   }

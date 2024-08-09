@@ -1,4 +1,4 @@
-import { BadRequestError, CustomError, ErrorStatus } from './custom-error';
+import { CustomError } from './custom-error';
 
 export class ObjResult<T> {
   private constructor(
@@ -40,12 +40,12 @@ export class ObjResult<T> {
   }
 }
 
-export class ErrorResulter {
-  static proccesError<T>(error: CustomError): void {
-    console.log(error instanceof BadRequestError);
-    switch (true) {
-      case error instanceof BadRequestError:
-        throw error;
-    }
-  }
-}
+// export class ErrorResulter {
+//   static proccesError<T>(error: CustomError): void {
+//     console.log(error instanceof BadRequestError);
+//     switch (true) {
+//       case error instanceof BadRequestError:
+//         throw error;
+//     }
+//   }
+// }
