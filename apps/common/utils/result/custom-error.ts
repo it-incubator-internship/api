@@ -44,3 +44,21 @@ export class BadRequestError extends CustomError {
     ];
   }
 }
+
+export class UnauthorizedError extends CustomError {
+  constructor(mes: string) {
+    super(mes, ErrorStatus.UNAUTHORIZED);
+  }
+}
+
+export class ForbiddenError extends CustomError {
+  constructor(mes: string) {
+    super(mes, ErrorStatus.FORBIDDEN);
+  }
+}
+
+export class NotFoundError extends CustomError {
+  constructor(mes: string) {
+    super(mes, ErrorStatus.NOT_FOUND);
+  }
+}
