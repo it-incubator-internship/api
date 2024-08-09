@@ -1,6 +1,6 @@
 import { CustomError } from './custom-error';
 
-export class ObjResult<T> {
+export class ObjResult< T > {
   private constructor(
     private readonly _isSuccess: boolean,
     private readonly _value?: T,
@@ -22,7 +22,7 @@ export class ObjResult<T> {
       error = new CustomError(err as string);
     }
 
-    return new ObjResult<U>(false, null, error);
+    return new ObjResult<U>(false, null as U, error);
   }
 
   get value(): T {
