@@ -2,7 +2,7 @@ import { IsBoolean, IsString, Length, Matches } from 'class-validator';
 import { EmailInputModel } from './email.user.dto';
 import { Trim } from 'apps/common/decorators/trim.decorator';
 
-export class RegistrationUserInputMode extends EmailInputModel {
+export class RegistrationUserInputModel extends EmailInputModel {
   @IsString()
   @Trim()
   @Length(6, 30)
