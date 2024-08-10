@@ -24,7 +24,7 @@
     "test/payments:e2e": "jest --config ./apps/payments/test/jest-e2e.json",
     "start:payments": "node dist/apps/payments/main",
     "start:app": "node dist/apps/app/main",
-    "migrate:app": "npx prisma migrate dev --name change_tables_name --schema=./apps/app/prisma/schema.prisma",
+    "migrate:app": "npx prisma migrate dev --name delete_old_user --schema=./apps/app/prisma/schema.prisma",
     "tool:app": "npx prisma generate --schema=./apps/app/prisma/schema.prisma"
   },
   "dependencies": {
