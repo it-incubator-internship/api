@@ -39,13 +39,3 @@ export class ObjResult< T > {
     return this._isSuccess;
   }
 }
-
-// export class ErrorResulter {
-//   static proccesError<T>(error: CustomError): void {
-//     console.log(error instanceof BadRequestError);
-//     switch (true) {
-//       case error instanceof BadRequestError:
-//         throw error;
-//     }
-//   }
-// }
