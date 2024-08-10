@@ -39,3 +39,50 @@ model Post {
 
   @@map("post")
 }
+
+model Profile {
+  id          String      @id @default(uuid()) @db.Uuid
+  name        String
+  email       String      @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime    @default(null)
+  accountData AccountData
+  sessions    Session[]?
+
+  @@map("profile")
+}
+
+model AccountData {
+  profileId          String             @unique @db.Uuid
+  passwordHash       String
+  confirmationStatus ConfirmationStatus @default(NOT_CONFIRM)
+  confirmationCode   String
+  recoveryCode?      String             @default(null)
+  banStatus          BanStatus          @default(NOT_BANNED)
+  banDate?           DateTime           @default(null)
+  profile            Profile            @relation(fields: [profileId], references: [id])
+
+  @@map("accountData")
+}
+
+model Session {
+  id             String   @id @default(uuid()) @db.Uuid
+  profileId      String
+  deviceName     String
+  ip             String
+  lastActiveDate DateTime
+  profile        Profile  @relation(fields: [profileId], references: [id])
+
+  @@map("session")
+}
+
+enum ConfirmationStatus {
+  CONFIRM
+  NOT_CONFIRM
+}
+
+enum BanStatus {
+  BANNED
+  NOT_BANNED
+}
