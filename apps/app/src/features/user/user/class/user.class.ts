@@ -1,4 +1,5 @@
 import { AccountData, Profile, Session } from 'apps/app/prisma/client';
+import bcrypt from 'bcrypt';
 
 // export class ProfileWrapper extends Profile {   // попытка согласно chatGPT
 //   constructor(profile: Profile) {
@@ -16,15 +17,30 @@ export class UserProfile implements ProfileInterface {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
-
+  accountData: {
+    passwordHash: string;
+    confirmationCode: string;
+  };
   //возможно делать айди
-  static create({ name, email }: { name: string; email: string }): Omit<UserProfile, 'id'> {
+  static create({
+    name,
+    email,
+    password,
+    confirmationCode,
+  }: {
+    name: string;
+    email: string;
+    password: string;
+    confirmationCode: string;
+  }): Omit<UserProfile, 'id'> {
     const userProfileDto = {
       email,
       name,
-      createdAt: new Date(),
-      updatedAt: new Date(),
       deletedAt: null,
+      accountData: {
+        passwordHash: bcrypt.hashSync(password, 10),
+        confirmationCode,
+      },
     };
     return Object.assign(new this(), userProfileDto);
   }

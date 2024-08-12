@@ -1,14 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../common/db/service/prisma-connection.service';
+import { PrismaService } from 'apps/app/src/common/db/service/prisma-connection.service';
+import { UserProfile } from '../class/user.class';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async save(UserProfile) {
-    return this.prismaService.user.create({
-      data: UserProfile,
-    });
+  async createProfile(userProfile: Omit<UserProfile, 'id'>) {
+    try {
+      return this.prismaService.profile.create({
+        data: userProfile,
+        accountData: {
+          create: [
+            {
+              passwordHash: userProfile.passwordHash,
+              confirmationCode: '123123123',
+              recoveryCode: null,
+              banDate: null,
+            },
+          ],
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async createUser({ data }: any) {
