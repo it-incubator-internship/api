@@ -5,6 +5,12 @@ import { PrismaService } from '../../../../common/db/service/prisma-connection.s
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
+  async save(UserProfile) {
+    return this.prismaService.user.create({
+      data: UserProfile,
+    });
+  }
+
   async createUser({ data }: any) {
     return this.prismaService.user.create({
       data: {

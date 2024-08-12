@@ -17,10 +17,7 @@ export class UserProfile implements ProfileInterface {
   updatedAt: Date;
   deletedAt: Date | null;
 
-  constructor(private readonly profile: Profile) {
-    Object.assign(this, profile);
-  }
-
+  //возможно делать айди
   static create({ name, email }: { name: string; email: string }): Omit<UserProfile, 'id'> {
     const userProfileDto = {
       email,
@@ -29,13 +26,12 @@ export class UserProfile implements ProfileInterface {
       updatedAt: new Date(),
       deletedAt: null,
     };
-    return userProfileDto as unknown as UserProfile;
+    return Object.assign(new this(), userProfileDto);
   }
 
   // метод для преобразования в "умную" модель
-  static convert(profile: Profile) {
-    const userProfile = new this(profile);
-    return userProfile;
+  static convert(profile: Profile): UserProfile {
+    return Object.assign(new this(), profile);
   }
 
   deleteUserProfile() {
@@ -48,7 +44,8 @@ export class UserProfile implements ProfileInterface {
   }
 
   updateUserProfile(name: string, email: string) {
-    (this.name = name), (this.email = email);
+    this.name = name;
+    this.email = email;
   }
 }
 
