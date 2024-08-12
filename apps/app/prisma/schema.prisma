@@ -16,26 +16,51 @@ datasource db {
 }
 
 
+model AccountData {
+  profileId          String    @id @db.Uuid // Изменено на UUID, чтобы соответствовать типу id в Profile
+  passwordHash       String
+  confirmationStatus ConfirmationStatus @default(NOT_CONFIRM)
+  confirmationCode   String
+  recoveryCode       String?
+  banStatus          BanStatus   @default(NOT_BANNED)
+  banDate            DateTime?
+  profile            Profile?
 
-model User {
-  id    String @id @default(uuid()) @db.Uuid
-  email String @unique
-  name  String?
-  posts Post[]
-
-  @@map("user")
+  @@map("accountData")
 }
 
-model Post {
-  id        String   @id @default(uuid()) @db.Uuid
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  viewCount Int      @default(0)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  String?  @db.Uuid
 
-  @@map("post")
+model Profile {
+  id          String      @id @default(uuid()) @db.Uuid
+  name        String
+  email       String      @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  deletedAt   DateTime?
+  accountData AccountData @relation(fields: [id], references: [profileId])
+
+  sessions    Session[]
+
+  @@map("profile")
+}
+
+model Session {
+  id             String   @id @default(uuid()) @db.Uuid
+  profileId      String   @db.Uuid
+  deviceName     String
+  ip             String
+  lastActiveDate DateTime
+  profile        Profile  @relation(fields: [profileId], references: [id])
+
+  @@map("session")
+}
+
+enum ConfirmationStatus {
+  CONFIRM
+  NOT_CONFIRM
+}
+
+enum BanStatus {
+  BANNED
+  NOT_BANNED
 }

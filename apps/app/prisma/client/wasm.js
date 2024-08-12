@@ -17,11 +17,11 @@ exports.$Enums = {}
 
 /**
  * Prisma Client JS version: 5.17.0
- * Query Engine version: 393aa359c9ad4a4bb28630fb5613f9c281cde053
+ * Query Engine version: 4c784e32044a8a016d99474bd02a3b6123742169
  */
 Prisma.prismaVersion = {
   client: "5.17.0",
-  engine: "393aa359c9ad4a4bb28630fb5613f9c281cde053"
+  engine: "4c784e32044a8a016d99474bd02a3b6123742169"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -119,21 +119,31 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.UserScalarFieldEnum = {
-  id: 'id',
-  email: 'email',
-  name: 'name'
+exports.Prisma.AccountDataScalarFieldEnum = {
+  profileId: 'profileId',
+  passwordHash: 'passwordHash',
+  confirmationStatus: 'confirmationStatus',
+  confirmationCode: 'confirmationCode',
+  recoveryCode: 'recoveryCode',
+  banStatus: 'banStatus',
+  banDate: 'banDate'
 };
 
-exports.Prisma.PostScalarFieldEnum = {
+exports.Prisma.ProfileScalarFieldEnum = {
   id: 'id',
+  name: 'name',
+  email: 'email',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  title: 'title',
-  content: 'content',
-  published: 'published',
-  viewCount: 'viewCount',
-  authorId: 'authorId'
+  deletedAt: 'deletedAt'
+};
+
+exports.Prisma.SessionScalarFieldEnum = {
+  id: 'id',
+  profileId: 'profileId',
+  deviceName: 'deviceName',
+  ip: 'ip',
+  lastActiveDate: 'lastActiveDate'
 };
 
 exports.Prisma.SortOrder = {
@@ -150,11 +160,20 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.ConfirmationStatus = exports.$Enums.ConfirmationStatus = {
+  CONFIRM: 'CONFIRM',
+  NOT_CONFIRM: 'NOT_CONFIRM'
+};
 
+exports.BanStatus = exports.$Enums.BanStatus = {
+  BANNED: 'BANNED',
+  NOT_BANNED: 'NOT_BANNED'
+};
 
 exports.Prisma.ModelName = {
-  User: 'User',
-  Post: 'Post'
+  AccountData: 'AccountData',
+  Profile: 'Profile',
+  Session: 'Session'
 };
 
 /**
