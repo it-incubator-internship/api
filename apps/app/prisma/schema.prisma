@@ -39,7 +39,7 @@ model Post {
 }
 
 model AccountData {
-  profileId          String             @id @db.Uuid // Изменено на UUID, чтобы соответствовать типу id в Profile
+  profileId          String             @id @unique @db.Uuid
   passwordHash       String
   confirmationStatus ConfirmationStatus @default(NOT_CONFIRM)
   confirmationCode   String

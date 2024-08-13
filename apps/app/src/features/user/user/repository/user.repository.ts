@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'apps/app/src/common/db/service/prisma-connection.service';
+
 import { UserProfile } from '../class/user.class';
+import { PrismaService } from '../../../../common/db/service/prisma-connection.service';
+
 // import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -14,17 +16,14 @@ export class UserRepository {
         data: {
           name: userProfile.name,
           email: userProfile.email,
-        },
-        accountData: {
-          create: [
-            {
+          accountData: {
+            create: {
               passwordHash: userProfile.accountData.passwordHash,
               confirmationCode: userProfile.accountData.confirmationCode,
               recoveryCode: null,
               banDate: null,
             },
-            // userProfile.accountData
-          ],
+          },
         },
       });
     } catch (e) {

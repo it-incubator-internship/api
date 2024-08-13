@@ -6473,7 +6473,7 @@ export namespace Prisma {
     banStatus?: EnumBanStatusFilter<"AccountData"> | $Enums.BanStatus
     banDate?: DateTimeNullableFilter<"AccountData"> | Date | string | null
     profile?: XOR<ProfileRelationFilter, ProfileWhereInput>
-  }, "profileId">
+  }, "profileId" | "profileId">
 
   export type AccountDataOrderByWithAggregationInput = {
     profileId?: SortOrder

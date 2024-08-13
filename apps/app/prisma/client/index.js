@@ -174,7 +174,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\alexe\\OneDrive\\Pulpit\\it\\incubator\\internship\\apps\\app\\prisma\\client",
+      "value": "E:\\Projects\\staging\\api\\apps\\app\\prisma\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -196,7 +196,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\alexe\\OneDrive\\Pulpit\\it\\incubator\\internship\\apps\\app\\prisma\\schema.prisma",
+    "sourceFilePath": "E:\\Projects\\staging\\api\\apps\\app\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -219,8 +219,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../prisma/client\"\n  binaryTargets = [\"native\", \"debian-openssl-1.1.x\", \"linux-musl-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_APP_URL\")\n}\n\nmodel User {\n  id    String  @id @default(uuid()) @db.Uuid\n  email String  @unique\n  name  String?\n  posts Post[]\n\n  @@map(\"user\")\n}\n\nmodel Post {\n  id        String   @id @default(uuid()) @db.Uuid\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  title     String\n  content   String?\n  published Boolean  @default(false)\n  viewCount Int      @default(0)\n  author    User?    @relation(fields: [authorId], references: [id])\n  authorId  String?  @db.Uuid\n\n  @@map(\"post\")\n}\n\nmodel AccountData {\n  profileId          String             @id @db.Uuid // Изменено на UUID, чтобы соответствовать типу id в Profile\n  passwordHash       String\n  confirmationStatus ConfirmationStatus @default(NOT_CONFIRM)\n  confirmationCode   String\n  recoveryCode       String?\n  banStatus          BanStatus          @default(NOT_BANNED)\n  banDate            DateTime?\n  profile            Profile            @relation(fields: [profileId], references: [id])\n\n  @@map(\"accountData\")\n}\n\nmodel Profile {\n  id          String       @id @default(uuid()) @db.Uuid\n  name        String\n  email       String       @unique\n  createdAt   DateTime     @default(now())\n  updatedAt   DateTime     @updatedAt\n  deletedAt   DateTime?\n  accountData AccountData?\n\n  sessions Session[]\n\n  @@map(\"profile\")\n}\n\nmodel Session {\n  id             String   @id @default(uuid()) @db.Uuid\n  profileId      String   @db.Uuid\n  deviceName     String\n  ip             String\n  lastActiveDate DateTime\n  profile        Profile  @relation(fields: [profileId], references: [id])\n\n  @@map(\"session\")\n}\n\nenum ConfirmationStatus {\n  CONFIRM\n  NOT_CONFIRM\n}\n\nenum BanStatus {\n  BANNED\n  NOT_BANNED\n}\n",
-  "inlineSchemaHash": "9e10cd8a2ccbe333e210330169ec26896dbf5e11acdaa200dfff0fbdc739b89d",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client-js\"\n  output        = \"../prisma/client\"\n  binaryTargets = [\"native\", \"debian-openssl-1.1.x\", \"linux-musl-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_APP_URL\")\n}\n\nmodel User {\n  id    String  @id @default(uuid()) @db.Uuid\n  email String  @unique\n  name  String?\n  posts Post[]\n\n  @@map(\"user\")\n}\n\nmodel Post {\n  id        String   @id @default(uuid()) @db.Uuid\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n  title     String\n  content   String?\n  published Boolean  @default(false)\n  viewCount Int      @default(0)\n  author    User?    @relation(fields: [authorId], references: [id])\n  authorId  String?  @db.Uuid\n\n  @@map(\"post\")\n}\n\nmodel AccountData {\n  profileId          String             @id @unique @db.Uuid\n  passwordHash       String\n  confirmationStatus ConfirmationStatus @default(NOT_CONFIRM)\n  confirmationCode   String\n  recoveryCode       String?\n  banStatus          BanStatus          @default(NOT_BANNED)\n  banDate            DateTime?\n  profile            Profile            @relation(fields: [profileId], references: [id])\n\n  @@map(\"accountData\")\n}\n\nmodel Profile {\n  id          String       @id @default(uuid()) @db.Uuid\n  name        String\n  email       String       @unique\n  createdAt   DateTime     @default(now())\n  updatedAt   DateTime     @updatedAt\n  deletedAt   DateTime?\n  accountData AccountData?\n\n  sessions Session[]\n\n  @@map(\"profile\")\n}\n\nmodel Session {\n  id             String   @id @default(uuid()) @db.Uuid\n  profileId      String   @db.Uuid\n  deviceName     String\n  ip             String\n  lastActiveDate DateTime\n  profile        Profile  @relation(fields: [profileId], references: [id])\n\n  @@map(\"session\")\n}\n\nenum ConfirmationStatus {\n  CONFIRM\n  NOT_CONFIRM\n}\n\nenum BanStatus {\n  BANNED\n  NOT_BANNED\n}\n",
+  "inlineSchemaHash": "70b4ab35491fa9092ed70953d16d7416a90aa77f8ab39bd5df2218a51e2e26e3",
   "copyEngine": true
 }
 

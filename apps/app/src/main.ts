@@ -1,8 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { CustomExceptionFilter, ErrorExceptionFilter } from '../../common/utils/result/exceprion-filter';
-import { Prisma } from '../prisma/client';
-import getLogLevel = Prisma.getLogLevel;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
