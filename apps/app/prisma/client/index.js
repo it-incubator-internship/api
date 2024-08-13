@@ -174,7 +174,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "E:\\Projects\\staging\\api\\apps\\app\\prisma\\client",
+      "value": "C:\\Users\\alexe\\OneDrive\\Pulpit\\it\\incubator\\internship\\apps\\app\\prisma\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -196,7 +196,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "E:\\Projects\\staging\\api\\apps\\app\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\Users\\alexe\\OneDrive\\Pulpit\\it\\incubator\\internship\\apps\\app\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
