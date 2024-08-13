@@ -5,9 +5,9 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../prisma/client"
-  binaryTargets   = ["native", "debian-openssl-1.1.x","linux-musl-openssl-3.0.x"]
+  provider      = "prisma-client-js"
+  output        = "../prisma/client"
+  binaryTargets = ["native", "debian-openssl-1.1.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -15,31 +15,29 @@ datasource db {
   url      = env("DATABASE_APP_URL")
 }
 
-
 model AccountData {
-  profileId          String    @id @db.Uuid // Изменено на UUID, чтобы соответствовать типу id в Profile
-  passwordHash       String
+  profileId          String             @id @unique @db.Uuid
   confirmationStatus ConfirmationStatus @default(NOT_CONFIRM)
   confirmationCode   String
   recoveryCode       String?
-  banStatus          BanStatus   @default(NOT_BANNED)
-  banDate            DateTime?
-  profile            Profile?
+  user               User               @relation(fields: [profileId], references: [id])
 
   @@map("accountData")
 }
 
+model User {
+  id           String       @id @default(uuid()) @db.Uuid
+  name         String
+  email        String       @unique
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  deletedAt    DateTime?
+  passwordHash String
+  banStatus    BanStatus    @default(NOT_BANNED)
+  banDate      DateTime?
+  accountData  AccountData?
 
-model Profile {
-  id          String      @id @default(uuid()) @db.Uuid
-  name        String
-  email       String      @unique
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  deletedAt   DateTime?
-  accountData AccountData @relation(fields: [id], references: [profileId])
-
-  sessions    Session[]
+  sessions Session[]
 
   @@map("profile")
 }
@@ -50,7 +48,7 @@ model Session {
   deviceName     String
   ip             String
   lastActiveDate DateTime
-  profile        Profile  @relation(fields: [profileId], references: [id])
+  user           User     @relation(fields: [profileId], references: [id])
 
   @@map("session")
 }

@@ -6,8 +6,8 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async createUser(@Body() postData: { email: string; name: string }) {
-    console.log(postData);
+  async createUser(@Body() postData: { email: string; name: string; password: string }) {
+    console.log('postData in user controller:', postData);
     const result = await this.userService.createUser({ data: postData });
 
     if (!result.isSuccess) throw result.error;

@@ -1,17 +1,30 @@
 import { Injectable } from '@nestjs/common';
+
 import { PrismaService } from '../../../../common/db/service/prisma-connection.service';
+import { UserEntity } from '../class/user.fabric';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createUser({ data }: any) {
-    return this.prismaService.user.create({
-      data: {
-        email: data.email,
-        name: data.name,
-      },
-    });
+  async createProfile(userProfile: Omit<UserEntity, 'id'>) {
+    console.log('userProfile in user repository:', userProfile);
+    try {
+      return this.prismaService.user.create({
+        data: {
+          name: userProfile.name,
+          email: userProfile.email,
+          passwordHash: userProfile.passwordHash,
+          accountData: {
+            create: {
+              confirmationCode: userProfile.accountData!.confirmationCode,
+            },
+          },
+        },
+      });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async updateUser({ data }: any) {
@@ -32,22 +45,6 @@ export class UserRepository {
       },
     });
   }
-
-  //   async findUserByConfirmationCode(code: string) {
-  //     return this.prismaService.user.findUnique({
-  //       where: {
-  //         code: code,
-  //       },
-  //     });
-  //   }
-
-  //   async findUserByRecoveryCode(code: string) {
-  //     return this.prismaService.user.findUnique({
-  //       where: {
-  //         code: code,
-  //       },
-  //     });
-  //   }
 
   async findUserByEmail(email: string) {
     return this.prismaService.user.findUnique({
