@@ -18,10 +18,7 @@ export class UserRepository {
           email: userProfile.email,
           accountData: {
             create: {
-              passwordHash: userProfile.accountData.passwordHash,
-              confirmationCode: userProfile.accountData.confirmationCode,
-              recoveryCode: null,
-              banDate: null,
+              ...userProfile.accountData,
             },
           },
         },
