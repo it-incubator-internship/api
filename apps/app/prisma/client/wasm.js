@@ -119,40 +119,23 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.UserScalarFieldEnum = {
-  id: 'id',
-  email: 'email',
-  name: 'name'
-};
-
-exports.Prisma.PostScalarFieldEnum = {
-  id: 'id',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  title: 'title',
-  content: 'content',
-  published: 'published',
-  viewCount: 'viewCount',
-  authorId: 'authorId'
-};
-
 exports.Prisma.AccountDataScalarFieldEnum = {
   profileId: 'profileId',
-  passwordHash: 'passwordHash',
   confirmationStatus: 'confirmationStatus',
   confirmationCode: 'confirmationCode',
-  recoveryCode: 'recoveryCode',
-  banStatus: 'banStatus',
-  banDate: 'banDate'
+  recoveryCode: 'recoveryCode'
 };
 
-exports.Prisma.ProfileScalarFieldEnum = {
+exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt'
+  deletedAt: 'deletedAt',
+  passwordHash: 'passwordHash',
+  banStatus: 'banStatus',
+  banDate: 'banDate'
 };
 
 exports.Prisma.SessionScalarFieldEnum = {
@@ -188,10 +171,8 @@ exports.BanStatus = exports.$Enums.BanStatus = {
 };
 
 exports.Prisma.ModelName = {
-  User: 'User',
-  Post: 'Post',
   AccountData: 'AccountData',
-  Profile: 'Profile',
+  User: 'User',
   Session: 'Session'
 };
 

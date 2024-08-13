@@ -1,24 +1,23 @@
 import { Injectable } from '@nestjs/common';
 
-import { UserProfile } from '../class/user.class';
 import { PrismaService } from '../../../../common/db/service/prisma-connection.service';
-
-// import { randomUUID } from 'crypto';
+import { UserEntity } from '../class/user.fabric';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createProfile(userProfile: Omit<UserProfile, 'id'>) {
+  async createProfile(userProfile: Omit<UserEntity, 'id'>) {
     console.log('userProfile in user repository:', userProfile);
     try {
-      return this.prismaService.profile.create({
+      return this.prismaService.user.create({
         data: {
           name: userProfile.name,
           email: userProfile.email,
+          passwordHash: userProfile.passwordHash,
           accountData: {
             create: {
-              ...userProfile.accountData,
+              confirmationCode: userProfile.accountData!.confirmationCode,
             },
           },
         },
@@ -26,15 +25,6 @@ export class UserRepository {
     } catch (e) {
       console.log(e);
     }
-  }
-
-  async createUser({ data }: any) {
-    return this.prismaService.user.create({
-      data: {
-        email: data.email,
-        name: data.name,
-      },
-    });
   }
 
   async updateUser({ data }: any) {
@@ -55,22 +45,6 @@ export class UserRepository {
       },
     });
   }
-
-  //   async findUserByConfirmationCode(code: string) {
-  //     return this.prismaService.user.findUnique({
-  //       where: {
-  //         code: code,
-  //       },
-  //     });
-  //   }
-
-  //   async findUserByRecoveryCode(code: string) {
-  //     return this.prismaService.user.findUnique({
-  //       where: {
-  //         code: code,
-  //       },
-  //     });
-  //   }
 
   async findUserByEmail(email: string) {
     return this.prismaService.user.findUnique({

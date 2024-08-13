@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from '../repository/user.repository';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
-import { UserProfile } from '../class/user.class';
 import { randomUUID } from 'crypto';
+import { UserEntity } from '../class/user.fabric';
 
 @Injectable()
 export class UserService {
@@ -15,7 +15,7 @@ export class UserService {
     console.log('data in user service:', data);
 
     // const result = await this.userRepository.createUser(data);
-    // const newProfile = UserProfile.create({
+    // const newProfile = UserEntity.create({
     //   name: 'Lolik',
     //   email: 'data.data.email',
     //   password: '1234',
@@ -25,11 +25,11 @@ export class UserService {
     const confirmationCode = randomUUID();
     console.log('confirmationCode in user service:', confirmationCode);
 
-    const dataForCreating = UserProfile.create({
-      name: data.data.name,
-      email: data.data.email,
-      password: data.data.password,
-      confirmationCode,
+    const dataForCreating = UserEntity.create({
+      name: data.data.name as string,
+      email: data.data.email as string,
+      password: data.data.password as string,
+      accountData: { confirmationCode },
     });
 
     console.log('dataForCreating in user service:', dataForCreating);
