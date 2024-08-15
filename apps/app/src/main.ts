@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { appSettings } from './common/settings/apply-app-setting';
 import { ConfigurationType } from './common/settings/configuration';
 import { ConfigService } from '@nestjs/config';
-// import { CustomExceptionFilter, ErrorExceptionFilter } from 'apps/common/utils/result/exceprion-filter';
+import { CustomExceptionFilter, ErrorExceptionFilter } from 'apps/common/utils/result/exceprion-filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
