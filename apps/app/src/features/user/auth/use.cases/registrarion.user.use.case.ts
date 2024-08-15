@@ -24,15 +24,23 @@ export class RegistrationUserUseCase implements ICommandHandler<RegistrationUser
 
     const userByEmail = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
 
-    if (userByEmail) return ObjResult.Err(new BadRequestError('User with this email is already registered', 'test'));
+    if (userByEmail)
+      return ObjResult.Err(
+        new BadRequestError('User with this email is already registered', [{ message: '', field: '' }]),
+      );
 
     const userByUserName = await this.userRepository.findUserByUserName({ userName: command.inputModel.userName });
 
-    if (userByUserName) return ObjResult.Err(new BadRequestError('User with this username is already registered', 'test'));
+    if (userByUserName)
+      return ObjResult.Err(
+        new BadRequestError('User with this username is already registered', [{ message: '', field: '' }]),
+      );
 
-    if (command.inputModel.password !== command.inputModel.passwordConfirmation) return ObjResult.Err(new BadRequestError('Passwords must match', 'test'));
+    if (command.inputModel.password !== command.inputModel.passwordConfirmation)
+      return ObjResult.Err(new BadRequestError('Passwords must match', [{ message: '', field: '' }]));
 
-    if (!command.inputModel.isAgreement) return ObjResult.Err(new BadRequestError('I am teapot', 'test'));
+    if (!command.inputModel.isAgreement)
+      return ObjResult.Err(new BadRequestError('I am teapot', [{ message: '', field: '' }]));
 
     // return ObjResult.Err(new BadRequestError('test is required', 'test'))
 
