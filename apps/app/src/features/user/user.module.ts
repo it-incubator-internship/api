@@ -12,6 +12,8 @@ import { LogoutUserUseCase } from './auth/use.cases/logout.user.use.case';
 import { PasswordRecoveryUseCase } from './auth/use.cases/password-recovery.user.use.case';
 import { SetNewPasswordUseCase } from './auth/use.cases/set-new-password.user.use.case';
 import { CqrsModule } from '@nestjs/cqrs';
+import { JwtModule } from '@nestjs/jwt';
+import { EmailAdapter } from './auth/email.adapter/email.adapter';
 
 const userCommands = [];
 const userRepositories = [UserRepository];
@@ -27,8 +29,8 @@ const useCases = [
 ];
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, JwtModule.register({})],
   controllers: [UserController, AuthController],
-  providers: [...userRepositories, ...userService, ...useCases, PrismaService],
+  providers: [...userRepositories, ...userService, ...useCases, PrismaService, EmailAdapter],
 })
 export class UserModule {}

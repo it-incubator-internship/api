@@ -1,6 +1,6 @@
 import { IsString, Length, Matches } from 'class-validator';
 import { EmailInputModel } from './email.user.dto';
-import { Trim } from 'apps/common/decorators/trim.decorator';
+import { Trim } from '../../../../../../../common/decorators/trim.decorator';
 
 export class LoginUserInputModel extends EmailInputModel {
   @IsString()

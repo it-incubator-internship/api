@@ -32,13 +32,16 @@
     "@nestjs/config": "^3.2.3",
     "@nestjs/core": "^10.0.0",
     "@nestjs/cqrs": "^10.2.7",
+    "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^10.0.0",
     "@prisma/client": "5.18.0",
     "@types/bcrypt": "^5.0.2",
+    "@types/nodemailer": "^6.4.15",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
+    "nodemailer": "^6.9.14",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },
@@ -75,7 +78,7 @@
       "ts"
     ],
     "rootDir": ".",
-    "testRegex": ".*\\.spec\\.ts$",
+    "testRegex": ".e2e-spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },

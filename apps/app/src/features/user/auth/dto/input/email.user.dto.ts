@@ -1,4 +1,4 @@
-import { Trim } from 'apps/common/decorators/trim.decorator';
+import { Trim } from '../../../../../../../common/decorators/trim.decorator';
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 // применяется при запросе confirmationCode и recoveryCode

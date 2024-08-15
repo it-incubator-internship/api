@@ -19,7 +19,14 @@ export class AuthController {
 
   @Post('registration')
   async registration(@Body() inputModel: RegistrationUserInputModel) {
+    console.log('inputModel in auth controller:', inputModel);
     const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
+    console.log('result in auth controller:', result);
+    console.log('result.isSuccess in auth controller:', result.isSuccess);
+    console.log('result._isSuccess in auth controller:', result._isSuccess);
+
+    if (!result._isSuccess) throw result._error;
+    return inputModel.email;
   }
 
   @Post('registration-email-resending')

@@ -39,7 +39,7 @@ model User {
 
   sessions Session[]
 
-  @@map("profile")
+  @@map("user")
 }
 
 model Session {

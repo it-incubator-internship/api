@@ -1,4 +1,4 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { CustomExceptionFilter, ErrorExceptionFilter } from '../../../../common/utils/result/exceprion-filter';
 
@@ -12,11 +12,22 @@ export const appSettings = (app: INestApplication) => {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      stopAtFirstError: true,
+      exceptionFactory: (errors) => {
+        const result = errors.map((e) => ({
+          message: Object.values(e.constraints!)[0],
+          field: e.property,
+        }));
+        throw new BadRequestException(result);
+      },
     }),
   );
 
   /**
    * exception filters, заполнять снизу вверх
    */
+
   app.useGlobalFilters(new ErrorExceptionFilter(), new CustomExceptionFilter());
+
+  app.enableCors();
 };

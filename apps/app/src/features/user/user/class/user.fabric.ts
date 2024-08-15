@@ -1,6 +1,6 @@
 import { User } from '../../../../../prisma/client';
-import bcrypt from 'bcrypt';
-import { randomUUID } from 'crypto';
+// import bcrypt from 'bcrypt';
+// import { randomUUID } from 'crypto';
 import { UserAccountData } from './accoun-data.fabric';
 
 enum UserBanStatusEnum {
@@ -23,34 +23,43 @@ export class UserEntity implements User {
   static create({
     name,
     email,
-    password,
+    /* password, */ passwordHash,
     accountData = null,
   }: {
     name: string;
     email: string;
-    password: string;
+    /* password */ passwordHash: string;
     accountData?: {
       confirmationCode: string;
     } | null;
   }): Omit<UserEntity, 'id'> {
+    console.log('name in user fabric:', name);
+    console.log('email in user fabric:', email);
+    console.log('passwordHash in user fabric:', passwordHash);
+    console.log('accountData in user fabric:', accountData);
+
     const userProfileDto: {
       name: string;
       email: string;
-      deletedAt: Date | null;
+      // deletedAt: Date | null;
       passwordHash: string;
-      confirmationCode: string;
+      // confirmationCode: string;
       accountData?: object;
     } = {
       email,
       name,
-      deletedAt: null,
-      passwordHash: bcrypt.hashSync(password, 10),
-      confirmationCode: randomUUID(),
+      // deletedAt: null,
+      passwordHash /*bcrypt.hashSync(password, 10)*/,
+      // confirmationCode: accountData?.confirmationCode /*: randomUUID()*/,
     };
+
+    console.log('userProfileDto in user fabric:', userProfileDto);
 
     if (accountData) {
       userProfileDto.accountData = UserAccountData.create({ confirmationCode: accountData.confirmationCode });
     }
+
+    console.log('userProfileDto in user fabric:', userProfileDto);
 
     return Object.assign(new this(), userProfileDto);
   }

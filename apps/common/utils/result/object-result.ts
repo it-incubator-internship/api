@@ -16,10 +16,17 @@ export class ObjResult< T > {
   }
 
   public static Err<U>(err: CustomError | string): ObjResult<U> {
+
+    console.log('err in object result:', err)
+
     let error: CustomError = err as CustomError;
 
+    console.log('error in object result:', error)
+
     if (typeof err === 'string') {
+      console.log("typeof err === 'string'")
       error = new CustomError(err as string);
+      console.log('error in object result:', error)
     }
 
     return new ObjResult<U>(false, null as U, error);
