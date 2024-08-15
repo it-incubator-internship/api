@@ -25,20 +25,26 @@
     "start:payments": "node dist/apps/payments/main",
     "start:app": "node dist/apps/app/main",
     "migrate:app": "npx prisma migrate dev --name test_1 --schema=./apps/app/prisma/schema.prisma",
-    "tool:app": "npx prisma generate --schema=./apps/app/prisma/schema.prisma"
+    "migrate:app-testing": "dotenv -e .test.env -- npx prisma migrate dev --name test_1 --schema=./apps/app/prisma/schema.prisma",
+    "generate:app": "npx prisma generate --schema=./apps/app/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^3.2.3",
     "@nestjs/core": "^10.0.0",
     "@nestjs/cqrs": "^10.2.7",
+    "@nestjs/jwt": "^10.2.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/swagger": "^7.4.0",
     "@prisma/client": "5.18.0",
     "@types/bcrypt": "^5.0.2",
+    "@types/nodemailer": "^6.4.15",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
+    "dotenv-cli": "^7.4.2",
+    "nodemailer": "^6.9.14",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },
@@ -76,7 +82,7 @@
       "ts"
     ],
     "rootDir": ".",
-    "testRegex": ".*\\.spec\\.ts$",
+    "testRegex": ".e2e-spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },

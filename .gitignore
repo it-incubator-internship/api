@@ -2,6 +2,7 @@
 /dist
 /node_modules
 /build
+/apps/app/prisma
 
 # Logs
 logs

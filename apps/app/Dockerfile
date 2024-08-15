@@ -28,7 +28,11 @@ RUN pnpm install
 # Bundle app source code
 COPY --chown=node . .
 
+
+
 RUN pnpm run build:${SERVICE}
+
+RUN pnpm run generate:${SERVICE}
 
 # Bind to all network interfaces so that it can be mapped to the host OS
 

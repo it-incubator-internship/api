@@ -24,9 +24,9 @@ export class CustomError extends Error {
 }
 
 export class BadRequestError extends CustomError {
-  private readonly _fields: string;
+  private readonly _fields: { message: string; field: string }[];
 
-  constructor(mes: string, fields: string) {
+  constructor(mes: string, fields: { message: string; field: string }[]) {
     super(mes, ErrorStatus.BAD_REQUEST);
     this._fields = fields;
   }
@@ -36,12 +36,7 @@ export class BadRequestError extends CustomError {
   }
 
   private getViewError() {
-    return [
-      {
-        message: this._message,
-        fields: this._fields,
-      },
-    ];
+    return [...this._fields];
   }
 }
 

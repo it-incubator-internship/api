@@ -15,6 +15,7 @@ export class UserAccountData implements AccountData {
     const userAccountData = {
       confirmationCode,
     };
+    console.log('userAccountData in account data fabric:', userAccountData);
     return Object.assign(new this(), userAccountData);
   }
 

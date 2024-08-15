@@ -12,14 +12,26 @@ import { LogoutUserCommand } from '../use.cases/logout.user.use.case';
 import { PasswordRecoveryCommand } from '../use.cases/password-recovery.user.use.case';
 import { SetNewPasswordCommand } from '../use.cases/set-new-password.user.use.case';
 import { CommandBus } from '@nestjs/cqrs';
+import { ApiTags } from '@nestjs/swagger';
+import { UserRegistrationOutputDto } from '../dto/output/registratio.output.dto';
+import { UserRegitsrationSwagger } from '../decorators/swagger/user-registration/user-regitsration.swagger.decorator';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private commandBus: CommandBus) {}
 
   @Post('registration')
-  async registration(@Body() inputModel: RegistrationUserInputModel) {
+  @UserRegitsrationSwagger()
+  async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
+    console.log('inputModel in auth controller:', inputModel);
     const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
+    console.log('result in auth controller:', result);
+    console.log('result.isSuccess in auth controller:', result.isSuccess);
+    console.log('result._isSuccess in auth controller:', result._isSuccess);
+
+    if (!result._isSuccess) throw result._error;
+    return { email: inputModel.email };
   }
 
   @Post('registration-email-resending')
