@@ -1,4 +1,4 @@
-import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { CustomExceptionFilter, ErrorExceptionFilter } from '../../../../common/utils/result/exceprion-filter';
 import { BadRequestError } from '../../../../common/utils/result/custom-error';
