@@ -1,4 +1,4 @@
-import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { CustomExceptionFilter, ErrorExceptionFilter } from '../../../../common/utils/result/exceprion-filter';
 
@@ -29,5 +29,10 @@ export const appSettings = (app: INestApplication) => {
 
   app.useGlobalFilters(new ErrorExceptionFilter(), new CustomExceptionFilter());
 
-  app.enableCors();
+  const configService = app.get(ConfigService<ConfigurationType, true>);
+  const apiPrefix = configService.get('apiSettings.API_PREFIX', { infer: true });
+  const port = configService.get('apiSettings.PORT', { infer: true });
+
+  console.log(port);
+  console.log('prefix', apiPrefix);
 };
