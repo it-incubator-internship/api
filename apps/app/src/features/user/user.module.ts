@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserController } from './user/controller/user.controller';
 import { AuthController } from './auth/controller/auth.controller';
 import { UserService } from './user/service/user.service';
-import { PrismaService } from '../../common/db/service/prisma-connection.service';
+import { PrismaService } from '../../common/db/prisma-connection.service';
 import { UserRepository } from './user/repository/user.repository';
 import { RegistrationUserUseCase } from './auth/use.cases/registrarion.user.use.case';
 import { RegistrationEmailResendingUseCase } from './auth/use.cases/registration-email-resending.user.use.case';

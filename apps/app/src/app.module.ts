@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaService } from './common/db/service/prisma-connection.service';
 import { UserModule } from './features/user/user.module';
 import { configuration } from './common/settings/configuration';
 import { Environments } from './common/settings/env_validate/env-class-validator';
 import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-env-path';
+import { PrismaModule } from './common/db/prisma.module';
 
 @Module({
   imports: [
@@ -25,9 +25,10 @@ import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-
       load: [configuration],
     }),
     UserModule,
+    PrismaModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
-  exports: [PrismaService],
+  providers: [AppService],
+  exports: [],
 })
 export class AppModule {}
