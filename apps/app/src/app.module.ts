@@ -23,7 +23,6 @@ import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-
         return ignore;
       })(),
       load: [configuration],
-      expandVariables: true,
     }),
     UserModule,
   ],

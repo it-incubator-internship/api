@@ -12,7 +12,7 @@ export class UserService {
 
   async createUser(/* data: { data: any } */ data: any) {
     console.log('data in user service:', data);
-    if (!data /*.test*/) return ObjResult.Err(new BadRequestError('test is required', 'test'));
+    if (!data /*.test*/) return ObjResult.Err(new BadRequestError('test is required', [{ message: '', field: '' }]));
     console.log('data in user service:', data);
 
     // const result = await this.userRepository.createUser(data);

@@ -1,6 +1,9 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { CustomExceptionFilter, ErrorExceptionFilter } from '../../../../common/utils/result/exceprion-filter';
+import { BadRequestError } from '../../../../common/utils/result/custom-error';
+import { ConfigService } from '@nestjs/config';
+import { ConfigurationType } from './configuration';
 
 export const appSettings = (app: INestApplication) => {
   app.use(cookieParser());
@@ -18,7 +21,8 @@ export const appSettings = (app: INestApplication) => {
           message: Object.values(e.constraints!)[0],
           field: e.property,
         }));
-        throw new BadRequestException(result);
+
+        throw new BadRequestError('incorrect input dto', result);
       },
     }),
   );
@@ -31,8 +35,6 @@ export const appSettings = (app: INestApplication) => {
 
   const configService = app.get(ConfigService<ConfigurationType, true>);
   const apiPrefix = configService.get('apiSettings.API_PREFIX', { infer: true });
-  const port = configService.get('apiSettings.PORT', { infer: true });
 
-  console.log(port);
   console.log('prefix', apiPrefix);
 };
