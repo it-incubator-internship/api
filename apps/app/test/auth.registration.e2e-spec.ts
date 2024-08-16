@@ -1,10 +1,11 @@
 import request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { EmailAdapter } from '../features/user/auth/email.adapter/email.adapter';
-import { EmailAdapterMock } from '../features/user/auth/email.adapter/email.adapte.mock';
-import { AppModule } from '../app.module';
-import { appSettings } from '../common/settings/apply-app-setting';
+
+import { EmailAdapter } from '../src/features/user/auth/email.adapter/email.adapter';
+import { EmailAdapterMock } from '../src/features/user/auth/email.adapter/email.adapte.mock';
+import { AppModule } from '../src/app.module';
+import { appSettings } from '../src/common/settings/apply-app-setting';
 // import { appSettings } from '../app.setting';
 
 // jest.setTimeout(10000); // увеличение времени ожидания
