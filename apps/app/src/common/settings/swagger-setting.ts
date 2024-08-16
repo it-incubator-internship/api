@@ -7,7 +7,7 @@ export const swaggerSetting = (app: INestApplication) => {
     .setTitle('API Documentation')
     .setVersion('0.1')
     .addBearerAuth()
-    .addServer('/api-v1') // Устанавливаем базовый путь для всех маршрутов
+    .addServer('/api/v1') // Устанавливаем базовый путь для всех маршрутов
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

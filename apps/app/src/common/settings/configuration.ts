@@ -9,7 +9,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
   return {
     apiSettings: {
       PORT: Number.parseInt(environmentVariables.PORT || '6666'),
-      API_PREFIX: '/api-v1',
+      API_PREFIX: 'api/v1',
     },
 
     environmentSettings: {
