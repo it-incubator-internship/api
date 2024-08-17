@@ -9,7 +9,11 @@ export class RegistrationEmailResendingCommand {
 @CommandHandler(RegistrationEmailResendingCommand)
 export class RegistrationEmailResendingUseCase implements ICommandHandler<RegistrationEmailResendingCommand> {
   constructor(private readonly userRepository: UserRepository) {}
-  execute(command: RegistrationEmailResendingCommand): Promise<any> {
+  async execute(command: RegistrationEmailResendingCommand): Promise<any> {
+    console.log('command in registration email resending use case:', command);
+    const user = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
+    console.log('user in registration email resending use case:', user);
+    // if (!user) return ObjResult.Err(new BadRequestError('Passwords must match', [{ message: '', field: '' }]));
     throw new Error('Method not implemented.');
   }
 }

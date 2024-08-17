@@ -1,6 +1,6 @@
 import { AccountData } from '../../../../../prisma/client';
 
-enum UserConfirmationStatusEnum {
+export enum UserConfirmationStatusEnum {
   CONFIRM = 'CONFIRM',
   NOT_CONFIRM = 'NOT_CONFIRM',
 }
@@ -32,7 +32,7 @@ export class UserAccountData implements AccountData {
     this.confirmationCode = confirmationCode;
   }
 
-  updateRecoveryCode(recoveryCode: string) {
+  updateRecoveryCode({recoveryCode}: {recoveryCode: string}) {
     this.recoveryCode = recoveryCode;
   }
 }

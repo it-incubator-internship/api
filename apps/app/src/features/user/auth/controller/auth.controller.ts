@@ -1,4 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
+import { ApiTags } from '@nestjs/swagger';
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { LoginUserInputModel } from '../dto/input/login.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
@@ -11,8 +13,6 @@ import { LoginUserCommand } from '../use.cases/login.user.use.case';
 import { LogoutUserCommand } from '../use.cases/logout.user.use.case';
 import { PasswordRecoveryCommand } from '../use.cases/password-recovery.user.use.case';
 import { SetNewPasswordCommand } from '../use.cases/set-new-password.user.use.case';
-import { CommandBus } from '@nestjs/cqrs';
-import { ApiTags } from '@nestjs/swagger';
 import { UserRegistrationOutputDto } from '../dto/output/registratio.output.dto';
 import { UserRegitsrationSwagger } from '../decorators/swagger/user-registration/user-regitsration.swagger.decorator';
 
@@ -24,11 +24,9 @@ export class AuthController {
   @Post('registration')
   @UserRegitsrationSwagger()
   async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
-    console.log('inputModel in auth controller:', inputModel);
+    console.log('inputModel in auth controller (registration):', inputModel);
     const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
-    console.log('result in auth controller:', result);
-    console.log('result.isSuccess in auth controller:', result.isSuccess);
-    console.log('result._isSuccess in auth controller:', result._isSuccess);
+    console.log('result in auth controller (registration):', result);
 
     if (!result._isSuccess) throw result._error;
     return { email: inputModel.email };
@@ -36,7 +34,11 @@ export class AuthController {
 
   @Post('registration-email-resending')
   async registrationEmailResending(@Body() inputModel: EmailInputModel) {
+    console.log('inputModel in auth controller (registrationEmailResending):', inputModel);
     const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
+    console.log('result in auth controller (registrationEmailResending):', result);
+    if (!result._isSuccess) throw result._error;
+    return { email: inputModel.email };
   }
 
   @Post('registration-confirmation')
@@ -59,7 +61,11 @@ export class AuthController {
 
   @Post('password-recovery')
   async passwordRecovery(@Body() inputModel: EmailInputModel) {
+    console.log('inputModel in auth controller (passwordRecovery):', inputModel);
     const result = await this.commandBus.execute(new PasswordRecoveryCommand(inputModel));
+    console.log('result in auth controller (passwordRecovery):', result);
+    if (!result._isSuccess) throw result._error;
+    return { email: inputModel.email };
   }
 
   @Post('new-password')
