@@ -15,13 +15,7 @@ export class EmailAdapter {
     });
   }
 
-  async sendConfirmationCodeEmail({
-    email,
-    confirmationCode,
-  }: {
-    email: string;
-    confirmationCode: string;
-  }) {
+  async sendConfirmationCodeEmail({ email, confirmationCode }: { email: string; confirmationCode: string }) {
     await this.transporter.sendMail({
       from: '"Confirm email" <aliakseiyarmolinforit@gmail.com>',
       to: email,

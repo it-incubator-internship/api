@@ -8,4 +8,10 @@ export class NewPasswordInputModel extends CodeInputModel {
   @Length(6, 20)
   @Matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!\"#$%&'()*+,\-.\/:\;<=>?@\[\\\]^_`{|}~]).*$/)
   newPassword: string;
+
+  @IsString()
+  @Trim()
+  @Length(6, 20)
+  @Matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!\"#$%&'()*+,\-.\/:\;<=>?@\[\\\]^_`{|}~]).*$/)
+  passwordConfirmation: string;
 }

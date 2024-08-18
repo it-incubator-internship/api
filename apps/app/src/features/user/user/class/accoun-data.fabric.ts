@@ -28,11 +28,11 @@ export class UserAccountData implements AccountData {
     this.confirmationStatus = UserConfirmationStatusEnum.CONFIRM;
   }
 
-  updateConfirmationCode(confirmationCode: string) {
+  updateConfirmationCode({ confirmationCode }: { confirmationCode: string }) {
     this.confirmationCode = confirmationCode;
   }
 
-  updateRecoveryCode({recoveryCode}: {recoveryCode: string}) {
+  updateRecoveryCode({ recoveryCode }: { recoveryCode: string }) {
     this.recoveryCode = recoveryCode;
   }
 }

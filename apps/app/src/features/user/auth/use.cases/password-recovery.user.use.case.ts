@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import { EmailInputModel } from '../dto/input/email.user.dto';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
+import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
 import { UserRepository } from '../../user/repository/user.repository';
 import { EmailAdapter } from '../email.adapter/email.adapter';
 
@@ -25,15 +25,10 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
 
     if (!user) {
       console.log('!user');
-      return ObjResult.Err(
-        new BadRequestError("User with this email doesn't exist", [
-          { message: "User with this email doesn't exist", field: 'email' },
-        ]),
-      );
+      return ObjResult.Err(new NotFoundError('User not found'));
     }
 
-    // throw new Error('Method not implemented.');
-    const userAccountData = await this.userRepository.findUserAccountDataById({ id: user.id });
+    const userAccountData = await this.userRepository.findAccountDataById({ id: user.id });
     console.log('userAccountData in password recovery use case:', userAccountData);
 
     if (!userAccountData) {
@@ -42,15 +37,16 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
     }
 
     const recoveryCodePayload = { email: command.inputModel.email };
-    const secret = '12345'; // process.env.JWT_SECRET_CONFIRMATION_CODE
+    const secret = '12345'; // process.env.JWT_SECRET_CONFIRMATION_CODE   // я ещё ничего не подтягивал из .env
+    // обсудить время жизни confirmationCode
     const recoveryCode = this.jwtService.sign(recoveryCodePayload, { secret: secret, expiresIn: '500s' });
-    console.log('recoveryCode in registration user use case:', recoveryCode);
+    console.log('recoveryCode in password recovery use case:', recoveryCode);
 
     userAccountData.updateRecoveryCode({ recoveryCode });
-    console.log('userAccountData in registration user use case:', userAccountData);
+    console.log('userAccountData in password recovery use case:', userAccountData);
 
     const savingResult = await this.userRepository.updateAccountData(userAccountData);
-    console.log('savingResult in registration user use case:', savingResult);
+    console.log('savingResult in password recovery use case:', savingResult);
 
     if (savingResult) {
       try {

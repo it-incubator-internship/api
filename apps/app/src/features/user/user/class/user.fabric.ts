@@ -83,7 +83,7 @@ export class UserEntity implements User {
     this.email = email;
   }
 
-  updatePasswordHash(passwordHash: string) {
+  updatePasswordHash({ passwordHash }: { passwordHash: string }) {
     this.passwordHash = passwordHash;
   }
 

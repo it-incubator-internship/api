@@ -40,34 +40,9 @@ export class RegistrationUserUseCase implements ICommandHandler<RegistrationUser
       );
     }
 
-    // если есть user с таким же userName, но не email
-    // const userByUserNameOnly = await this.userRepository.findUserByUserNameOnly({
-    //   email: command.inputModel.email,
-    //   userName: command.inputModel.userName,
-    // });
-    // console.log('userByUserNameOnly in registration user use case:', userByUserNameOnly);
-
-    // if (userByUserNameOnly) {
-    //   console.log('userByUserNameOnly');
-    //   return ObjResult.Err(
-    //     new BadRequestError('User with this username is already registered', [{ message: '', field: '' }]),
-    //   );
-    // }
-
-    // если есть user с таким же email, но не userName
-    // const userByEmailOnly = await this.userRepository.findUserByEmailOnly({
-    //   email: command.inputModel.email,
-    //   userName: command.inputModel.userName,
-    // });
-    // console.log('userByEmailOnly in registration user use case:', userByEmailOnly);
-
-    // if (userByEmailOnly) {
-    //   console.log('userByEmailOnly');
-    //   return ObjResult.Err(
-    //     new BadRequestError('User with this email is already registered', [{ message: '', field: '' }]),
-    //   );
-    // }
-
+    // в строках 46-68 происходит проверка наличия в бд пользователей с вводимыми email или userName
+    // если у user совпадает email, но не совпадает userName, то email занят
+    // если у user совпадает userName, но не совпадает email, то userName занят
     const userByEmail = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
     console.log('userByEmail in registration user use case:', userByEmail);
 
@@ -93,47 +68,31 @@ export class RegistrationUserUseCase implements ICommandHandler<RegistrationUser
     }
 
     const confirmationCodePayload = { email: command.inputModel.email };
-    const secret = '12345'; // process.env.JWT_SECRET_CONFIRMATION_CODE
+    const secret = '12345'; // process.env.JWT_SECRET_CONFIRMATION_CODE   // я ещё ничего не подтягивал из .env
+    // обсудить время жизни confirmationCode
     const confirmationCode = this.jwtService.sign(confirmationCodePayload, { secret: secret, expiresIn: '500s' });
     console.log('confirmationCode in registration user use case:', confirmationCode);
     const passwordHash = bcrypt.hashSync(command.inputModel.password, 10);
-    console.log('passwordHash in in registration user use case:', passwordHash);
-
-    // поиск user, у которого совпадают Email, UserName и PasswordHash
-    // const userByEmailAndUserName = await this.userRepository.findUserByEmailAndUserName({
-    //   email: command.inputModel.email,
-    //   userName: command.inputModel.userName,
-    // });
-    // console.log('userByEmailAndUserName in registration user use case:', userByEmailAndUserName);
+    console.log('passwordHash in registration user use case:', passwordHash);
 
     let isMatch = false;
 
+    // проверка на совпадение password
     if (userByEmail && userByEmail.name === command.inputModel.userName) {
       isMatch = await bcrypt.compare(command.inputModel.password, userByEmail.passwordHash);
       console.log('isMatch in in registration user use case:', isMatch);
     }
 
-    // let isMatch;
-
-    // if (userByEmailAndUserName) {
-    //   isMatch = await bcrypt.compare(command.inputModel.password, userByEmailAndUserName.passwordHash);
-    // }
-
-    // если такой user есть, то обновляем его
+    // если email, userName и password совпадают, то обновляем этого пользователя
     if (isMatch) {
       console.log('isMatch');
+
       const dataForUpdating = UserEntity.create({
         name: command.inputModel.userName as string,
         email: command.inputModel.email as string,
         passwordHash,
         accountData: { confirmationCode },
       });
-      // const dataForUpdating = this.createUserEntity({
-      //   name: command.inputModel.userName as string,
-      //   email: command.inputModel.email as string,
-      //   passwordHash,
-      //   confirmationCode,
-      // });
       console.log('dataForUpdating in registration user use case:', dataForUpdating);
 
       const updatingResult = await this.userRepository.updateUser(dataForUpdating);
@@ -143,27 +102,21 @@ export class RegistrationUserUseCase implements ICommandHandler<RegistrationUser
         console.log('updatingResult');
         try {
           this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
-          // return ObjResult.Ok();
         } catch (e) {
           console.log(e);
         }
       }
+
       return ObjResult.Ok();
     }
 
-    // если такого user нет, то создаём его
+    // если по email, userName и password совпадений нет, то создаём нового пользователя
     const dataForCreating = UserEntity.create({
       name: command.inputModel.userName as string,
       email: command.inputModel.email as string,
       passwordHash,
       accountData: { confirmationCode },
     });
-    // const dataForCreating = this.createUserEntity({
-    //   name: command.inputModel.userName as string,
-    //   email: command.inputModel.email as string,
-    //   passwordHash,
-    //   confirmationCode,
-    // });
     console.log('dataForCreating in registration user use case:', dataForCreating);
 
     const creatingResult = await this.userRepository.createUser(dataForCreating);
@@ -173,38 +126,11 @@ export class RegistrationUserUseCase implements ICommandHandler<RegistrationUser
       console.log('creatingResult');
       try {
         this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
-        // return ObjResult.Ok();
       } catch (e) {
         console.log(e);
       }
     }
+
     return ObjResult.Ok();
   }
-
-  // createUserEntity({
-  //   name,
-  //   email,
-  //   passwordHash,
-  //   confirmationCode,
-  // }: {
-  //   name: string;
-  //   email: string;
-  //   passwordHash: string;
-  //   confirmationCode: string;
-  // }) {
-  //   console.log('name in registration user use case (createEntity):', name);
-  //   console.log('email in registration user use case (createEntity):', email);
-  //   console.log('passwordHash in registration user use case (createEntity):', passwordHash);
-  //   console.log('confirmationCode in registration user use case (createEntity):', confirmationCode);
-  //   const result = UserEntity.create({
-  //     name,
-  //     email,
-  //     passwordHash,
-  //     accountData: { confirmationCode },
-  //   });
-  //   console.log('result in registration user use case (createEntity):', result);
-  //   return result;
-  // }
-
-  // sendEmail({}: {}) {}
 }

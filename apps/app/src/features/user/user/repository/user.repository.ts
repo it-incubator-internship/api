@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserEntity } from '../class/user.fabric';
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
-import { UserAccountData, UserConfirmationStatusEnum } from '../class/accoun-data.fabric';
+import { UserAccountData } from '../class/accoun-data.fabric';
 
 @Injectable()
 export class UserRepository {
@@ -10,90 +10,101 @@ export class UserRepository {
   async createUser(userProfile: Omit<UserEntity, 'id'>) {
     console.log('userProfile in user repository (createUser):', userProfile);
 
-    try {
-      return this.prismaService.user.create({
-        data: {
-          name: userProfile.name,
-          email: userProfile.email,
-          passwordHash: userProfile.passwordHash,
-          ...(userProfile?.accountData
-            ? {
-                accountData: {
-                  create: {
-                    confirmationCode: userProfile.accountData!.confirmationCode,
-                  },
-                },
-              }
-            : {}),
-        },
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  async updateUser(userProfile: Omit<UserEntity, 'id'>) {
-    console.log('userProfile in user repository (createUser):', userProfile);
-
-    try {
-      return this.prismaService.user.update({
-        where: {
-          email: userProfile.email,
-          name: userProfile.name,
-        },
-        data: {
-          passwordHash: userProfile.passwordHash,
-          accountData: userProfile?.accountData
-            ? {
-                update: {
+    return this.prismaService.user.create({
+      data: {
+        name: userProfile.name,
+        email: userProfile.email,
+        passwordHash: userProfile.passwordHash,
+        ...(userProfile?.accountData
+          ? {
+              accountData: {
+                create: {
                   confirmationCode: userProfile.accountData!.confirmationCode,
                 },
-              }
-            : undefined,
-        },
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  async updateAccountData(userAccountData: UserAccountData) {
-    console.log('userAccountData in user repository (updateAccountData):', userAccountData);
-    try {
-      return this.prismaService.accountData.update({
-        where: {
-          profileId: userAccountData.profileId,
-        },
-        data: {
-          recoveryCode: userAccountData.recoveryCode,
-        },
-      });
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  async getAllUsers() {
-    return this.prismaService.user.findMany();
-  }
-
-  async findUserById(id: string) {
-    return this.prismaService.user.findUnique({
-      where: {
-        id: id,
+              },
+            }
+          : {}),
       },
     });
   }
 
+  async updateUser(userProfile: Omit<UserEntity, 'id'>) {
+    console.log('userProfile in user repository (updateUser):', userProfile);
+
+    return this.prismaService.user.update({
+      where: {
+        email: userProfile.email,
+        name: userProfile.name,
+      },
+      data: {
+        passwordHash: userProfile.passwordHash,
+        accountData: userProfile?.accountData
+          ? {
+              update: {
+                confirmationCode: userProfile.accountData!.confirmationCode,
+              },
+            }
+          : undefined,
+      },
+    });
+  }
+
+  async updateAccountData(userAccountData: UserAccountData) {
+    console.log('userAccountData in user repository (updateAccountData):', userAccountData);
+
+    return this.prismaService.accountData.update({
+      where: {
+        profileId: userAccountData.profileId,
+      },
+      data: {
+        recoveryCode: userAccountData.recoveryCode,
+        confirmationCode: userAccountData.confirmationCode,
+        confirmationStatus: userAccountData.confirmationStatus,
+      },
+    });
+  }
+
+  // пока не используется
+  async findAllUsers() {
+    return this.prismaService.user.findMany();
+  }
+
+  async findUserById({ id }: { id: string }) {
+    console.log('id in user repository (findUserById):', id);
+
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    console.log('user in user repository (findUserById):', user);
+
+    if (!user) {
+      return null;
+    }
+
+    const result: UserEntity = UserEntity.convert(user);
+    console.log('result in user repository (findUserById):', result);
+    return result;
+  }
+
   async findUserByEmail({ email }: { email: string }) {
     console.log('email in user repository (findUserByEmail):', email);
+
     const user = await this.prismaService.user.findUnique({
       where: {
         email: email,
       },
     });
     console.log('user in user repository (findUserByEmail):', user);
-    return user;
+
+    if (!user) {
+      return null;
+    }
+
+    const result: UserEntity = UserEntity.convert(user);
+    console.log('result in user repository (findUserById):', result);
+    return result;
   }
 
   async findUserByUserName({ userName }: { userName: string }) {
@@ -104,96 +115,70 @@ export class UserRepository {
       },
     });
     console.log('user in user repository (findUserByUserName):', user);
-    return user;
+
+    if (!user) {
+      return null;
+    }
+
+    const result: UserEntity = UserEntity.convert(user);
+    console.log('result in user repository (findUserById):', result);
+    return result;
   }
 
-  async findUserAccountDataById({ id }: { id: string }) {
-    console.log('id in user repository (findUserAccountDataById):', id);
+  async findAccountDataById({ id }: { id: string }) {
+    console.log('id in user repository (findAccountDataById):', id);
+
     const user = await this.prismaService.accountData.findUnique({
       where: {
         profileId: id,
       },
     });
-    console.log('user in user repository (findUserAccountDataById):', user);
+    console.log('user in user repository (findAccountDataById):', user);
+
     if (!user) {
       return null;
     }
+
     const result: UserAccountData = UserAccountData.convert(user);
-    console.log('result in user repository (findUserAccountDataById):', result);
+    console.log('result in user repository (findAccountDataById):', result);
     return result;
   }
 
-  // email совпадает, userName не совпадает
-  // async findUserByEmailOnly({ userName, email }: { userName: string; email: string }) {
-  //   console.log('userName in user repository (findUserByUserNameOrEmail):', userName);
-  //   console.log('email in user repository (findUserByUserNameOrEmail):', email);
-  //   const user = await this.prismaService.user.findFirst({
-  //     where: {
-  //       email: email, // совпадение только по email
-  //       NOT: {
-  //         name: userName, // name не должен совпадать
-  //       },
-  //     },
-  //     include: {
-  //       accountData: true, // если нужно включить связанные данные
-  //     },
-  //   });
-  //   console.log('user in user repository (findUserByEmailOnly):', user);
-  //   return user;
-  // }
+  async findAccountDataByConfirmationCode({ confirmationCode }: { confirmationCode: string }) {
+    console.log('confirmationCode in user repository (findAccountDataByConfirmationCode):', confirmationCode);
 
-  // userName совпадает, email не совпадает
-  // async findUserByUserNameOnly({ userName, email }: { userName: string; email: string }) {
-  //   console.log('userName in user repository (findUserByUserNameOnly):', userName);
-  //   console.log('email in user repository (findUserByUserNameOnly):', email);
-  //   const user = await this.prismaService.user.findFirst({
-  //     where: {
-  //       name: userName, // совпадение только по name
-  //       NOT: {
-  //         email: email, // email не должен совпадать
-  //       },
-  //     },
-  //     include: {
-  //       accountData: true, // если нужно включить связанные данные
-  //     },
-  //   });
-  //   console.log('user in user repository (findUserByUserNameOnly):', user);
-  //   return user;
-  // }
-
-  // поиск user по email, userName и passwordHash
-  // async findUserByEmailAndUserName({ userName, email }: { userName: string; email: string }) {
-  //   console.log('userName in user repository (findUserByEmailAndUserName):', userName);
-  //   console.log('email in user repository (findUserByEmailAndUserName):', email);
-  //   const user = await this.prismaService.user.findFirst({
-  //     where: {
-  //       name: userName,
-  //       email: email,
-  //       accountData: {
-  //         confirmationStatus: UserConfirmationStatusEnum.NOT_CONFIRM,
-  //       },
-  //     },
-  //     include: {
-  //       accountData: true,
-  //     },
-  //   });
-  //   console.log('user in user repository (findUserByEmailAndUserName):', user);
-  //   return user;
-  // }
-
-  async findUserByConfirmationCode(confirmationCode: string) {
-    return this.prismaService.accountData.findFirst({
+    const user = await this.prismaService.accountData.findFirst({
       where: {
         confirmationCode: confirmationCode,
       },
     });
+    console.log('user in user repository (findAccountDataByConfirmationCode):', user);
+
+    if (!user) {
+      return null;
+    }
+
+    const result: UserAccountData = UserAccountData.convert(user);
+    console.log('result in user repository (findAccountDataByConfirmationCode):', result);
+    return result;
   }
 
-  async findUserByRecoveryCode(recoveryCode: string) {
-    return this.prismaService.accountData.findFirst({
+  async findAccountDataByRecoveryCode({ recoveryCode }: { recoveryCode: string }) {
+    console.log('recoveryCode in user repository (findAccountDataByRecoveryCode):', recoveryCode);
+
+    const user = await this.prismaService.accountData.findFirst({
       where: {
         recoveryCode: recoveryCode,
       },
     });
+    console.log('user in user repository (findAccountDataByRecoveryCode):', user);
+
+    if (!user) {
+      return null;
+    }
+
+    const result: UserAccountData = UserAccountData.convert(user);
+    console.log('result in user repository (findAccountDataByRecoveryCode):', result);
+    return result;
   }
 }

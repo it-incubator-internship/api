@@ -27,7 +27,6 @@ export class AuthController {
     console.log('inputModel in auth controller (registration):', inputModel);
     const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
     console.log('result in auth controller (registration):', result);
-
     if (!result._isSuccess) throw result._error;
     return { email: inputModel.email };
   }
@@ -43,7 +42,10 @@ export class AuthController {
 
   @Post('registration-confirmation')
   async registrationConfirmation(@Body() inputModel: CodeInputModel) {
+    console.log('inputModel in auth controller (registrationConfirmation):', inputModel);
     const result = await this.commandBus.execute(new RegistrationConfirmationCommand(inputModel));
+    console.log('result in auth controller (registrationConfirmation):', result);
+    if (!result._isSuccess) throw result._error;
   }
 
   @Post('login')
@@ -53,10 +55,7 @@ export class AuthController {
 
   @Post('logout')
   async logout() {
-    const result = await this.commandBus.execute(
-      // нужно подумать над реализацией
-      new LogoutUserCommand(),
-    );
+    const result = await this.commandBus.execute(new LogoutUserCommand());
   }
 
   @Post('password-recovery')
@@ -70,6 +69,9 @@ export class AuthController {
 
   @Post('new-password')
   async setNewPassword(@Body() inputModel: NewPasswordInputModel) {
+    console.log('inputModel in auth controller (setNewPassword):', inputModel);
     const result = await this.commandBus.execute(new SetNewPasswordCommand(inputModel));
+    console.log('result in auth controller (setNewPassword):', result);
+    if (!result._isSuccess) throw result._error;
   }
 }
