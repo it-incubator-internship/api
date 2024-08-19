@@ -9,7 +9,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
   return {
     apiSettings: {
       PORT: Number.parseInt(environmentVariables.PORT || '6666'),
-      API_PREFIX: 'api/v1',
+      API_PREFIX: 'api-v1',
     },
 
     jwtSetting: {
@@ -64,6 +64,8 @@ export const configuration = () => {
     'JWT_SECRET_REFRESH',
     'JWT_SECRET_CONF_CODE',
     'JWT_SECRET_RECOVERY_CODE',
+    'GMAIL_USER',
+    'GMAIL_PASS',
   ];
 
   //Эти значения выводятся в сваггере

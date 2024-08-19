@@ -115,12 +115,17 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     console.log('creatingResult in registration user use case:', creatingResult);
 
     // отправка письма
-    this.mailService.sendUserConfirmation({
-      email: command.inputModel.email,
-      login: command.inputModel.userName,
-      token: confirmationCode,
-    });
-    this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
+    try {
+      await this.mailService.sendUserConfirmation({
+        email: command.inputModel.email,
+        login: command.inputModel.userName,
+        token: confirmationCode,
+      });
+    } catch (e) {
+      console.log(e);
+    }
+
+    //this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
 
     return ObjResult.Ok();
   }

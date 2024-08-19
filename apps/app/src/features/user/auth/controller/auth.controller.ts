@@ -1,6 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
+
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { LoginUserInputModel } from '../dto/input/login.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
@@ -27,6 +28,7 @@ export class AuthController {
     console.log('inputModel in auth controller (registration):', inputModel);
     const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
     console.log('result in auth controller (registration):', result);
+
     if (!result.isSuccess) throw result.error;
     return { email: inputModel.email };
   }

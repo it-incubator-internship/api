@@ -3,7 +3,7 @@ import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { ConfigService, ConfigType } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 
 import { ConfigurationType } from '../../common/settings/configuration';
 
@@ -14,7 +14,10 @@ import { MailService } from './mail.service';
     MailerModule.forRootAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
         const emailSettings = configService.get('mailSettings', { infer: true });
-
+        console.log(emailSettings);
+        console.log(emailSettings);
+        console.log(emailSettings);
+        console.log(emailSettings);
         return {
           transport: {
             service: 'gmail',
@@ -29,7 +32,7 @@ import { MailService } from './mail.service';
             from: 'Vlad_Nyah <linesgreenTest@gmail.com>',
           },
           template: {
-            dir: join(__dirname, 'templates'),
+            dir: join(__dirname, 'providers', 'mailer', 'templates'),
             adapter: new HandlebarsAdapter(),
             options: {
               strict: true,
