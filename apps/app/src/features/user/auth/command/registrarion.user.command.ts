@@ -1,12 +1,14 @@
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
 import { UserRepository } from '../../user/repository/user.repository';
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { UserEntity } from '../../user/class/user.fabric';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { EmailAdapter } from '../email.adapter/email.adapter';
 import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
+import { MailService } from '../../../../providers/mailer/mail.service';
 
 export class RegistrationUserCommand {
   constructor(public inputModel: RegistrationUserInputModel) {}
@@ -18,19 +20,15 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly emailAdapter: EmailAdapter,
+    private readonly mailService: MailService,
   ) {}
   async execute(command: RegistrationUserCommand): Promise<any> {
-    console.log('command in registration user use case:', command);
-
-    // если isAgreement = false
     if (!command.inputModel.isAgreement) {
-      console.log('!command.inputModel.isAgreement');
       return ObjResult.Err(
         new BadRequestError('I am teapot', [{ message: 'IsAgreement must be true', field: 'isAgreement' }]),
       );
     }
 
-    // если password !== passwordConfirmation
     if (command.inputModel.password !== command.inputModel.passwordConfirmation) {
       console.log('command.inputModel.password !== command.inputModel.passwordConfirmation');
       return ObjResult.Err(
@@ -117,6 +115,11 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     console.log('creatingResult in registration user use case:', creatingResult);
 
     // отправка письма
+    this.mailService.sendUserConfirmation({
+      email: command.inputModel.email,
+      login: command.inputModel.userName,
+      token: confirmationCode,
+    });
     this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
 
     return ObjResult.Ok();

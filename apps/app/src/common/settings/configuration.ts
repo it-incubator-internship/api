@@ -28,6 +28,11 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       isDevelopment: currentEnvironment === Environments.DEVELOPMENT,
     },
 
+    mailSettings: {
+      password: environmentVariables.GMAIL_PASS,
+      email: environmentVariables.GMAIL_USER,
+    },
+
     getAllVariables: {
       ...environmentVariables,
     },
