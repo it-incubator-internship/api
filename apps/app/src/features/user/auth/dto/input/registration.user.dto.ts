@@ -20,15 +20,15 @@ export class RegistrationUserInputModel extends EmailInputModel {
   @passwordApiProperty()
   @IsString()
   @Trim()
-  @Length(8, 20) // Исправлено с 6 на 8
-  @Matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!\"#$%&'()*+,\-.\/:\;<=>?@\[\\\]^_`{|}~]).{8,}$/)
+  @Length(6, 20)
+  @Matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!\"#$%&'()*+,\-.\/:\;<=>?@\[\\\]^_`{|}~]).*$/)
   password: string;
 
   @passwordConfirmationApiProperty()
   @IsString()
   @Trim()
-  @Length(8, 20) // Исправлено с 6 на 8
-  @Matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!\"#$%&'()*+,\-.\/:\;<=>?@\[\\\]^_`{|}~]).{8,}$/)
+  @Length(6, 20)
+  @Matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!\"#$%&'()*+,\-.\/:\;<=>?@\[\\\]^_`{|}~]).*$/)
   passwordConfirmation: string;
 
   @isAgreementApiProperty()

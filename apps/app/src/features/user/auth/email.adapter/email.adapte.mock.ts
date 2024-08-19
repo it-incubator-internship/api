@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class EmailAdapterMock {
-  async sendConfirmationCodeEmail(email: string, code: string) {
+  async sendConfirmationCodeEmail({ email, code }: { email: string; code: string }) {
     // Заглушка для метода sendConfirmationCodeEmail
   }
 
-  async sendRecoveryCodeEmail(email: string, code: string) {
+  async sendRecoveryCodeEmail({ email, code }: { email: string; code: string }) {
     // Заглушка для метода sendRecoveryCodeEmail
   }
 }

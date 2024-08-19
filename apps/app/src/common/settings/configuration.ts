@@ -12,6 +12,13 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       API_PREFIX: 'api/v1',
     },
 
+    jwtSetting: {
+      accessToken: environmentVariables.JWT_SECRET_ACCESS,
+      refreshToken: environmentVariables.JWT_SECRET_REFRESH,
+      confirmationCode: environmentVariables.JWT_SECRET_CONF_CODE,
+      recoveryCode: environmentVariables.JWT_SECRET_RECOVERY_CODE,
+    },
+
     environmentSettings: {
       currentEnv: currentEnvironment,
       isProduction: currentEnvironment === Environments.PRODUCTION,
@@ -42,7 +49,17 @@ export const configuration = () => {
   console.log('Configuration function called. NODE_ENV:', process.env.NODE_ENV);
   console.log('PORT from process.env:', process.env.PORT);
 
-  const allowedVariables = ['NODE_ENV', 'PORT'];
+  const allowedVariables = [
+    'NODE_ENV',
+    'PORT',
+    'DATABASE_APP_URL',
+    'EMAIL',
+    'EMAIL_PASS',
+    'JWT_SECRET_ACCESS',
+    'JWT_SECRET_REFRESH',
+    'JWT_SECRET_CONF_CODE',
+    'JWT_SECRET_RECOVERY_CODE',
+  ];
 
   //Эти значения выводятся в сваггере
   const environmentVariables = getAllEnvironmentVariables(allowedVariables); //; process.env

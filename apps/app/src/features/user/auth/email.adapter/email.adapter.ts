@@ -15,13 +15,7 @@ export class EmailAdapter {
     });
   }
 
-  async sendConfirmationCodeEmail({
-    email,
-    confirmationCode,
-  }: {
-    email: string;
-    confirmationCode: string;
-  }) /*: Promise<void>*/ {
+  async sendConfirmationCodeEmail({ email, confirmationCode }: { email: string; confirmationCode: string }) {
     await this.transporter.sendMail({
       from: '"Confirm email" <aliakseiyarmolinforit@gmail.com>',
       to: email,
@@ -33,15 +27,15 @@ export class EmailAdapter {
     });
   }
 
-  // async sendRecoveryCodeEmail(email: string, code: string) /*: Promise<void>*/ {
-  //   await this.transporter.sendMail({
-  //     from: '"Rocovery code" <aliakseiyarmolinforit@gmail.com>',
-  //     to: email,
-  //     subject: 'Password Recovery',
-  //     html: `<h1>Password recovery</h1>
-  //           <p>To finish password recovery please follow the link below:
-  //               <a href='https://somesite.com/password-recovery?recoveryCode=${code}'>recovery password</a>
-  //           </p>`,
-  //   });
-  // }
+  async sendRecoveryCodeEmail({ email, recoveryCode }: { email: string; recoveryCode: string }) {
+    await this.transporter.sendMail({
+      from: '"Rocovery code" <aliakseiyarmolinforit@gmail.com>',
+      to: email,
+      subject: 'Password Recovery',
+      html: `<h1>Password recovery</h1>
+            <p>To finish password recovery please follow the link below:
+                <a href='https://somesite.com/password-recovery?recoveryCode=${recoveryCode}'>recovery password</a>
+            </p>`,
+    });
+  }
 }

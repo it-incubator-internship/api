@@ -7,7 +7,7 @@ export class LogoutUserCommand {
 }
 
 @CommandHandler(LogoutUserCommand)
-export class LogoutUserUseCase implements ICommandHandler<LogoutUserCommand> {
+export class LogoutUserHandler implements ICommandHandler<LogoutUserCommand> {
   constructor(private readonly userRepository: UserRepository) {}
   execute(command: LogoutUserCommand): Promise<any> {
     throw new Error('Method not implemented.');

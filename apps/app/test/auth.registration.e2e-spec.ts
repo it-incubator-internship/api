@@ -1,17 +1,19 @@
 import request from 'supertest';
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppModule } from '../src/app.module';
 import { EmailAdapter } from '../src/features/user/auth/email.adapter/email.adapter';
 import { EmailAdapterMock } from '../src/features/user/auth/email.adapter/email.adapte.mock';
-import { AppModule } from '../src/app.module';
 import { appSettings } from '../src/common/settings/apply-app-setting';
-// import { appSettings } from '../app.setting';
+import { PrismaService } from '../src/common/database_module/prisma-connection.service';
 
 // jest.setTimeout(10000); // увеличение времени ожидания
 
 describe('Auth e2e', () => {
   let app: INestApplication;
+  let prisma: PrismaService;
+  let confirmationCode;
+  let recoveryCode;
   let httpServer;
 
   beforeAll(async () => {
@@ -28,6 +30,8 @@ describe('Auth e2e', () => {
 
     await app.init();
 
+    prisma = moduleFixture.get<PrismaService>(PrismaService);
+
     httpServer = app.getHttpServer();
 
     // await request(app.getHttpServer())
@@ -40,7 +44,7 @@ describe('Auth e2e', () => {
   });
 
   it('REGISTRATION with incorrect data (empty fields)', async () => {
-    /*const response = */ await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
         userName: '',
@@ -50,18 +54,10 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(400);
-
-    // expect(response.body).toEqual({
-    //     errorsMessages: [
-    //         {message: 'The login has incorrect values', field: 'login'},
-    //         {message: 'The password has incorrect values', field: 'password'},
-    //         {message: 'The email has incorrect values', field: 'email'},
-    //     ]
-    // })
   }); // 400
 
   it('REGISTRATION with incorrect data (only whitespaces)', async () => {
-    /* const response = */ await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
         userName: '     ',
@@ -71,18 +67,10 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(400);
-
-    // expect(response.body).toEqual({
-    //     errorsMessages: [
-    //         {message: 'The login has incorrect values', field: 'login'},
-    //         {message: 'The password has incorrect values', field: 'password'},
-    //         {message: 'The email has incorrect values', field: 'email'},
-    //     ]
-    // })
   }); // 400
 
   it('REGISTRATION with incorrect data (wrong type)', async () => {
-    /* const response = */ await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
         userName: 777,
@@ -92,18 +80,10 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(400);
-
-    //         expect(response.body).toEqual({
-    //             errorsMessages: [
-    //                 {message: 'The login has incorrect values', field: 'login'},
-    //                 {message: 'The password has incorrect values', field: 'password'},
-    //                 {message: 'The email has incorrect values', field: 'email'},
-    //             ]
-    //         })
   }); // 400
 
   it('REGISTRATION with incorrect data (small length)', async () => {
-    /* const response = */ await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
         userName: 'short',
@@ -113,13 +93,6 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(400);
-
-    // expect(response.body).toEqual({
-    //     errorsMessages: [
-    //         {message: 'The login has incorrect values', field: 'login'},
-    //         {message: 'The password has incorrect values', field: 'password'},
-    //     ]
-    // })
   }); // 400
 
   it('REGISTRATION with incorrect data (whitespaces + small length + whitespaces)', async () => {
@@ -136,7 +109,7 @@ describe('Auth e2e', () => {
   }); // 400
 
   it('REGISTRATION with incorrect data (long length)', async () => {
-    /* const response = */ await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
         userName: 'someusernamewithalonglength',
@@ -146,30 +119,10 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(400);
-
-    // expect(response.body).toEqual({
-    //     errorsMessages: [
-    //         {message: 'The login has incorrect values', field: 'login'},
-    //         {message: 'The password has incorrect values', field: 'password'},
-    //     ]
-    // })
   }); // 400
 
-  //     it.skip('REGISTRATION with correct data (sixth request within 10 seconds)', async () => {
-
-  //         await request(app.getHttpServer())
-  //             .post('/auth/registration')
-  //             .send({
-  //                 login: 'somelogin',
-  //                 password: 'somepassword',
-  //                 email: 'alexeyermolin94@gmail.com',
-  //             })
-  //             .expect(429)
-
-  //     }) // 429
-
   it('REGISTRATION with incorrect data (pattern violation)', async () => {
-    /* const response = */ await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
         userName: 'some user name',
@@ -179,17 +132,23 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(400);
+  }); // 400
 
-    // expect(response.body).toEqual({
-    //     errorsMessages: [
-    //         {message: 'The login has incorrect values', field: 'login'},
-    //         {message: 'The email has incorrect values', field: 'email'},
-    //     ]
-    // })
+  it('REGISTRATION with incorrect data (mismatched passwords)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send({
+        userName: 'someusername',
+        password: 'Somepassword=1',
+        passwordConfirmation: 'Somepassword=2',
+        email: 'someemail@gmail.com',
+        isAgreement: false,
+      })
+      .expect(400);
   }); // 400
 
   it('REGISTRATION with incorrect data (isAgreement: false)', async () => {
-    /* const response = */ await request(app.getHttpServer())
+    await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
         userName: 'someusername',
@@ -199,29 +158,48 @@ describe('Auth e2e', () => {
         isAgreement: false,
       })
       .expect(400);
-
-    // expect(response.body).toEqual({
-    //     errorsMessages: [
-    //         {message: 'The login has incorrect values', field: 'login'},
-    //         {message: 'The email has incorrect values', field: 'email'},
-    //     ]
-    // })
   }); // 400
 
-  it.skip('REGISTRATION with correct data', async () => {
+  it('REGISTRATION with correct data (whitespaces + correct data + whitespaces)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
-        userName: '           someUserName           ',
-        password: '     SomePassword=1     ',
-        passwordConfirmation: '     SomePassword=1     ',
-        email: ' someEmail@gmail.com ',
+        userName: '           someusername           ',
+        password: '     Somepassword=1     ',
+        passwordConfirmation: '     Somepassword=1     ',
+        email: ' someemail@gmail.com ',
         isAgreement: true,
       })
       .expect(201);
   }); // 201
 
-  it.skip('REGISTRATION with correct data', async () => {
+  it('REGISTRATION with incorrect data (re-registration with repeated userName)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send({
+        userName: 'someusername',
+        password: 'Somepassword=1',
+        passwordConfirmation: 'Somepassword=1',
+        email: 'someanotheremail@gmail.com',
+        isAgreement: true,
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION with incorrect data (re-registration with repeated email)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send({
+        userName: 'someanotherusername',
+        password: 'Somepassword=1',
+        passwordConfirmation: 'Somepassword=1',
+        email: 'someemail@gmail.com',
+        isAgreement: true,
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION with correct data', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -234,43 +212,216 @@ describe('Auth e2e', () => {
       .expect(201);
   }); // 201
 
-  it.skip('REGISTRATION with incorrect data (re-registration with repeated userName)', async () => {
-    /* const response = */ await request(app.getHttpServer())
-      .post('/auth/registration')
+
+
+  it('PASSWORD RECOVERY with incorrect data (empty fiels)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/password-recovery')
       .send({
-        userName: 'someusername',
-        password: 'Somepassword=1',
-        passwordConfirmation: 'Somepassword=1',
-        email: 'someanotheremail@mail.com',
-        isAgreement: true,
+        email: '',
       })
       .expect(400);
-
-    // expect(response.body).toEqual({
-    //     errorsMessages: [
-    //         {message: 'This login is already used', field: 'login'},
-    //         {message: 'This email is already used', field: 'email'}
-    //     ]
-    // })
   }); // 400
 
-  it.skip('REGISTRATION with incorrect data (re-registration with repeated email)', async () => {
-    /* const response = */ await request(app.getHttpServer())
-      .post('/auth/registration')
+  it('PASSWORD RECOVERY with incorrect data (only whitespaces)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/password-recovery')
       .send({
-        userName: 'someanotherlogin',
-        password: 'Somepassword=1',
-        passwordConfirmation: 'Somepassword=1',
+        email: '     ',
+      })
+      .expect(400);
+  }); // 400
+
+  it('PASSWORD RECOVERY with incorrect data (wrong type)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/password-recovery')
+      .send({
+        email: 777,
+      })
+      .expect(400);
+  }); // 400
+
+  it('PASSWORD RECOVERY with in correct data (pattern violation)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/password-recovery')
+      .send({
+        email: 'caramba',
+      })
+      .expect(400);
+  }); // 400
+
+  it.skip('PASSWORD RECOVERY with incorrect data (non-existing value)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/password-recovery')
+      .send({
+        email: 'caramba@gmail.com',
+      })
+      .expect(404);
+  }); // 404
+
+  it('PASSWORD RECOVERY with correct data', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/password-recovery')
+      .send({
         email: 'someemail@gmail.com',
-        isAgreement: true,
+      })
+      .expect(201);
+
+    const user = await prisma.user.findFirst({
+      where: {
+        email: 'someemail@gmail.com',
+      },
+      include: {
+        accountData: true,
+      },
+    });
+
+    recoveryCode = user!.accountData!.recoveryCode;
+  }); // 201
+
+
+
+  it('SET NEW PASSWORD with incorrect data (empty fiels)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/new-password')
+      .send({
+        code: '',
+        newPassword: '',
+        passwordConfirmation: '',
       })
       .expect(400);
-
-    // expect(response.body).toEqual({
-    //     errorsMessages: [
-    //         {message: 'This login is already used', field: 'login'},
-    //         {message: 'This email is already used', field: 'email'}
-    //     ]
-    // })
   }); // 400
+
+  it('SET NEW PASSWORD with incorrect data (only whitespaces)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/new-password')
+      .send({
+        code: '     ',
+        newPassword: '     ',
+        passwordConfirmation: '     ',
+      })
+      .expect(400);
+  }); // 400
+
+  it('SET NEW PASSWORD with incorrect data (wrong type)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/new-password')
+      .send({
+        code: 777,
+        newPassword: 777,
+        passwordConfirmation: 777,
+      })
+      .expect(400);
+  }); // 400
+
+  it('SET NEW PASSWORD with incorrect data (pattern violation)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/new-password')
+      .send({
+        code: recoveryCode,
+        newPassword: 'some password',
+        passwordConfirmation: 'some password',
+      })
+      .expect(400);
+  }); // 400
+
+  it('SET NEW PASSWORD with incorrect data (mismatched passwords)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/new-password')
+      .send({
+        code: recoveryCode,
+        newPassword: 'Somepassword=2',
+        passwordConfirmation: 'Somepassword=3',
+      })
+      .expect(400);
+  }); // 400
+
+  it('SET NEW PASSWORD with correct data', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/new-password')
+      .send({
+        code: recoveryCode,
+        newPassword: 'Somepassword=2',
+        passwordConfirmation: 'Somepassword=2',
+      })
+      .expect(201);
+  }); // 201
+
+
+
+  it('REGISTRATION EMAIL RESENDING with incorrect data (empty fiels)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: '',
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION EMAIL RESENDING with incorrect data (only whitespaces)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: '     ',
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION EMAIL RESENDING with incorrect data (wrong type)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: 777,
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION EMAIL RESENDING with in correct data (pattern violation)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: 'caramba',
+      })
+      .expect(400);
+  }); // 400
+
+  it.skip('REGISTRATION EMAIL RESENDING with incorrect data (non-existing value)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: 'caramba@gmail.com',
+      })
+      .expect(404);
+  }); // 404
+
+  it('REGISTRATION EMAIL RESENDING with correct data', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: 'someemail@gmail.com',
+      })
+      .expect(201);
+
+    const user = await prisma.user.findFirst({
+      where: {
+        email: 'someemail@gmail.com',
+      },
+      include: {
+        accountData: true,
+      },
+    });
+
+    confirmationCode = user!.accountData!.confirmationCode
+  }); // 201
+
+
+
+  it('REGISTRATION CONFIRMATION with correct data', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-confirmation')
+      .send({
+        code: confirmationCode,
+      })
+      .expect(201);
+  }); // 201
 });
