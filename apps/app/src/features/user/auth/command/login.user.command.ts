@@ -7,7 +7,7 @@ export class LoginUserCommand {
 }
 
 @CommandHandler(LoginUserCommand)
-export class LoginUserUseCase implements ICommandHandler<LoginUserCommand> {
+export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
   constructor(private readonly userRepository: UserRepository) {}
   execute(command: LoginUserCommand): Promise<any> {
     throw new Error('Method not implemented.');

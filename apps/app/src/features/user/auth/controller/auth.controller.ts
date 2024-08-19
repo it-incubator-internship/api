@@ -27,16 +27,16 @@ export class AuthController {
     console.log('inputModel in auth controller (registration):', inputModel);
     const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
     console.log('result in auth controller (registration):', result);
-    if (!result._isSuccess) throw result._error;
+    if (!result.isSuccess) throw result.error;
     return { email: inputModel.email };
   }
 
   @Post('registration-email-resending')
-  async registrationEmailResending(@Body() inputModel: EmailInputModel) {
+  async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
     console.log('inputModel in auth controller (registrationEmailResending):', inputModel);
     const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
     console.log('result in auth controller (registrationEmailResending):', result);
-    if (!result._isSuccess) throw result._error;
+    if (!result.isSuccess) throw result.error;
     return { email: inputModel.email };
   }
 
@@ -45,7 +45,7 @@ export class AuthController {
     console.log('inputModel in auth controller (registrationConfirmation):', inputModel);
     const result = await this.commandBus.execute(new RegistrationConfirmationCommand(inputModel));
     console.log('result in auth controller (registrationConfirmation):', result);
-    if (!result._isSuccess) throw result._error;
+    if (!result.isSuccess) throw result.error;
   }
 
   @Post('login')
@@ -63,7 +63,7 @@ export class AuthController {
     console.log('inputModel in auth controller (passwordRecovery):', inputModel);
     const result = await this.commandBus.execute(new PasswordRecoveryCommand(inputModel));
     console.log('result in auth controller (passwordRecovery):', result);
-    if (!result._isSuccess) throw result._error;
+    if (!result.isSuccess) throw result.error;
     return { email: inputModel.email };
   }
 
@@ -72,6 +72,6 @@ export class AuthController {
     console.log('inputModel in auth controller (setNewPassword):', inputModel);
     const result = await this.commandBus.execute(new SetNewPasswordCommand(inputModel));
     console.log('result in auth controller (setNewPassword):', result);
-    if (!result._isSuccess) throw result._error;
+    if (!result.isSuccess) throw result.error;
   }
 }

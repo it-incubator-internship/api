@@ -50,18 +50,23 @@ export class UserRepository {
   }
 
   async updateAccountData(userAccountData: UserAccountData) {
-    console.log('userAccountData in user repository (updateAccountData):', userAccountData);
+    try {
+      console.log('userAccountData in user repository (updateAccountData):', userAccountData);
 
-    return this.prismaService.accountData.update({
-      where: {
-        profileId: userAccountData.profileId,
-      },
-      data: {
-        recoveryCode: userAccountData.recoveryCode,
-        confirmationCode: userAccountData.confirmationCode,
-        confirmationStatus: userAccountData.confirmationStatus,
-      },
-    });
+      return this.prismaService.accountData.update({
+        where: {
+          profileId: userAccountData.profileId,
+        },
+        data: {
+          recoveryCode: userAccountData.recoveryCode,
+          confirmationCode: userAccountData.confirmationCode,
+          confirmationStatus: userAccountData.confirmationStatus,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      throw new Error(e);
+    }
   }
 
   // пока не используется
@@ -96,6 +101,7 @@ export class UserRepository {
         email: email,
       },
     });
+
     console.log('user in user repository (findUserByEmail):', user);
 
     if (!user) {

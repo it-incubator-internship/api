@@ -45,11 +45,6 @@ export class RegistrationConfirmationUseCase implements ICommandHandler<Registra
     const savingResult = await this.userRepository.updateAccountData(accountData);
     console.log('savingResult in registration confirmation use case:', savingResult);
 
-    if (!savingResult) {
-      console.log('!savingResult');
-      return ObjResult.Err(new BadRequestError('I am teapot', [{ message: '', field: '' }]));
-    }
-
     return ObjResult.Ok();
   }
 }

@@ -5,6 +5,8 @@ import { UserRepository } from '../../user/repository/user.repository';
 import { EmailInputModel } from '../dto/input/email.user.dto';
 import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
 import { EmailAdapter } from '../email.adapter/email.adapter';
+import { ConfigService } from '@nestjs/config';
+import { ConfigurationType } from '../../../../common/settings/configuration';
 
 export class RegistrationEmailResendingCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -16,6 +18,7 @@ export class RegistrationEmailResendingUseCase implements ICommandHandler<Regist
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly emailAdapter: EmailAdapter,
+    private readonly configService: ConfigService<ConfigurationType, true>,
   ) {}
   async execute(command: RegistrationEmailResendingCommand): Promise<any> {
     console.log('command in registration email resending use case:', command);
@@ -36,8 +39,11 @@ export class RegistrationEmailResendingUseCase implements ICommandHandler<Regist
       return ObjResult.Err(new BadRequestError('I am teapot', [{ message: '', field: '' }]));
     }
 
+    const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
+    const secret = jwtConfiguration.confirmationCode as string;
+
     const confirmationCodePayload = { email: command.inputModel.email };
-    const secret = '12345'; // process.env.JWT_SECRET_CONFIRMATION_CODE   // я ещё ничего не подтягивал из .env
+
     // обсудить время жизни confirmationCode
     const confirmationCode = this.jwtService.sign(confirmationCodePayload, { secret: secret, expiresIn: '500s' });
     console.log('confirmationCode in registration email resending use case:', confirmationCode);
@@ -48,13 +54,7 @@ export class RegistrationEmailResendingUseCase implements ICommandHandler<Regist
     const savingResult = await this.userRepository.updateAccountData(userAccountData);
     console.log('savingResult in registration email resending use case:', savingResult);
 
-    if (savingResult) {
-      try {
-        this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
-      } catch (e) {
-        console.log(e);
-      }
-    }
+    this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
 
     return ObjResult.Ok();
   }
