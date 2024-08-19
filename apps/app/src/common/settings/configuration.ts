@@ -1,5 +1,6 @@
-import { Environments, validate } from './env_validate/env-class-validator';
 import * as process from 'node:process';
+
+import { Environments, validate } from './env_validate/env-class-validator';
 
 export type EnvironmentVariable = { [key: string]: string | undefined };
 export type ConfigurationType = ReturnType<typeof getConfig>;
@@ -8,7 +9,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
   return {
     apiSettings: {
       PORT: Number.parseInt(environmentVariables.PORT || '6666'),
-      API_PREFIX: '/api-v1',
+      API_PREFIX: 'api/v1',
     },
 
     jwtSetting: {
@@ -65,6 +66,7 @@ export const configuration = () => {
 
   const currentEnvironment: Environments = environmentVariables.NODE_ENV as Environments;
   //Валидация переменных с помощью class validator
+
   validate(environmentVariables);
 
   return getConfig(environmentVariables, currentEnvironment);
