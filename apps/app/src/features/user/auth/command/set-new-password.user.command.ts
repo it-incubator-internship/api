@@ -11,7 +11,7 @@ export class SetNewPasswordCommand {
 }
 
 @CommandHandler(SetNewPasswordCommand)
-export class SetNewPasswordUseCase implements ICommandHandler<SetNewPasswordCommand> {
+export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordCommand> {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
@@ -66,11 +66,6 @@ export class SetNewPasswordUseCase implements ICommandHandler<SetNewPasswordComm
 
     const savingResult = await this.userRepository.updateUser(user);
     console.log('savingResult in set new password use case:', savingResult);
-
-    if (!savingResult) {
-      console.log('!savingResult');
-      return ObjResult.Err(new BadRequestError('I am teapot', [{ message: '', field: '' }]));
-    }
 
     return ObjResult.Ok();
   }

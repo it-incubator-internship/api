@@ -11,7 +11,7 @@ export class PasswordRecoveryCommand {
 }
 
 @CommandHandler(PasswordRecoveryCommand)
-export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecoveryCommand> {
+export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecoveryCommand> {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
@@ -48,13 +48,8 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
     const savingResult = await this.userRepository.updateAccountData(userAccountData);
     console.log('savingResult in password recovery use case:', savingResult);
 
-    if (savingResult) {
-      try {
-        this.emailAdapter.sendRecoveryCodeEmail({ email: command.inputModel.email, recoveryCode });
-      } catch (e) {
-        console.log(e);
-      }
-    }
+    // отправка письма
+    this.emailAdapter.sendRecoveryCodeEmail({ email: command.inputModel.email, recoveryCode });
 
     return ObjResult.Ok();
   }

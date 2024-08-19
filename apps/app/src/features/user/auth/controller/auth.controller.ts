@@ -6,16 +6,15 @@ import { LoginUserInputModel } from '../dto/input/login.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
 import { NewPasswordInputModel } from '../dto/input/new-password.user.dto';
 import { EmailInputModel } from '../dto/input/email.user.dto';
-
 import { UserRegistrationOutputDto } from '../dto/output/registratio.output.dto';
 import { UserRegitsrationSwagger } from '../decorators/swagger/user-registration/user-regitsration.swagger.decorator';
-import { RegistrationUserCommand } from '../command/registrarion.user.use.case';
-import { RegistrationEmailResendingCommand } from '../command/registration-email-resending.user.use.case';
-import { RegistrationConfirmationCommand } from '../command/registration-confirmation.user.use.case';
+import { RegistrationUserCommand } from '../command/registrarion.user.command';
+import { RegistrationEmailResendingCommand } from '../command/registration-email-resending.user.command';
+import { RegistrationConfirmationCommand } from '../command/registration-confirmation.user.command';
 import { LoginUserCommand } from '../command/login.user.command';
-import { LogoutUserCommand } from '../command/logout.user.use.case';
-import { PasswordRecoveryCommand } from '../command/password-recovery.user.use.case';
-import { SetNewPasswordCommand } from '../command/set-new-password.user.use.case';
+import { LogoutUserCommand } from '../command/logout.user.command';
+import { PasswordRecoveryCommand } from '../command/password-recovery.user.command';
+import { SetNewPasswordCommand } from '../command/set-new-password.user.command';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -49,16 +48,6 @@ export class AuthController {
     if (!result.isSuccess) throw result.error;
   }
 
-  @Post('login')
-  async login(@Body() inputModel: LoginUserInputModel) {
-    const result = await this.commandBus.execute(new LoginUserCommand(inputModel));
-  }
-
-  @Post('logout')
-  async logout() {
-    const result = await this.commandBus.execute(new LogoutUserCommand());
-  }
-
   @Post('password-recovery')
   async passwordRecovery(@Body() inputModel: EmailInputModel) {
     console.log('inputModel in auth controller (passwordRecovery):', inputModel);
@@ -74,5 +63,20 @@ export class AuthController {
     const result = await this.commandBus.execute(new SetNewPasswordCommand(inputModel));
     console.log('result in auth controller (setNewPassword):', result);
     if (!result.isSuccess) throw result.error;
+  }
+
+  @Post('login')
+  async login(@Body() inputModel: LoginUserInputModel) {
+    const result = await this.commandBus.execute(new LoginUserCommand(inputModel));
+  }
+
+  @Post('refresh-token')
+  async refreshToken(/* @Body() inputModel: LoginUserInputModel */) {
+    // const result = await this.commandBus.execute(new LoginUserCommand(inputModel));
+  }
+
+  @Post('logout')
+  async logout() {
+    const result = await this.commandBus.execute(new LogoutUserCommand());
   }
 }

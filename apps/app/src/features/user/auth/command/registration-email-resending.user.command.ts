@@ -13,7 +13,7 @@ export class RegistrationEmailResendingCommand {
 }
 
 @CommandHandler(RegistrationEmailResendingCommand)
-export class RegistrationEmailResendingUseCase implements ICommandHandler<RegistrationEmailResendingCommand> {
+export class RegistrationEmailResendingHandler implements ICommandHandler<RegistrationEmailResendingCommand> {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
@@ -54,6 +54,7 @@ export class RegistrationEmailResendingUseCase implements ICommandHandler<Regist
     const savingResult = await this.userRepository.updateAccountData(userAccountData);
     console.log('savingResult in registration email resending use case:', savingResult);
 
+    // отправка письма
     this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
 
     return ObjResult.Ok();

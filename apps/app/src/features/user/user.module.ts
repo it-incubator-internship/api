@@ -7,25 +7,27 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { EmailAdapter } from './auth/email.adapter/email.adapter';
 import { PrismaModule } from '../../common/database_module/prisma.module';
-import { RegistrationUserUseCase } from './auth/command/registrarion.user.use.case';
-import { RegistrationEmailResendingUseCase } from './auth/command/registration-email-resending.user.use.case';
-import { RegistrationConfirmationUseCase } from './auth/command/registration-confirmation.user.use.case';
+import { RegistrationUserHandler } from './auth/command/registrarion.user.command';
+import { RegistrationEmailResendingHandler } from './auth/command/registration-email-resending.user.command';
+import { RegistrationConfirmationHandler } from './auth/command/registration-confirmation.user.command';
+import { PasswordRecoveryHandler } from './auth/command/password-recovery.user.command';
+import { SetNewPasswordHandler } from './auth/command/set-new-password.user.command';
 import { LoginUserHandler } from './auth/command/login.user.command';
-import { LogoutUserUseCase } from './auth/command/logout.user.use.case';
-import { PasswordRecoveryUseCase } from './auth/command/password-recovery.user.use.case';
-import { SetNewPasswordUseCase } from './auth/command/set-new-password.user.use.case';
+import { RefreshTokenHandler } from './auth/command/refresh-token.command';
+import { LogoutUserHandler } from './auth/command/logout.user.command';
 
 const userCommands = [];
 const userRepositories = [UserRepository];
 const userService = [UserService];
 const useCases = [
-  RegistrationUserUseCase,
-  RegistrationEmailResendingUseCase,
-  RegistrationConfirmationUseCase,
+  RegistrationUserHandler,
+  RegistrationEmailResendingHandler,
+  RegistrationConfirmationHandler,
+  PasswordRecoveryHandler,
+  SetNewPasswordHandler,
   LoginUserHandler,
-  LogoutUserUseCase,
-  PasswordRecoveryUseCase,
-  SetNewPasswordUseCase,
+  RefreshTokenHandler,
+  LogoutUserHandler,
 ];
 
 @Module({

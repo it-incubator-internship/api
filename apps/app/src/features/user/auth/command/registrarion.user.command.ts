@@ -13,7 +13,7 @@ export class RegistrationUserCommand {
 }
 
 @CommandHandler(RegistrationUserCommand)
-export class RegistrationUserUseCase implements ICommandHandler<RegistrationUserCommand> {
+export class RegistrationUserHandler implements ICommandHandler<RegistrationUserCommand> {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
@@ -98,14 +98,8 @@ export class RegistrationUserUseCase implements ICommandHandler<RegistrationUser
       const updatingResult = await this.userRepository.updateUser(dataForUpdating);
       console.log('updatingResult in registration user use case:', updatingResult);
 
-      if (updatingResult) {
-        console.log('updatingResult');
-        try {
-          this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
-        } catch (e) {
-          console.log(e);
-        }
-      }
+      // отправка письма
+      this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
 
       return ObjResult.Ok();
     }
@@ -122,14 +116,8 @@ export class RegistrationUserUseCase implements ICommandHandler<RegistrationUser
     const creatingResult = await this.userRepository.createUser(dataForCreating);
     console.log('creatingResult in registration user use case:', creatingResult);
 
-    if (creatingResult) {
-      console.log('creatingResult');
-      try {
-        this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
-      } catch (e) {
-        console.log(e);
-      }
-    }
+    // отправка письма
+    this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
 
     return ObjResult.Ok();
   }

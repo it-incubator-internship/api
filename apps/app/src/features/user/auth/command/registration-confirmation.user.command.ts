@@ -10,7 +10,7 @@ export class RegistrationConfirmationCommand {
 }
 
 @CommandHandler(RegistrationConfirmationCommand)
-export class RegistrationConfirmationUseCase implements ICommandHandler<RegistrationConfirmationCommand> {
+export class RegistrationConfirmationHandler implements ICommandHandler<RegistrationConfirmationCommand> {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
