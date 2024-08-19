@@ -6,15 +6,16 @@ import { LoginUserInputModel } from '../dto/input/login.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
 import { NewPasswordInputModel } from '../dto/input/new-password.user.dto';
 import { EmailInputModel } from '../dto/input/email.user.dto';
-import { RegistrationUserCommand } from '../use.cases/registrarion.user.use.case';
-import { RegistrationEmailResendingCommand } from '../use.cases/registration-email-resending.user.use.case';
-import { RegistrationConfirmationCommand } from '../use.cases/registration-confirmation.user.use.case';
-import { LoginUserCommand } from '../use.cases/login.user.use.case';
-import { LogoutUserCommand } from '../use.cases/logout.user.use.case';
-import { PasswordRecoveryCommand } from '../use.cases/password-recovery.user.use.case';
-import { SetNewPasswordCommand } from '../use.cases/set-new-password.user.use.case';
+
 import { UserRegistrationOutputDto } from '../dto/output/registratio.output.dto';
 import { UserRegitsrationSwagger } from '../decorators/swagger/user-registration/user-regitsration.swagger.decorator';
+import { RegistrationUserCommand } from '../command/registrarion.user.use.case';
+import { RegistrationEmailResendingCommand } from '../command/registration-email-resending.user.use.case';
+import { RegistrationConfirmationCommand } from '../command/registration-confirmation.user.use.case';
+import { LoginUserCommand } from '../command/login.user.command';
+import { LogoutUserCommand } from '../command/logout.user.use.case';
+import { PasswordRecoveryCommand } from '../command/password-recovery.user.use.case';
+import { SetNewPasswordCommand } from '../command/set-new-password.user.use.case';
 
 @ApiTags('auth')
 @Controller('auth')
