@@ -2,6 +2,7 @@ import { Body, Controller, Ip, Post, Req, Res, UseGuards } from '@nestjs/common'
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
+
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { LoginUserInputModel } from '../dto/input/login.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
@@ -70,23 +71,26 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(
-  @Ip() ipAddress: string,
-  @Body() inputModel: LoginUserInputModel,
-  @Req() req: Request,
-  @Res({ passthrough: true }) res: Response) {
+    @Ip() ipAddress: string,
+    @Body() inputModel: LoginUserInputModel,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     console.log('ipAddress in auth controller (login):', ipAddress);
     console.log('inputModel in auth controller (login):', inputModel);
 
-    const userAgent = req.headers['user-agent'] || 'unknown'
+    const userAgent = req.headers['user-agent'] || 'unknown';
     console.log('userAgent in auth controller (login):', userAgent);
 
-    const result = await this.commandBus.execute(new LoginUserCommand({email: inputModel.email, ipAddress, userAgent}));
+    const result = await this.commandBus.execute(
+      new LoginUserCommand({ email: inputModel.email, ipAddress, userAgent }),
+    );
     console.log('result in auth controller (login):', result);
     // if (!result.isSuccess) throw result.error;
 
-    res.cookie('refreshToken', result.refreshToken, {httpOnly: true, secure: true,})
+    res.cookie('refreshToken', result.refreshToken, { httpOnly: true, secure: true });
 
-    return  {accessToken: result.accessToken}
+    return { accessToken: result.accessToken };
   }
 
   @Post('refresh-token')
@@ -97,6 +101,5 @@ export class AuthController {
   @Post('logout')
   async logout() {
     const result = await this.commandBus.execute(new LogoutUserCommand());
-    
   }
 }
