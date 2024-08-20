@@ -26,7 +26,8 @@
     "start:app": "cross-env NODE_ENV=PRODUCTION node dist/apps/app/main",
     "migrate:app": "dotenv -e .development.env -- npx prisma migrate dev --name add_deviceUuid --schema=./apps/app/prisma/schema.prisma",
     "migrate:app-testing": "dotenv -e .test.env -- npx prisma migrate dev --name add_deviceUuid --schema=./apps/app/prisma/schema.prisma",
-    "generate:app": "npx prisma generate --schema=./apps/app/prisma/schema.prisma"
+    "generate:app": "npx prisma generate --schema=./apps/app/prisma/schema.prisma",
+    "prisma:rest": "dotenv -e .development.env -- npx prisma migrate reset --schema=./apps/app/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

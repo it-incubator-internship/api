@@ -1,17 +1,18 @@
-/*
-  Warnings:
+-- CreateEnum
+CREATE TYPE "ConfirmationStatus" AS ENUM ('CONFIRM', 'NOT_CONFIRM');
 
-  - You are about to drop the `profile` table. If the table is not empty, all the data it contains will be lost.
+-- CreateEnum
+CREATE TYPE "BanStatus" AS ENUM ('BANNED', 'NOT_BANNED');
 
-*/
--- DropForeignKey
-ALTER TABLE "accountData" DROP CONSTRAINT "accountData_profileId_fkey";
+-- CreateTable
+CREATE TABLE "accountData" (
+    "profileId" UUID NOT NULL,
+    "confirmationStatus" "ConfirmationStatus" NOT NULL DEFAULT 'NOT_CONFIRM',
+    "confirmationCode" TEXT NOT NULL,
+    "recoveryCode" TEXT,
 
--- DropForeignKey
-ALTER TABLE "session" DROP CONSTRAINT "session_profileId_fkey";
-
--- DropTable
-DROP TABLE "profile";
+    CONSTRAINT "accountData_pkey" PRIMARY KEY ("profileId")
+);
 
 -- CreateTable
 CREATE TABLE "user" (
@@ -27,6 +28,21 @@ CREATE TABLE "user" (
 
     CONSTRAINT "user_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateTable
+CREATE TABLE "session" (
+    "id" UUID NOT NULL,
+    "profileId" UUID NOT NULL,
+    "deviceUuid" TEXT NOT NULL,
+    "deviceName" TEXT NOT NULL,
+    "ip" TEXT NOT NULL,
+    "lastActiveDate" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "session_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "accountData_profileId_key" ON "accountData"("profileId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_key" ON "user"("email");
