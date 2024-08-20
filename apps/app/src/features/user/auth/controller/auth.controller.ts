@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
@@ -15,6 +15,7 @@ import { LoginUserCommand } from '../command/login.user.command';
 import { LogoutUserCommand } from '../command/logout.user.command';
 import { PasswordRecoveryCommand } from '../command/password-recovery.user.command';
 import { SetNewPasswordCommand } from '../command/set-new-password.user.command';
+import { LocalAuthGuard } from '../guards/local.auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -65,9 +66,26 @@ export class AuthController {
     if (!result.isSuccess) throw result.error;
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Body() inputModel: LoginUserInputModel) {
-    const result = await this.commandBus.execute(new LoginUserCommand(inputModel));
+  async login(
+  @Ip() ipAddress: string,
+  @Body() inputModel: LoginUserInputModel,
+  @Req() req: Request,
+  @Res({ passthrough: true }) res: Response) {
+    console.log('ipAddress in auth controller (login):', ipAddress);
+    console.log('inputModel in auth controller (login):', inputModel);
+
+    const userAgent = req.headers['user-agent']
+    console.log('userAgent in auth controller (login):', userAgent);
+
+    const result = await this.commandBus.execute(new LoginUserCommand({email: inputModel.email, ipAddress, userAgent}));
+    console.log('result in auth controller (login):', result);
+    if (!result.isSuccess) throw result.error;
+
+    // res.cookie('refreshToken', result.refreshToken, {httpOnly: true, secure: true,})
+
+    return  {accessToken: result.accessToken}
   }
 
   @Post('refresh-token')

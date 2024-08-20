@@ -15,11 +15,12 @@ import { SetNewPasswordHandler } from './auth/command/set-new-password.user.comm
 import { LoginUserHandler } from './auth/command/login.user.command';
 import { RefreshTokenHandler } from './auth/command/refresh-token.command';
 import { LogoutUserHandler } from './auth/command/logout.user.command';
+import { LocalStrategy } from './auth/strategies/local.auth.strategy';
 
 const userCommands = [];
 const userRepositories = [UserRepository];
 const userService = [UserService];
-const useCases = [
+const commands = [
   RegistrationUserHandler,
   RegistrationEmailResendingHandler,
   RegistrationConfirmationHandler,
@@ -33,6 +34,6 @@ const useCases = [
 @Module({
   imports: [PrismaModule, CqrsModule, JwtModule.register({})],
   controllers: [UserController, AuthController],
-  providers: [...userRepositories, ...userService, ...useCases, EmailAdapter],
+  providers: [...userRepositories, ...userService, ...commands, EmailAdapter, LocalStrategy],
 })
 export class UserModule {}

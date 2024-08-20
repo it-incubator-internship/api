@@ -35,7 +35,7 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
 
     if (Date.now() > expTime) {
       console.log('Date.now() > expTime');
-      new BadRequestError('Confirmation code is expired', [{ message: 'Confirmation code is expired', field: 'code' }]);
+      return ObjResult.Err(new BadRequestError('Confirmation code is expired', [{ message: 'Confirmation code is expired', field: 'code' }]));
     }
 
     const userAccountData = await this.userRepository.findAccountDataByConfirmationCode({
@@ -45,7 +45,7 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
 
     if (!userAccountData) {
       console.log('!userAccountData');
-      return ObjResult.Err(new NotFoundError('UserAccountData not found'));
+      return ObjResult.Err(new BadRequestError('UserAccountData not found', [{ message: 'UserAccountData not found', field: 'code' }]));
     }
 
     if (userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM) {

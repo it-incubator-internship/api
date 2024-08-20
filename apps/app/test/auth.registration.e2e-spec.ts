@@ -280,14 +280,14 @@ describe('Auth e2e', () => {
 
 
 
-  it.skip('REGISTRATION CONFIRMATION with incorrect data (old confirmation code)', async () => {
+  it('REGISTRATION CONFIRMATION with incorrect data (old confirmation code)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
         code: confirmationCode_1,
       })
-      .expect(404);
-  }); // 404
+      .expect(400);
+  }); // 400
 
   it('REGISTRATION CONFIRMATION with correct data', async () => {
     await request(app.getHttpServer())
@@ -449,6 +449,79 @@ describe('Auth e2e', () => {
         code: recoveryCode,
         newPassword: 'Somepassword=2',
         passwordConfirmation: 'Somepassword=2',
+      })
+      .expect(201);
+  }); // 201
+
+
+
+  it.skip('LOGIN with incorrect data (empty fiels)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: '',
+        password: '',
+      })
+      .expect(400);
+  }); // 400
+
+  it.skip('LOGIN with incorrect data (only whitespaces)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: '     ',
+        password: '     ',
+      })
+      .expect(400);
+  }); // 400
+
+  it.skip('LOGIN with incorrect data (wrong type)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 777,
+        password: 777,
+      })
+      .expect(400);
+  }); // 400
+
+  it.skip('LOGIN with incorrect data (pattern violation)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'caramba',
+        password: 'some password'
+      })
+      .expect(400);
+  }); // 400
+
+  it.skip('LOGIN with incorrect data (non-existing email)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'caramba@mail.com',
+        password: 'Somepassword=2'
+      })
+      .expect(400);
+  }); // 400
+
+  it.skip('LOGIN with incorrect data (non-existing password)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'someemail@mail.com',
+        password: 'Somepassword=1'
+      })
+      .expect(400);
+  }); // 400
+
+  it('LOGIN with correct data', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .set('User-Agent', 'e2e user-agent')
+      .send({
+        email: 'someemail@gmail.com',
+        password: 'Somepassword=2'
       })
       .expect(201);
   }); // 201

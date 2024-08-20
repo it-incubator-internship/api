@@ -59,6 +59,7 @@ export const configuration = () => {
     'JWT_SECRET_REFRESH',
     'JWT_SECRET_CONF_CODE',
     'JWT_SECRET_RECOVERY_CODE',
+    'SHADOW_DATABASE_URL',
   ];
 
   //Эти значения выводятся в сваггере

@@ -38,6 +38,9 @@ export class EnvironmentVariables {
 
   @IsString()
   JWT_SECRET_RECOVERY_CODE: string;
+
+  @IsString()
+  SHADOW_DATABASE_URL: string;
 }
 
 export function validate(config: Record<string, unknown>) {
