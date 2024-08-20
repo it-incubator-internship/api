@@ -5,6 +5,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../../user/repository/user.repository';
 import { UserSession } from '../../user/class/session.fabric';
 import { ConfigurationType } from '../../../../common/settings/configuration';
+import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
 
 export class LoginUserCommand {
   constructor(public inputModel: {email: string, ipAddress: string, userAgent: string}) {}
@@ -48,12 +49,22 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
     const payload = await this.jwtService.decode(refreshToken)
     console.log('payload in login user use case:', payload);
 
-    // const session = UserSession.create({
-    //   profileId: user!.id,
-    //   deviceName: command.inputModel.userAgent,
-    //   ip: command.inputModel.ipAddress,
-    //   lastActiveDate: payload.
-    // })
+    const lastActiveDate = new Date(payload.iat * secondToMillisecond).toISOString()
+    console.log('lastActiveDate in login user use case:', lastActiveDate);
+
+    const session = UserSession.create({
+      profileId: user!.id,
+      deviceUuid,
+      deviceName: command.inputModel.userAgent,
+      ip: command.inputModel.ipAddress,
+      lastActiveDate,
+    })
+    console.log('session in login user use case:', session);
+
+    const creatingResult = await this.userRepository.createSession(session);
+    console.log('creatingResult in login user use case:', creatingResult);
+
+    return {accessToken, refreshToken}
 
   }
 }

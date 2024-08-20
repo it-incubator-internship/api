@@ -7,6 +7,7 @@ import { BadRequestError, NotFoundError } from '../../../../../../common/utils/r
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { ConfigurationType } from '../../../../common/settings/configuration';
 import { UserConfirmationStatusEnum } from '../../user/class/accoun-data.fabric';
+import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
 
 export class RegistrationConfirmationCommand {
   constructor(public inputModel: CodeInputModel) {}
@@ -30,7 +31,7 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
     const payload = this.jwtService.verify(command.inputModel.code, { secret });
     console.log('payload in registration confirmation use case:', payload);
 
-    const expTime = payload.exp * 1000;
+    const expTime = payload.exp * secondToMillisecond;
     console.log('expTime in registration confirmation use case:', expTime);
 
     if (Date.now() > expTime) {

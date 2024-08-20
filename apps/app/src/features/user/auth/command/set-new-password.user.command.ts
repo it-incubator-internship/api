@@ -7,6 +7,7 @@ import { NewPasswordInputModel } from '../dto/input/new-password.user.dto';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
 import { ConfigurationType } from '../../../../common/settings/configuration';
+import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
 
 export class SetNewPasswordCommand {
   constructor(public inputModel: NewPasswordInputModel) {}
@@ -40,7 +41,7 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
     const payload = this.jwtService.verify(command.inputModel.code, { secret });
     console.log('payload in set new password use case:', payload);
 
-    const expTime = payload.exp * 1000;
+    const expTime = payload.exp * secondToMillisecond;
     console.log('expTime in set new password use case:', expTime);
 
     if (Date.now() > expTime) {

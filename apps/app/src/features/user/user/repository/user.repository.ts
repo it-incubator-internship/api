@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UserEntity } from '../class/user.fabric';
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
 import { UserAccountData } from '../class/accoun-data.fabric';
+import { UserSession } from '../class/session.fabric';
 
 @Injectable()
 export class UserRepository {
@@ -67,6 +68,20 @@ export class UserRepository {
       console.log(e);
       throw new Error(e);
     }
+  }
+
+  async createSession(session: Omit<UserSession, 'id'>) {
+    console.log('session in user repository (createSession):', session);
+
+    return this.prismaService.session.create({
+      data: {
+        profileId: session.profileId,
+        deviceUuid: session.deviceUuid,
+        deviceName: session.deviceName,
+        ip: session.ip,
+        lastActiveDate: session.lastActiveDate,
+      },
+    });
   }
 
   // пока не используется

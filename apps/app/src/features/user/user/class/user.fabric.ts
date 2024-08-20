@@ -1,6 +1,4 @@
 import { User } from '../../../../../prisma/client';
-// import bcrypt from 'bcrypt';
-// import { randomUUID } from 'crypto';
 import { UserAccountData } from './accoun-data.fabric';
 
 enum UserBanStatusEnum {

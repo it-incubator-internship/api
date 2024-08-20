@@ -455,7 +455,7 @@ describe('Auth e2e', () => {
 
 
 
-  it.skip('LOGIN with incorrect data (empty fiels)', async () => {
+  it('LOGIN with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -465,7 +465,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it.skip('LOGIN with incorrect data (only whitespaces)', async () => {
+  it('LOGIN with incorrect data (only whitespaces)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -475,7 +475,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it.skip('LOGIN with incorrect data (wrong type)', async () => {
+  it('LOGIN with incorrect data (wrong type)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -485,7 +485,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it.skip('LOGIN with incorrect data (pattern violation)', async () => {
+  it('LOGIN with incorrect data (pattern violation)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -495,7 +495,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it.skip('LOGIN with incorrect data (non-existing email)', async () => {
+  it('LOGIN with incorrect data (non-existing email)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -505,7 +505,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it.skip('LOGIN with incorrect data (non-existing password)', async () => {
+  it('LOGIN with incorrect data (non-existing password)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
