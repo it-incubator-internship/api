@@ -31,7 +31,7 @@ export const appSettings = (app: INestApplication) => {
    * exception filters, заполнять снизу вверх
    */
 
-  app.useGlobalFilters(new ErrorExceptionFilter(), new CustomExceptionFilter());
+  app.useGlobalFilters( new CustomExceptionFilter(), new ErrorExceptionFilter(),);
 
   const configService = app.get(ConfigService<ConfigurationType, true>);
   const apiPrefix = configService.get('apiSettings.API_PREFIX', { infer: true });
