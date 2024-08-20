@@ -1,9 +1,12 @@
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../../user/repository/user.repository';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
 import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
+import { ConfigurationType } from '../../../../common/settings/configuration';
+import { UserConfirmationStatusEnum } from '../../user/class/accoun-data.fabric';
 
 export class RegistrationConfirmationCommand {
   constructor(public inputModel: CodeInputModel) {}
@@ -14,11 +17,17 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService<ConfigurationType, true>,
   ) {}
   async execute(command: RegistrationConfirmationCommand): Promise<any> {
     console.log('command in registration confirmation use case:', command);
 
-    const payload = this.jwtService.verify(command.inputModel.code, { secret: '12345' });
+    const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
+    console.log('jwtConfiguration in registration confirmation use case:', jwtConfiguration);
+    const secret = jwtConfiguration.confirmationCode as string;
+    console.log('secret in registration confirmation use case:', secret);
+
+    const payload = this.jwtService.verify(command.inputModel.code, { secret });
     console.log('payload in registration confirmation use case:', payload);
 
     const expTime = payload.exp * 1000;
@@ -29,20 +38,25 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
       new BadRequestError('Confirmation code is expired', [{ message: 'Confirmation code is expired', field: 'code' }]);
     }
 
-    const accountData = await this.userRepository.findAccountDataByConfirmationCode({
+    const userAccountData = await this.userRepository.findAccountDataByConfirmationCode({
       confirmationCode: command.inputModel.code,
     });
-    console.log('accountData in registration confirmation use case:', accountData);
+    console.log('userAccountData in registration confirmation use case:', userAccountData);
 
-    if (!accountData) {
-      console.log('!accountData');
-      return ObjResult.Err(new NotFoundError('AccountData not found'));
+    if (!userAccountData) {
+      console.log('!userAccountData');
+      return ObjResult.Err(new NotFoundError('UserAccountData not found'));
     }
 
-    accountData.confirmationRegistration();
-    console.log('accountData in registration confirmation use case:', accountData);
+    if (userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM) {
+      console.log('userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM');
+      return ObjResult.Err(new BadRequestError('Email has already been confirmed', [{ message: 'Email has already been confirmed', field: 'email' }]));
+    }
 
-    const savingResult = await this.userRepository.updateAccountData(accountData);
+    userAccountData.confirmationRegistration();
+    console.log('userAccountData in registration confirmation use case:', userAccountData);
+
+    const savingResult = await this.userRepository.updateAccountData(userAccountData);
     console.log('savingResult in registration confirmation use case:', savingResult);
 
     return ObjResult.Ok();

@@ -1,10 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import bcrypt from 'bcrypt';
 import { UserRepository } from '../../user/repository/user.repository';
 import { NewPasswordInputModel } from '../dto/input/new-password.user.dto';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
+import { ConfigurationType } from '../../../../common/settings/configuration';
 
 export class SetNewPasswordCommand {
   constructor(public inputModel: NewPasswordInputModel) {}
@@ -15,6 +17,7 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService<ConfigurationType, true>,
   ) {}
   async execute(command: SetNewPasswordCommand): Promise<any> {
     console.log('command in set new password use case:', command);
@@ -29,7 +32,12 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
       );
     }
 
-    const payload = this.jwtService.verify(command.inputModel.code, { secret: '12345' });
+    const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
+    console.log('jwtConfiguration in password recovery use case:', jwtConfiguration);
+    const secret = jwtConfiguration.confirmationCode as string;
+    console.log('secret in password recovery use case:', secret);
+
+    const payload = this.jwtService.verify(command.inputModel.code, { secret });
     console.log('payload in set new password use case:', payload);
 
     const expTime = payload.exp * 1000;

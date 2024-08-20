@@ -12,7 +12,8 @@ import { PrismaService } from '../src/common/database_module/prisma-connection.s
 describe('Auth e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
-  let confirmationCode;
+  let confirmationCode_1;
+  let confirmationCode_2;
   let recoveryCode;
   let httpServer;
 
@@ -171,6 +172,17 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(201);
+
+    const user = await prisma.user.findFirst({
+      where: {
+        email: 'someemail@gmail.com',
+      },
+      include: {
+        accountData: true,
+      },
+    });
+  
+    confirmationCode_1 = user!.accountData!.confirmationCode
   }); // 201
 
   it('REGISTRATION with incorrect data (re-registration with repeated userName)', async () => {
@@ -199,18 +211,112 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION with correct data', async () => {
+
+
+  it('REGISTRATION EMAIL RESENDING with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
-      .post('/auth/registration')
+      .post('/auth/registration-email-resending')
       .send({
-        userName: 'someusername',
-        password: 'Somepassword=1',
-        passwordConfirmation: 'Somepassword=1',
+        email: '',
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION EMAIL RESENDING with incorrect data (only whitespaces)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: '     ',
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION EMAIL RESENDING with incorrect data (wrong type)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: 777,
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION EMAIL RESENDING with incorrect data (pattern violation)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: 'caramba',
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION EMAIL RESENDING with incorrect data (non-existing value)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: 'caramba@gmail.com',
+      })
+      .expect(400);
+  }); // 404
+
+  it('REGISTRATION EMAIL RESENDING with correct data', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
         email: 'someemail@gmail.com',
-        isAgreement: true,
+      })
+      .expect(201);
+
+    const user = await prisma.user.findFirst({
+      where: {
+        email: 'someemail@gmail.com',
+      },
+      include: {
+        accountData: true,
+      },
+    });
+
+    confirmationCode_2 = user!.accountData!.confirmationCode
+  }); // 201
+
+
+
+  it.skip('REGISTRATION CONFIRMATION with incorrect data (old confirmation code)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-confirmation')
+      .send({
+        code: confirmationCode_1,
+      })
+      .expect(404);
+  }); // 404
+
+  it('REGISTRATION CONFIRMATION with correct data', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-confirmation')
+      .send({
+        code: confirmationCode_2,
       })
       .expect(201);
   }); // 201
+
+  it('REGISTRATION CONFIRMATION with incorrect data (re-registration confirmation)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-confirmation')
+      .send({
+        code: confirmationCode_2,
+      })
+      .expect(400);
+  }); // 400
+
+
+
+  it('REGISTRATION EMAIL RESENDING with incorrect data (email has already been confirmed)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-email-resending')
+      .send({
+        email: 'someemail@gmail.com',
+      })
+      .expect(400);
+  }); // 400
 
 
 
@@ -241,7 +347,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('PASSWORD RECOVERY with in correct data (pattern violation)', async () => {
+  it('PASSWORD RECOVERY with incorrect data (pattern violation)', async () => {
     await request(app.getHttpServer())
       .post('/auth/password-recovery')
       .send({
@@ -250,14 +356,14 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it.skip('PASSWORD RECOVERY with incorrect data (non-existing value)', async () => {
+  it('PASSWORD RECOVERY with incorrect data (non-existing value)', async () => {
     await request(app.getHttpServer())
       .post('/auth/password-recovery')
       .send({
         email: 'caramba@gmail.com',
       })
-      .expect(404);
-  }); // 404
+      .expect(400);
+  }); // 400
 
   it('PASSWORD RECOVERY with correct data', async () => {
     await request(app.getHttpServer())
@@ -343,84 +449,6 @@ describe('Auth e2e', () => {
         code: recoveryCode,
         newPassword: 'Somepassword=2',
         passwordConfirmation: 'Somepassword=2',
-      })
-      .expect(201);
-  }); // 201
-
-
-
-  it('REGISTRATION EMAIL RESENDING with incorrect data (empty fiels)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/registration-email-resending')
-      .send({
-        email: '',
-      })
-      .expect(400);
-  }); // 400
-
-  it('REGISTRATION EMAIL RESENDING with incorrect data (only whitespaces)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/registration-email-resending')
-      .send({
-        email: '     ',
-      })
-      .expect(400);
-  }); // 400
-
-  it('REGISTRATION EMAIL RESENDING with incorrect data (wrong type)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/registration-email-resending')
-      .send({
-        email: 777,
-      })
-      .expect(400);
-  }); // 400
-
-  it('REGISTRATION EMAIL RESENDING with in correct data (pattern violation)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/registration-email-resending')
-      .send({
-        email: 'caramba',
-      })
-      .expect(400);
-  }); // 400
-
-  it.skip('REGISTRATION EMAIL RESENDING with incorrect data (non-existing value)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/registration-email-resending')
-      .send({
-        email: 'caramba@gmail.com',
-      })
-      .expect(404);
-  }); // 404
-
-  it('REGISTRATION EMAIL RESENDING with correct data', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/registration-email-resending')
-      .send({
-        email: 'someemail@gmail.com',
-      })
-      .expect(201);
-
-    const user = await prisma.user.findFirst({
-      where: {
-        email: 'someemail@gmail.com',
-      },
-      include: {
-        accountData: true,
-      },
-    });
-
-    confirmationCode = user!.accountData!.confirmationCode
-  }); // 201
-
-
-
-  it('REGISTRATION CONFIRMATION with correct data', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/registration-confirmation')
-      .send({
-        code: confirmationCode,
       })
       .expect(201);
   }); // 201

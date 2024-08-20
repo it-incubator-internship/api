@@ -1,10 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { EmailInputModel } from '../dto/input/email.user.dto';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
 import { UserRepository } from '../../user/repository/user.repository';
 import { EmailAdapter } from '../email.adapter/email.adapter';
+import { ConfigurationType } from '../../../../common/settings/configuration';
 
 export class PasswordRecoveryCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -16,6 +18,7 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly emailAdapter: EmailAdapter,
+    private readonly configService: ConfigService<ConfigurationType, true>,
   ) {}
   async execute(command: PasswordRecoveryCommand): Promise<any> {
     console.log('command in password recovery use case:', command);
@@ -25,7 +28,8 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
 
     if (!user) {
       console.log('!user');
-      return ObjResult.Err(new NotFoundError('User not found'));
+      // return ObjResult.Err(new NotFoundError('User not found'));
+      return ObjResult.Err(new BadRequestError('User not found', [{ message: 'User not found', field: 'email' }]));
     }
 
     const userAccountData = await this.userRepository.findAccountDataById({ id: user.id });
@@ -36,8 +40,14 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
       return ObjResult.Err(new BadRequestError('I am teapot', [{ message: '', field: '' }]));
     }
 
+    const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
+    console.log('jwtConfiguration in password recovery use case:', jwtConfiguration);
+    const secret = jwtConfiguration.confirmationCode as string;
+    console.log('secret in password recovery use case:', secret);
+
     const recoveryCodePayload = { email: command.inputModel.email };
-    const secret = '12345'; // process.env.JWT_SECRET_CONFIRMATION_CODE   // я ещё ничего не подтягивал из .env
+    // const secret = '12345'; // process.env.JWT_SECRET_CONFIRMATION_CODE   // я ещё ничего не подтягивал из .env
+
     // обсудить время жизни confirmationCode
     const recoveryCode = this.jwtService.sign(recoveryCodePayload, { secret: secret, expiresIn: '500s' });
     console.log('recoveryCode in password recovery use case:', recoveryCode);
