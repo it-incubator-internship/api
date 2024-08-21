@@ -1,13 +1,15 @@
 // RegistrationUserInputModel.ts
 import { IsBoolean, IsString, Length, Matches } from 'class-validator';
+
 import { Trim } from '../../../../../../../common/decorators/trim.decorator';
-import { EmailInputModel } from './email.user.dto';
 import {
   isAgreementApiProperty,
   passwordApiProperty,
   passwordConfirmationApiProperty,
   userNameApiProperty,
 } from '../../decorators/swagger/user-registration/user-registration.input';
+
+import { EmailInputModel } from './email.user.dto';
 
 export class RegistrationUserInputModel extends EmailInputModel {
   @userNameApiProperty()
