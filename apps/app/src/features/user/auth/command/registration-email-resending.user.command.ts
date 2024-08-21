@@ -1,12 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { UserRepository } from '../../user/repository/user.repository';
 import { EmailInputModel } from '../dto/input/email.user.dto';
 import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
 import { EmailAdapter } from '../email.adapter/email.adapter';
-import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../../../common/settings/configuration';
+import { MailService } from '../../../../providers/mailer/mail.service';
 
 export class RegistrationEmailResendingCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -17,7 +19,7 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
-    private readonly emailAdapter: EmailAdapter,
+    private readonly mailService: MailService,
     private readonly configService: ConfigService<ConfigurationType, true>,
   ) {}
   async execute(command: RegistrationEmailResendingCommand): Promise<any> {
@@ -46,16 +48,17 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
 
     // обсудить время жизни confirmationCode
     const confirmationCode = this.jwtService.sign(confirmationCodePayload, { secret: secret, expiresIn: '500s' });
-    console.log('confirmationCode in registration email resending use case:', confirmationCode);
 
     userAccountData.updateConfirmationCode({ confirmationCode });
-    console.log('userAccountData in registration email resending use case:', userAccountData);
 
-    const savingResult = await this.userRepository.updateAccountData(userAccountData);
-    console.log('savingResult in registration email resending use case:', savingResult);
+    await this.userRepository.updateAccountData(userAccountData);
 
     // отправка письма
-    this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
+    this.mailService.sendUserConfirmation({
+      email: command.inputModel.email,
+      login: user.name,
+      token: confirmationCode,
+    });
 
     return ObjResult.Ok();
   }

@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
+
 import { EmailInputModel } from '../dto/input/email.user.dto';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
@@ -18,10 +19,7 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
     private readonly emailAdapter: EmailAdapter,
   ) {}
   async execute(command: PasswordRecoveryCommand): Promise<any> {
-    console.log('command in password recovery use case:', command);
-
     const user = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
-    console.log('user in password recovery use case:', user);
 
     if (!user) {
       console.log('!user');
@@ -29,10 +27,8 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
     }
 
     const userAccountData = await this.userRepository.findAccountDataById({ id: user.id });
-    console.log('userAccountData in password recovery use case:', userAccountData);
 
     if (!userAccountData) {
-      console.log('!userAccountData');
       return ObjResult.Err(new BadRequestError('I am teapot', [{ message: '', field: '' }]));
     }
 

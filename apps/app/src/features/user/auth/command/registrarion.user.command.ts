@@ -125,8 +125,6 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
       console.log(e);
     }
 
-    //this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
-
     return ObjResult.Ok();
   }
 }

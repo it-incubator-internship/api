@@ -35,18 +35,17 @@ export class AuthController {
 
   @Post('registration-email-resending')
   async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
-    console.log('inputModel in auth controller (registrationEmailResending):', inputModel);
     const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
-    console.log('result in auth controller (registrationEmailResending):', result);
+
     if (!result.isSuccess) throw result.error;
+
     return { email: inputModel.email };
   }
 
   @Post('registration-confirmation')
   async registrationConfirmation(@Body() inputModel: CodeInputModel) {
-    console.log('inputModel in auth controller (registrationConfirmation):', inputModel);
     const result = await this.commandBus.execute(new RegistrationConfirmationCommand(inputModel));
-    console.log('result in auth controller (registrationConfirmation):', result);
+
     if (!result.isSuccess) throw result.error;
   }
 
