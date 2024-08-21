@@ -6,8 +6,14 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async createUser(@Body() postData: { email: string; name: string }) {
-    await this.userService.createUser({ data: postData });
+  async createUser(@Body() postData: { email: string; name: string; password: string }) {
+    console.log('postData in user controller:', postData);
+    const result = await this.userService.createUser(/* { data: postData } */ postData);
+    console.log('result in user controller:', result);
+
+    if (!result.isSuccess) throw result.error;
+
+    return result.value;
   }
 
   @Get()
