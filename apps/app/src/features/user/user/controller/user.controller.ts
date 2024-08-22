@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
+
 import { UserService } from '../service/user.service';
 
 @Controller('users')
@@ -7,9 +8,7 @@ export class UserController {
 
   @Post()
   async createUser(@Body() postData: { email: string; name: string; password: string }) {
-    console.log('postData in user controller:', postData);
-    const result = await this.userService.createUser(/* { data: postData } */ postData);
-    console.log('result in user controller:', result);
+    const result = await this.userService.createUser(postData);
 
     if (!result.isSuccess) throw result.error;
 
