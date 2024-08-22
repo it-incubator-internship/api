@@ -3,12 +3,12 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 
 import { EmailInputModel } from '../dto/input/email.user.dto';
-import { EmailAdapter } from '../email.adapter/email.adapter';
 import { UserRepository } from '../../user/repository/user.repository';
 import { ConfigurationType } from '../../../../common/settings/configuration';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
 import { UserAccountData } from '../../user/class/accoun-data.fabric';
+import { MailService } from '../../../../providers/mailer/mail.service';
 
 export class PasswordRecoveryCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -19,8 +19,8 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
-    private readonly emailAdapter: EmailAdapter,
     private readonly configService: ConfigService<ConfigurationType, true>,
+    private readonly mailService: MailService,
   ) {}
   async execute(command: PasswordRecoveryCommand): Promise<any> {
     const user = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
@@ -51,7 +51,11 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
     await this.userRepository.updateAccountData(userAccountData);
 
     // отправка письма
-    this.emailAdapter.sendRecoveryCodeEmail({ email: command.inputModel.email, recoveryCode });
+    this.mailService.sendPasswordRecovery({
+      email: command.inputModel.email,
+      login: user.name,
+      recoveryCode,
+    });
 
     return ObjResult.Ok();
   }

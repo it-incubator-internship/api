@@ -1,7 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { MailService } from 'apps/app/src/providers/mailer/mail.service';
 
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { UserRepository } from '../../user/repository/user.repository';
@@ -9,6 +8,7 @@ import { EmailInputModel } from '../dto/input/email.user.dto';
 import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
 import { UserAccountData, UserConfirmationStatusEnum } from '../../user/class/accoun-data.fabric';
 import { ConfigurationType } from '../../../../common/settings/configuration';
+import { MailService } from '../../../../providers/mailer/mail.service';
 
 export class RegistrationEmailResendingCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -43,6 +43,7 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
       );
     }
 
+    //TODO jwt adapter
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
 
     // создание confirmationCode

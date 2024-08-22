@@ -19,7 +19,7 @@ export class SessionRepository {
     });
   }
 
-  async updateSession(session: UserSession) {
+  async updateLastActiveDataInSession(session: UserSession) {
     return this.prismaService.session.update({
       where: {
         id: session.id,

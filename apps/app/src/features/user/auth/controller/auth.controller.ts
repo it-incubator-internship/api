@@ -20,7 +20,7 @@ import { LocalAuthGuard } from '../guards/local.auth.guard';
 import { RefreshTokenGuard } from '../guards/refresh-token.auth.guard';
 import { RefreshTokenCommand } from '../command/refresh-token.command';
 import { RefreshTokenInformation } from '../decorators/controller/refresh.token.information';
-import { CurrentUserInformation } from '../decorators/controller/current.user.information';
+import { UserIdFromRequest } from '../decorators/controller/userIdFromRequest';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -73,8 +73,7 @@ export class AuthController {
   @Post('login')
   async login(
     @Ip() ipAddress: string,
-    @CurrentUserInformation() userInfo: { userId: string },
-    // @Body() inputModel: {email: string, password: string},
+    @UserIdFromRequest() userInfo: { userId: string },
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -85,7 +84,7 @@ export class AuthController {
     );
 
     if (!result.isSuccess) throw result.error;
-
+    //TODO указать в куки куда она должна приходить
     res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
 
     return { accessToken: result.value.accessToken };

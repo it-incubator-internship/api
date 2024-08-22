@@ -2,7 +2,11 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 
-import { CustomExceptionFilter, ErrorExceptionFilter } from '../../../../common/utils/result/exceprion-filter';
+import {
+  CustomExceptionFilter,
+  ErrorExceptionFilter,
+  HttpExceptionFilter,
+} from '../../../../common/utils/result/exceprion-filter';
 import { BadRequestError } from '../../../../common/utils/result/custom-error';
 
 import { ConfigurationType } from './configuration';
@@ -33,7 +37,7 @@ export const appSettings = (app: INestApplication) => {
    * exception filters, заполнять снизу вверх
    */
 
-  app.useGlobalFilters( new ErrorExceptionFilter(), new HttpExceptionFilter(), new CustomExceptionFilter() );
+  app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter(), new CustomExceptionFilter());
 
   const configService = app.get(ConfigService<ConfigurationType, true>);
   const apiPrefix = configService.get('apiSettings.API_PREFIX', { infer: true });

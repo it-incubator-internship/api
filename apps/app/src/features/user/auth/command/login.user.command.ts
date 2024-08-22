@@ -7,7 +7,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionRepository } from '../repository/session.repository';
 import { UserSession } from '../../user/class/session.fabric';
 import { ConfigurationType } from '../../../../common/settings/configuration';
-import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
+import { secondToMillisecond } from '../../../../common/constants/constants';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 
 export class LoginUserCommand {
@@ -22,6 +22,7 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
     private readonly sessionRepository: SessionRepository,
   ) {}
   async execute(command: LoginUserCommand): Promise<any> {
+    //TODO JWT adapter
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
 
     // создание accessToken
@@ -34,6 +35,7 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
     });
 
     // создание refreshToken
+    //TODO jwt adapter
     const deviceUuid = randomUUID();
     const refreshTokenPayload = { userId: command.inputModel.userId, deviceUuid };
     const refreshTokenSecret = jwtConfiguration.refreshTokenSecret as string;

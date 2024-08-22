@@ -3,10 +3,11 @@ import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
 import { AppModule } from '../src/app.module';
-import { EmailAdapter } from '../src/features/user/auth/email.adapter/email.adapter';
-import { EmailAdapterMock } from '../src/features/user/auth/email.adapter/email.adapte.mock';
 import { appSettings } from '../src/common/settings/apply-app-setting';
 import { PrismaService } from '../src/common/database_module/prisma-connection.service';
+import { MailService } from '../src/providers/mailer/mail.service';
+
+import { MailServiceMock } from './mock/email-service.mock';
 
 jest.setTimeout(15000); // увеличение времени ожидания
 
@@ -22,8 +23,8 @@ describe('Auth e2e', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideProvider(EmailAdapter)
-      .useClass(EmailAdapterMock)
+      .overrideProvider(MailService)
+      .useClass(MailServiceMock)
       .compile();
 
     app = moduleFixture.createNestApplication();

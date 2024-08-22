@@ -3,10 +3,10 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
-import { ConfigurationType } from 'apps/app/src/common/settings/configuration';
 
 import { SessionRepository } from '../repository/session.repository';
-import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
+import { secondToMillisecond } from '../../../../common/constants/constants';
+import { ConfigurationType } from '../../../../common/settings/configuration';
 
 @Injectable()
 export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh-token') {

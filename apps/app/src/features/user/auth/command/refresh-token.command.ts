@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { SessionRepository } from '../repository/session.repository';
-import { ConfigurationType } from '../../../../../../app/src/common/settings/configuration';
-import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
+import { ConfigurationType } from '../../../../common/settings/configuration';
+import { secondToMillisecond } from '../../../../common/constants/constants';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 
 export class RefreshTokenCommand {
@@ -23,6 +23,7 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
 
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
 
+    //TODO jwt adapter
     // создание accessToken
     const accessTokenPayload = { userId: command.inputModel.userId };
     const accessTokenSecret = jwtConfiguration.accessTokenSecret as string;
@@ -44,9 +45,9 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
     const payload = await this.jwtService.decode(refreshToken);
     const lastActiveDate = new Date(payload.iat * secondToMillisecond);
 
-    session?.updateLastActiveDate({ lastActiveDate });
+    session!.updateLastActiveDate({ lastActiveDate });
 
-    await this.sessionRepository.updateSession(session!);
+    await this.sessionRepository.updateLastActiveDataInSession(session!);
 
     return ObjResult.Ok({ accessToken, refreshToken });
   }

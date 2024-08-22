@@ -8,7 +8,6 @@ import { UserAccountData, UserConfirmationStatusEnum } from '../../user/class/ac
 import { ConfigurationType } from '../../../../common/settings/configuration';
 import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
 
 export class RegistrationConfirmationCommand {
   constructor(public inputModel: CodeInputModel) {}
@@ -24,16 +23,11 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
   async execute(command: RegistrationConfirmationCommand): Promise<any> {
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
     const confirmationCodeSecret = jwtConfiguration.confirmationCodeSecret as string;
-    let payload;
 
+    //TODO jwt adapter
     try {
-      payload = this.jwtService.verify(command.inputModel.code, { secret: confirmationCodeSecret });
+      await this.jwtService.verifyAsync(command.inputModel.code, { secret: confirmationCodeSecret });
     } catch (e) {
-      console.log(e);
-      throw new Error(e);
-    }
-
-    if (Date.now() > payload.exp * secondToMillisecond) {
       return ObjResult.Err(
         new BadRequestError('Confirmation code is expired', [
           { message: 'Confirmation code is expired', field: 'code' },
@@ -54,7 +48,7 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
     if (userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM) {
       return ObjResult.Err(
         new BadRequestError('Email has already been confirmed', [
-          { message: 'Email has already been confirmed', field: 'email' },
+          { message: 'Email has already been confirmed', field: 'code' },
         ]),
       );
     }

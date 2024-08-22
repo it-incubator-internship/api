@@ -65,6 +65,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
 
     // создание confirmationCode
+    //TODO создать jwt адптер
     const confirmationCodePayload = { email: command.inputModel.email };
     const confirmationCodeSecret = jwtConfiguration.confirmationCodeSecret as string;
     const confirmationCodeLifeTime = jwtConfiguration.confirmationCodeLifeTime as string;
@@ -77,8 +78,8 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     const passwordHash = bcrypt.hashSync(command.inputModel.password, hashRounds);
 
     const dataForCreating = UserEntity.create({
-      name: command.inputModel.userName as string,
-      email: command.inputModel.email as string,
+      name: command.inputModel.userName,
+      email: command.inputModel.email,
       passwordHash,
       accountData: { confirmationCode },
     });
@@ -93,6 +94,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
         token: confirmationCode,
       });
     } catch (e) {
+      //TODO logger
       console.log(e);
     }
 

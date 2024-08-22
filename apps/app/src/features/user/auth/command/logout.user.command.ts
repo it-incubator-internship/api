@@ -11,6 +11,7 @@ export class LogoutUserCommand {
 export class LogoutUserHandler implements ICommandHandler<LogoutUserCommand> {
   constructor(private readonly sessionRepository: SessionRepository) {}
   async execute(command: LogoutUserCommand): Promise<any> {
+    //TODO убрать лишний запрос ( добавить юник в схему)
     const session = await this.sessionRepository.findSessionByDeviceUuid({ deviceUuid: command.inputModel.deviceUuid });
 
     await this.sessionRepository.deleteSession({ id: session!.id });

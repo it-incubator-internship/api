@@ -8,7 +8,7 @@ import { UserRepository } from '../../user/repository/user.repository';
 import { ConfigurationType } from '../../../../common/settings/configuration';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
-import { hashRounds, secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
+import { hashRounds, secondToMillisecond } from '../../../../common/constants/constants';
 import { UserAccountData } from '../../user/class/accoun-data.fabric';
 
 import { DeletionSessionsCommand } from './deletion-sessions.command';
@@ -35,19 +35,14 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
       );
     }
 
+    //TODO jwt adapter
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
     const recoveryCodeSecret = jwtConfiguration.recoveryCodeSecret as string;
-    let payload;
 
     try {
-      payload = this.jwtService.verify(command.inputModel.code, { secret: recoveryCodeSecret });
+      this.jwtService.verify(command.inputModel.code, { secret: recoveryCodeSecret });
     } catch (e) {
-      console.log(e);
-      throw new Error(e);
-    }
-
-    if (Date.now() > payload.exp * secondToMillisecond) {
-      new BadRequestError('Recovery code is expired', [{ message: 'Recovery code is expired', field: 'code' }]);
+      return new BadRequestError('Recovery code is expired', [{ message: 'Recovery code is expired', field: 'code' }]);
     }
 
     const accountData: UserAccountData | null = await this.userRepository.findAccountDataByRecoveryCode({
@@ -61,7 +56,7 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
     const user = await this.userRepository.findUserById({ id: accountData.profileId });
 
     if (!user) {
-      return ObjResult.Err(new BadRequestError('I am teapot', [{ message: '', field: '' }]));
+      throw new Error(`User with id ${accountData.profileId} not found, but recovery code is valid`);
     }
 
     const passwordHash = bcrypt.hashSync(command.inputModel.newPassword, hashRounds);

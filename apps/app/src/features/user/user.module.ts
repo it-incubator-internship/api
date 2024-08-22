@@ -8,7 +8,6 @@ import { MailModule } from '../../providers/mailer/mail.module';
 import { UserController } from './user/controller/user.controller';
 import { UserService } from './user/service/user.service';
 import { UserRepository } from './user/repository/user.repository';
-import { EmailAdapter } from './auth/email.adapter/email.adapter';
 import { SetNewPasswordHandler } from './auth/command/set-new-password.user.command';
 import { LoginUserHandler } from './auth/command/login.user.command';
 import { RefreshTokenHandler } from './auth/command/refresh-token.command';
@@ -23,10 +22,9 @@ import { RegistrationConfirmationHandler } from './auth/command/registration-con
 import { PasswordRecoveryHandler } from './auth/command/password-recovery.user.command';
 import { AuthController } from './auth/controller/auth.controller';
 
-const userCommands = [];
 const userRepositories = [UserRepository, SessionRepository];
 const userService = [UserService];
-const userCcommands = [
+const userCommands = [
   RegistrationUserHandler,
   RegistrationEmailResendingHandler,
   RegistrationConfirmationHandler,
@@ -38,11 +36,10 @@ const userCcommands = [
   DeletionSessionsHandler,
 ];
 const stratigies = [LocalStrategy, RefreshStrategy];
-const adapters = [EmailAdapter];
 
 @Module({
   imports: [MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
   controllers: [UserController, AuthController],
-  providers: [...userRepositories, ...userService, ...userCcommands, ...stratigies, ...adapters],
+  providers: [...userRepositories, ...userService, ...userCommands, ...stratigies],
 })
 export class UserModule {}
