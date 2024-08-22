@@ -1,10 +1,8 @@
-import { Body, Controller, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Request, Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { Request, Response } from 'express';
-
+import { Body, Controller, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
-import { LoginUserInputModel } from '../dto/input/login.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
 import { NewPasswordInputModel } from '../dto/input/new-password.user.dto';
 import { EmailInputModel } from '../dto/input/email.user.dto';
@@ -18,6 +16,10 @@ import { LogoutUserCommand } from '../command/logout.user.command';
 import { PasswordRecoveryCommand } from '../command/password-recovery.user.command';
 import { SetNewPasswordCommand } from '../command/set-new-password.user.command';
 import { LocalAuthGuard } from '../guards/local.auth.guard';
+import { RefreshTokenGuard } from '../guards/refresh-token.auth.guard';
+import { RefreshTokenCommand } from '../command/refresh-token.command';
+import { RefreshTokenInformation } from '../decorators/controller/refresh.token.information';
+import { CurrentUserInformation } from '../decorators/controller/current.user.information';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -27,44 +29,42 @@ export class AuthController {
   @Post('registration')
   @UserRegitsrationSwagger()
   async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
-    console.log('inputModel in auth controller (registration):', inputModel);
     const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
-    console.log('result in auth controller (registration):', result);
+
     if (!result.isSuccess) throw result.error;
+
     return { email: inputModel.email };
   }
 
   @Post('registration-email-resending')
   async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
-    console.log('inputModel in auth controller (registrationEmailResending):', inputModel);
     const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
-    console.log('result in auth controller (registrationEmailResending):', result);
+
     if (!result.isSuccess) throw result.error;
+
     return { email: inputModel.email };
   }
 
   @Post('registration-confirmation')
   async registrationConfirmation(@Body() inputModel: CodeInputModel) {
-    console.log('inputModel in auth controller (registrationConfirmation):', inputModel);
     const result = await this.commandBus.execute(new RegistrationConfirmationCommand(inputModel));
-    console.log('result in auth controller (registrationConfirmation):', result);
+
     if (!result.isSuccess) throw result.error;
   }
 
   @Post('password-recovery')
   async passwordRecovery(@Body() inputModel: EmailInputModel) {
-    console.log('inputModel in auth controller (passwordRecovery):', inputModel);
     const result = await this.commandBus.execute(new PasswordRecoveryCommand(inputModel));
-    console.log('result in auth controller (passwordRecovery):', result);
+
     if (!result.isSuccess) throw result.error;
+
     return { email: inputModel.email };
   }
 
   @Post('new-password')
   async setNewPassword(@Body() inputModel: NewPasswordInputModel) {
-    console.log('inputModel in auth controller (setNewPassword):', inputModel);
     const result = await this.commandBus.execute(new SetNewPasswordCommand(inputModel));
-    console.log('result in auth controller (setNewPassword):', result);
+
     if (!result.isSuccess) throw result.error;
   }
 
@@ -72,34 +72,51 @@ export class AuthController {
   @Post('login')
   async login(
     @Ip() ipAddress: string,
-    @Body() inputModel: LoginUserInputModel,
+    @CurrentUserInformation() userInfo: {userId: string},
+    // @Body() inputModel: {email: string, password: string},
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    console.log('ipAddress in auth controller (login):', ipAddress);
-    console.log('inputModel in auth controller (login):', inputModel);
-
     const userAgent = req.headers['user-agent'] || 'unknown';
-    console.log('userAgent in auth controller (login):', userAgent);
 
     const result = await this.commandBus.execute(
-      new LoginUserCommand({ email: inputModel.email, ipAddress, userAgent }),
+      new LoginUserCommand({ ipAddress, userAgent, userId: userInfo.userId }),
     );
-    console.log('result in auth controller (login):', result);
-    // if (!result.isSuccess) throw result.error;
 
-    res.cookie('refreshToken', result.refreshToken, { httpOnly: true, secure: true });
+    if (!result.isSuccess) throw result.error;
 
-    return { accessToken: result.accessToken };
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
+
+    return { accessToken: result.value.accessToken };
   }
 
+  @UseGuards(RefreshTokenGuard)
   @Post('refresh-token')
-  async refreshToken(/* @Body() inputModel: LoginUserInputModel */) {
-    // const result = await this.commandBus.execute(new LoginUserCommand(inputModel));
+  async refreshToken(
+    @RefreshTokenInformation() userInfo: { userId: string, deviceUuid: string },
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const result = await this.commandBus.execute(new RefreshTokenCommand({userId: userInfo.userId, deviceUuid: userInfo.deviceUuid}));
+
+    if (!result.isSuccess) throw result.error;
+
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
+
+    return { accessToken: result.value.accessToken };
   }
 
+  @UseGuards(RefreshTokenGuard)
   @Post('logout')
-  async logout() {
-    const result = await this.commandBus.execute(new LogoutUserCommand());
+  async logout(
+    @RefreshTokenInformation() userInfo: { userId: string, deviceUuid: string },
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const result = await this.commandBus.execute(new LogoutUserCommand({userId: userInfo.userId, deviceUuid: userInfo.deviceUuid}));
+
+    if (!result.isSuccess) throw result.error;
+
+    res.clearCookie('refreshToken');
+
+    return
   }
 }

@@ -1,41 +1,43 @@
-// import { Injectable } from '@nestjs/common';
-// import { PassportStrategy } from '@nestjs/passport';
-// import { ExtractJwt, Strategy } from 'passport-jwt';
-// import { configVariables } from '../../config.variables/config.variables';
-// import { Request } from 'express';
-// import { RefreshTokenValidation } from '../../utils/validation.refresh.token';
-// import { CustomResponse } from '../../utils/custom.response';
+import { Request } from 'express';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { SessionRepository } from '../repository/session.repository';
+import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import { ConfigurationType } from 'apps/app/src/common/settings/configuration';
 
-// @Injectable()
-// export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh-token') {
-//     constructor(private readonly refreshTokenValidation: RefreshTokenValidation) {
-//         super({
-//             jwtFromRequest: ExtractJwt.fromExtractors([(request: Request) => {
-//                 return request?.cookies?.refreshToken;
-//             }]),
-//             ignoreExpiration: false,
-//             secretOrKey: configVariables.JWT_SECRET_REFRESH,
-//         });
-//     }
+@Injectable()
+export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh-token') {
+  constructor(
+    private readonly sessionRepository: SessionRepository,
+    private readonly configService: ConfigService<ConfigurationType, true>
+  ) {
+    const jwtSetting = configService.get('jwtSetting',{infer:true})
+    const refreshSecretKey = jwtSetting.refreshTokenSecret as string
 
-//     async validate(payload: any) {
+    super({
+      jwtFromRequest: ExtractJwt.fromExtractors([(request: Request) => {
+        return request?.cookies?.refreshToken;
+      }]),
+      ignoreExpiration: false,
+      secretOrKey: refreshSecretKey,
+    });
 
-// console.log('payload in refresh token auth strategy:', payload)
+    
+  }
 
-//         const session = await this.refreshTokenValidation.validateRefreshToken(payload.userId, payload.deviceId, payload.exp)
+  async validate(payload: any) {
+    const session = await this.sessionRepository.findSessionByDeviceUuid({deviceUuid: payload.deviceUuid})
 
-// console.log('session in refresh token auth strategy:', session)
-// console.log('data in refresh token auth strategy:', session.data)
-// console.log('payload in refresh token auth strategy:', payload)
-// console.log('payload.userId in refresh token auth strategy:', payload.userId)
-// console.log('payload.deviceId in refresh token auth strategy:', payload.deviceId)
+    if (!session) {
+      return null
+    }
 
-//         const result = CustomResponse.fromResult(session)
+    if (session.lastActiveDate.getTime() !== new Date(payload.iat * secondToMillisecond).getTime()) {
+      return null
+    }
 
-// console.log('result in refresh token auth strategy:', result)
-
-//         return result
-
-//     }
-
-// }
+    return {userId: payload.userId, deviceUuid: payload.deviceUuid}
+  }
+}

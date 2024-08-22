@@ -2,69 +2,52 @@ import { randomUUID } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../../user/repository/user.repository';
+import { SessionRepository } from '../repository/session.repository';
 import { UserSession } from '../../user/class/session.fabric';
 import { ConfigurationType } from '../../../../common/settings/configuration';
 import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
+import { ObjResult } from '../../../../../../common/utils/result/object-result';
 
 export class LoginUserCommand {
-  constructor(public inputModel: {email: string, ipAddress: string, userAgent: string}) {}
+  constructor(public inputModel: {ipAddress: string, userAgent: string, userId: string}) {}
 }
 
 @CommandHandler(LoginUserCommand)
 export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
   constructor(
-    private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService<ConfigurationType, true>,
+    private readonly sessionRepository: SessionRepository,
   ) {}
   async execute(command: LoginUserCommand): Promise<any> {
-    console.log('command in login user use case:', command);
-
-    const user = await this.userRepository.findUserByEmail({email: command.inputModel.email})
-    console.log('user in login user use case:', user);
-
-    const accessTokenPayload = {userId: user?.id}
-    console.log('accessTokenPayload in login user use case:', accessTokenPayload);
-
-    const deviceUuid = randomUUID()
-    console.log('deviceUuid in login user use case:', deviceUuid);
-
-    const refreshTokenPayload = {userId: user?.id, deviceUuid}
-    console.log('refreshTokenPayload in login user use case:', refreshTokenPayload);
-
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
-    console.log('jwtConfiguration in login user use case:', jwtConfiguration);
-    const accessTokenSecret = jwtConfiguration.accessToken as string;
-    console.log('accessTokenSecret in login user use case:', accessTokenSecret);
-    const refreshTokenSecret = jwtConfiguration.refreshToken as string;
-    console.log('refreshTokenSecret in login user use case:', refreshTokenSecret);
 
-    const accessToken = this.jwtService.sign(accessTokenPayload, {secret: accessTokenSecret, expiresIn: '500s' })   // время действия accessToken
-    console.log('accessToken in login user use case:', accessToken);
+    // создание accessToken
+    const accessTokenPayload = {userId: command.inputModel.userId}
+    const accessTokenSecret = jwtConfiguration.accessTokenSecret as string;
+    const accessTokenLifeTime = jwtConfiguration.accessTokenLifeTime as string;
+    const accessToken = this.jwtService.sign(accessTokenPayload, {secret: accessTokenSecret, expiresIn: accessTokenLifeTime })
 
-    const refreshToken = this.jwtService.sign(refreshTokenPayload, {secret: refreshTokenSecret, expiresIn: '1000s' })   // время действия refreshToken
-    console.log('refreshToken in login user use case:', refreshToken);
+    // создание refreshToken
+    const deviceUuid = randomUUID()
+    const refreshTokenPayload = {userId: command.inputModel.userId, deviceUuid}
+    const refreshTokenSecret = jwtConfiguration.refreshTokenSecret as string;
+    const refreshTokenLifeTime = jwtConfiguration.refreshTokenLifeTime as string;
+    const refreshToken = this.jwtService.sign(refreshTokenPayload, {secret: refreshTokenSecret, expiresIn: refreshTokenLifeTime })
 
     const payload = await this.jwtService.decode(refreshToken)
-    console.log('payload in login user use case:', payload);
-
     const lastActiveDate = new Date(payload.iat * secondToMillisecond).toISOString()
-    console.log('lastActiveDate in login user use case:', lastActiveDate);
 
     const session = UserSession.create({
-      profileId: user!.id,
+      profileId: command.inputModel.userId,
       deviceUuid,
       deviceName: command.inputModel.userAgent,
       ip: command.inputModel.ipAddress,
       lastActiveDate,
     })
-    console.log('session in login user use case:', session);
 
-    const creatingResult = await this.userRepository.createSession(session);
-    console.log('creatingResult in login user use case:', creatingResult);
+    await this.sessionRepository.createSession(session);
 
-    return {accessToken, refreshToken}
-
+    return ObjResult.Ok({accessToken, refreshToken})
   }
 }

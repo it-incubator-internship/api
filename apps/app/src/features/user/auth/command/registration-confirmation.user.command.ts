@@ -1,12 +1,12 @@
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UserRepository } from '../../user/repository/user.repository';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
-import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
+import { UserRepository } from '../../user/repository/user.repository';
+import { UserAccountData, UserConfirmationStatusEnum } from '../../user/class/accoun-data.fabric';
 import { ConfigurationType } from '../../../../common/settings/configuration';
-import { UserConfirmationStatusEnum } from '../../user/class/accoun-data.fabric';
+import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
+import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
 
 export class RegistrationConfirmationCommand {
@@ -21,44 +21,36 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
     private readonly configService: ConfigService<ConfigurationType, true>,
   ) {}
   async execute(command: RegistrationConfirmationCommand): Promise<any> {
-    console.log('command in registration confirmation use case:', command);
-
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
-    console.log('jwtConfiguration in registration confirmation use case:', jwtConfiguration);
-    const secret = jwtConfiguration.confirmationCode as string;
-    console.log('secret in registration confirmation use case:', secret);
+    const confirmationCodeSecret = jwtConfiguration.confirmationCodeSecret as string;
+    let payload
 
-    const payload = this.jwtService.verify(command.inputModel.code, { secret });
-    console.log('payload in registration confirmation use case:', payload);
+    try {
+      payload = this.jwtService.verify(command.inputModel.code, { secret: confirmationCodeSecret });
+    } catch (e) {
+      console.log(e);
+      throw new Error(e);
+    }
 
-    const expTime = payload.exp * secondToMillisecond;
-    console.log('expTime in registration confirmation use case:', expTime);
-
-    if (Date.now() > expTime) {
-      console.log('Date.now() > expTime');
+    if (Date.now() > payload.exp * secondToMillisecond) {
       return ObjResult.Err(new BadRequestError('Confirmation code is expired', [{ message: 'Confirmation code is expired', field: 'code' }]));
     }
 
-    const userAccountData = await this.userRepository.findAccountDataByConfirmationCode({
+    const userAccountData: UserAccountData | null = await this.userRepository.findAccountDataByConfirmationCode({
       confirmationCode: command.inputModel.code,
     });
-    console.log('userAccountData in registration confirmation use case:', userAccountData);
 
     if (!userAccountData) {
-      console.log('!userAccountData');
       return ObjResult.Err(new BadRequestError('UserAccountData not found', [{ message: 'UserAccountData not found', field: 'code' }]));
     }
 
     if (userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM) {
-      console.log('userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM');
       return ObjResult.Err(new BadRequestError('Email has already been confirmed', [{ message: 'Email has already been confirmed', field: 'email' }]));
     }
 
     userAccountData.confirmationRegistration();
-    console.log('userAccountData in registration confirmation use case:', userAccountData);
 
-    const savingResult = await this.userRepository.updateAccountData(userAccountData);
-    console.log('savingResult in registration confirmation use case:', savingResult);
+    await this.userRepository.updateAccountData(userAccountData);
 
     return ObjResult.Ok();
   }

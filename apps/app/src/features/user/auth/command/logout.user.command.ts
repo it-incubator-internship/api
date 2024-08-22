@@ -1,15 +1,23 @@
-import { UserRepository } from '../../user/repository/user.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { SessionRepository } from '../repository/session.repository';
+import { UserRepository } from '../../user/repository/user.repository';
+import { ObjResult } from '../../../../../../common/utils/result/object-result';
 
 export class LogoutUserCommand {
-  // public inputModel: {userId: string, deviceId: string}
-  constructor() {}
+  constructor(public inputModel: {userId: string, deviceUuid: string}) {}
 }
 
 @CommandHandler(LogoutUserCommand)
 export class LogoutUserHandler implements ICommandHandler<LogoutUserCommand> {
-  constructor(private readonly userRepository: UserRepository) {}
-  execute(command: LogoutUserCommand): Promise<any> {
-    throw new Error('Method not implemented.');
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly sessionRepository: SessionRepository,
+  ) {}
+  async execute(command: LogoutUserCommand): Promise<any> {
+    const session = await this.sessionRepository.findSessionByDeviceUuid({deviceUuid: command.inputModel.deviceUuid})
+
+    await this.sessionRepository.deleteSession({id: session!.id})
+
+    return ObjResult.Ok()
   }
 }

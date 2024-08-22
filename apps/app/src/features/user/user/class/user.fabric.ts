@@ -1,5 +1,5 @@
-import { User } from '../../../../../prisma/client';
 import { UserAccountData } from './accoun-data.fabric';
+import { User } from '../../../../../prisma/client';
 
 enum UserBanStatusEnum {
   BANNED = 'BANNED',
@@ -21,43 +21,31 @@ export class UserEntity implements User {
   static create({
     name,
     email,
-    /* password, */ passwordHash,
+    passwordHash,
     accountData = null,
   }: {
     name: string;
     email: string;
-    /* password */ passwordHash: string;
+    passwordHash: string;
     accountData?: {
       confirmationCode: string;
     } | null;
   }): Omit<UserEntity, 'id'> {
-    console.log('name in user fabric:', name);
-    console.log('email in user fabric:', email);
-    console.log('passwordHash in user fabric:', passwordHash);
-    console.log('accountData in user fabric:', accountData);
 
     const userProfileDto: {
       name: string;
       email: string;
-      // deletedAt: Date | null;
       passwordHash: string;
-      // confirmationCode: string;
       accountData?: object;
     } = {
       email,
       name,
-      // deletedAt: null,
-      passwordHash /*bcrypt.hashSync(password, 10)*/,
-      // confirmationCode: accountData?.confirmationCode /*: randomUUID()*/,
+      passwordHash,
     };
-
-    console.log('userProfileDto in user fabric:', userProfileDto);
 
     if (accountData) {
       userProfileDto.accountData = UserAccountData.create({ confirmationCode: accountData.confirmationCode });
     }
-
-    console.log('userProfileDto in user fabric:', userProfileDto);
 
     return Object.assign(new this(), userProfileDto);
   }
@@ -67,6 +55,7 @@ export class UserEntity implements User {
     return Object.assign(new this(), user);
   }
 
+  // метод для удалёния юзера
   deleteUserProfile() {
     this.deletedAt = new Date();
   }

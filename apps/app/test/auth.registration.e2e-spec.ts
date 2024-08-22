@@ -7,14 +7,14 @@ import { EmailAdapterMock } from '../src/features/user/auth/email.adapter/email.
 import { appSettings } from '../src/common/settings/apply-app-setting';
 import { PrismaService } from '../src/common/database_module/prisma-connection.service';
 
-// jest.setTimeout(10000); // увеличение времени ожидания
+jest.setTimeout(15000); // увеличение времени ожидания
 
 describe('Auth e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
-  let confirmationCode_1;
-  let confirmationCode_2;
+  let confirmationCode;
   let recoveryCode;
+  let refreshToken;
   let httpServer;
 
   beforeAll(async () => {
@@ -172,17 +172,6 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(201);
-
-    const user = await prisma.user.findFirst({
-      where: {
-        email: 'someemail@gmail.com',
-      },
-      include: {
-        accountData: true,
-      },
-    });
-  
-    confirmationCode_1 = user!.accountData!.confirmationCode
   }); // 201
 
   it('REGISTRATION with incorrect data (re-registration with repeated userName)', async () => {
@@ -256,7 +245,7 @@ describe('Auth e2e', () => {
         email: 'caramba@gmail.com',
       })
       .expect(400);
-  }); // 404
+  }); // 400
 
   it('REGISTRATION EMAIL RESENDING with correct data', async () => {
     await request(app.getHttpServer())
@@ -275,16 +264,43 @@ describe('Auth e2e', () => {
       },
     });
 
-    confirmationCode_2 = user!.accountData!.confirmationCode
+    confirmationCode = user!.accountData!.confirmationCode
   }); // 201
 
 
 
-  it('REGISTRATION CONFIRMATION with incorrect data (old confirmation code)', async () => {
+  it('REGISTRATION CONFIRMATION with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
-        code: confirmationCode_1,
+        code: '',
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION CONFIRMATION with incorrect data (only whitespaces)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-confirmation')
+      .send({
+        code: '     ',
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION CONFIRMATION with incorrect data (wrong type)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-confirmation')
+      .send({
+        code: 777,
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION CONFIRMATION with incorrect data (non-existing value)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-confirmation')
+      .send({
+        code: 'caramba',
       })
       .expect(400);
   }); // 400
@@ -293,7 +309,7 @@ describe('Auth e2e', () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
-        code: confirmationCode_2,
+        code: confirmationCode,
       })
       .expect(201);
   }); // 201
@@ -302,7 +318,7 @@ describe('Auth e2e', () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
-        code: confirmationCode_2,
+        code: confirmationCode,
       })
       .expect(400);
   }); // 400
@@ -317,6 +333,143 @@ describe('Auth e2e', () => {
       })
       .expect(400);
   }); // 400
+
+
+
+  it('LOGIN with incorrect data (empty fiels)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: '',
+        password: '',
+      })
+      .expect(401);
+  }); // 401
+
+  it('LOGIN with incorrect data (only whitespaces)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: '     ',
+        password: '     ',
+      })
+      .expect(401);
+  }); // 401
+
+  it('LOGIN with incorrect data (wrong type)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 777,
+        password: 777,
+      })
+      .expect(401);
+  }); // 401
+
+  it('LOGIN with incorrect data (pattern violation)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'caramba',
+        password: 'some password'
+      })
+      .expect(401);
+  }); // 401
+
+  it('LOGIN with incorrect data (non-existing email)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'caramba@mail.com',
+        password: 'Somepassword=1'
+      })
+      .expect(401);
+  }); // 401
+
+  it('LOGIN with incorrect data (non-existing password)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({
+        email: 'someemail@mail.com',
+        password: 'Somepassword=0'
+      })
+      .expect(401);
+  }); // 401
+
+  it('LOGIN with correct data', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .set('User-Agent', 'e2e user-agent')
+      .send({
+        email: 'someemail@gmail.com',
+        password: 'Somepassword=1'
+      })
+      .expect(201);
+
+    refreshToken = response.headers['set-cookie']
+  }); // 201
+
+
+
+  it('UPDATE tokens without refresh token', async () => {
+    await request(app.getHttpServer())
+        .post('/auth/refresh-token')
+        .expect(401)
+  }) // 401
+
+  it('UPDATE tokens with incorrect refresh token', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/refresh-token')
+      .set('Cookie', 'refreshToken=caramba')
+      .expect(401)
+  }) // 401
+
+  it('UPDATE tokens with correct refresh token', async () => {
+
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/refresh-token')
+      .set('Cookie', refreshToken)
+      .expect(201)
+
+    refreshToken = response.headers['set-cookie']
+  }) // 201
+
+
+
+  it('LOGOUT without refresh token', async () => {
+    await request(app.getHttpServer())
+        .post('/auth/logout')
+        .expect(401)
+  }) // 401
+
+  it('LOGOUT with incorrect refresh token', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/logout')
+      .set('Cookie', 'refreshToken=caramba')
+      .expect(401)
+  }) // 401
+
+  it('LOGOUT with correct refresh token', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/logout')
+      .set('Cookie', refreshToken)
+      .expect(201)
+  }) // 201
+
+
+
+  it('LOGIN with correct data', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .set('User-Agent', 'e2e user-agent')
+      .send({
+        email: 'someemail@gmail.com',
+        password: 'Somepassword=1'
+      })
+      .expect(201);
+  }); // 201
 
 
 
@@ -431,6 +584,17 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
+  it('SET NEW PASSWORD with incorrect data (non-existing value)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/new-password')
+      .send({
+        code: 'caramba',
+        newPassword: 'some password',
+        passwordConfirmation: 'some password',
+      })
+      .expect(400);
+  }); // 400
+
   it('SET NEW PASSWORD with incorrect data (mismatched passwords)', async () => {
     await request(app.getHttpServer())
       .post('/auth/new-password')
@@ -449,79 +613,6 @@ describe('Auth e2e', () => {
         code: recoveryCode,
         newPassword: 'Somepassword=2',
         passwordConfirmation: 'Somepassword=2',
-      })
-      .expect(201);
-  }); // 201
-
-
-
-  it('LOGIN with incorrect data (empty fiels)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: '',
-        password: '',
-      })
-      .expect(400);
-  }); // 400
-
-  it('LOGIN with incorrect data (only whitespaces)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: '     ',
-        password: '     ',
-      })
-      .expect(400);
-  }); // 400
-
-  it('LOGIN with incorrect data (wrong type)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: 777,
-        password: 777,
-      })
-      .expect(400);
-  }); // 400
-
-  it('LOGIN with incorrect data (pattern violation)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: 'caramba',
-        password: 'some password'
-      })
-      .expect(400);
-  }); // 400
-
-  it('LOGIN with incorrect data (non-existing email)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: 'caramba@mail.com',
-        password: 'Somepassword=2'
-      })
-      .expect(400);
-  }); // 400
-
-  it('LOGIN with incorrect data (non-existing password)', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        email: 'someemail@mail.com',
-        password: 'Somepassword=1'
-      })
-      .expect(400);
-  }); // 400
-
-  it('LOGIN with correct data', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/login')
-      .set('User-Agent', 'e2e user-agent')
-      .send({
-        email: 'someemail@gmail.com',
-        password: 'Somepassword=2'
       })
       .expect(201);
   }); // 201

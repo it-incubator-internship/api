@@ -1,17 +1,46 @@
-import { UserRepository } from '../../user/repository/user.repository';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { SessionRepository } from '../repository/session.repository';
+import { ConfigurationType } from '../../../../../../app/src/common/settings/configuration';
+import { secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
+import { ObjResult } from '../../../../../../common/utils/result/object-result';
 
 export class RefreshTokenCommand {
-  constructor(
-    public userId: string,
-    public deviceId: string,
-  ) {}
+  constructor(public inputModel: {userId: string, deviceUuid: string}) {}
 }
 
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand> {
-  constructor(private readonly userRepository: UserRepository) {}
-  execute(command: RefreshTokenCommand): Promise<any> {
-    throw new Error('Method not implemented.');
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService<ConfigurationType, true>,
+    private readonly sessionRepository: SessionRepository,
+  ) {}
+  async execute(command: RefreshTokenCommand): Promise<any> {
+    const session = await this.sessionRepository.findSessionByDeviceUuid({deviceUuid: command.inputModel.deviceUuid})
+
+    const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
+
+    // создание accessToken
+    const accessTokenPayload = {userId: command.inputModel.userId}
+    const accessTokenSecret = jwtConfiguration.accessTokenSecret as string;
+    const accessTokenLifeTime = jwtConfiguration.accessTokenLifeTime as string;
+    const accessToken = this.jwtService.sign(accessTokenPayload, {secret: accessTokenSecret, expiresIn: accessTokenLifeTime})
+
+    // создание refreshToken
+    const refreshTokenPayload = {userId: command.inputModel.userId, deviceUuid: command.inputModel.deviceUuid}
+    const refreshTokenSecret = jwtConfiguration.refreshTokenSecret as string;
+    const refreshTokenLifeTime = jwtConfiguration.refreshTokenLifeTime as string;
+    const refreshToken = this.jwtService.sign(refreshTokenPayload, {secret: refreshTokenSecret, expiresIn: refreshTokenLifeTime})
+
+    const payload = await this.jwtService.decode(refreshToken)
+    const lastActiveDate = new Date(payload.iat * secondToMillisecond)
+
+    session?.updateLastActiveDate({lastActiveDate})
+
+    await this.sessionRepository.updateSession(session!);
+
+    return ObjResult.Ok({accessToken, refreshToken})
   }
 }

@@ -13,10 +13,14 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     },
 
     jwtSetting: {
-      accessToken: environmentVariables.JWT_SECRET_ACCESS,
-      refreshToken: environmentVariables.JWT_SECRET_REFRESH,
-      confirmationCode: environmentVariables.JWT_SECRET_CONF_CODE,
-      recoveryCode: environmentVariables.JWT_SECRET_RECOVERY_CODE,
+      accessTokenSecret: environmentVariables.JWT_SECRET_ACCESS,
+      refreshTokenSecret: environmentVariables.JWT_SECRET_REFRESH,
+      confirmationCodeSecret: environmentVariables.JWT_SECRET_CONFIRMATION_CODE,
+      recoveryCodeSecret: environmentVariables.JWT_SECRET_RECOVERY_CODE,
+      accessTokenLifeTime: environmentVariables.JWT_LIFE_TIME_ACCESS,
+      refreshTokenLifeTime: environmentVariables.JWT_LIFE_TIME_REFRESH,
+      confirmationCodeLifeTime: environmentVariables.JWT_LIFE_TIME_CONFIRMATION_CODE,
+      recoveryCodeLifeTime: environmentVariables.JWT_LIFE_TIME_RECOVERY_CODE,
     },
 
     environmentSettings: {
@@ -57,9 +61,13 @@ export const configuration = () => {
     'EMAIL_PASS',
     'JWT_SECRET_ACCESS',
     'JWT_SECRET_REFRESH',
-    'JWT_SECRET_CONF_CODE',
+    'JWT_SECRET_CONFIRMATION_CODE',
     'JWT_SECRET_RECOVERY_CODE',
     'SHADOW_DATABASE_URL',
+    'JWT_LIFE_TIME_ACCESS',
+    'JWT_LIFE_TIME_REFRESH',
+    'JWT_LIFE_TIME_CONFIRMATION_CODE',
+    'JWT_LIFE_TIME_RECOVERY_CODE',
   ];
 
   //Эти значения выводятся в сваггере

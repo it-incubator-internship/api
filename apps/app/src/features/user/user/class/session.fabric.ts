@@ -22,11 +22,6 @@ export class UserSession implements Session {
     ip: string,
     lastActiveDate: string
   }): Omit<UserSession, 'id'> {
-    console.log('profileId in user fabric:', profileId);
-    console.log('deviceUuid in user fabric:', deviceUuid);
-    console.log('deviceName in user fabric:', deviceName);
-    console.log('ip in user fabric:', ip);
-    console.log('lastActiveDate in user fabric:', lastActiveDate);
 
     const session = {
       profileId,
@@ -39,7 +34,11 @@ export class UserSession implements Session {
     return Object.assign(new this(), session);
   }
 
-  updateLastActiveDate(lastActiveDate: Date) {
+  static convert(session: Session): UserSession {
+    return Object.assign(new this(), session);
+  }
+
+  updateLastActiveDate({lastActiveDate}: {lastActiveDate: Date}) {
     this.lastActiveDate = lastActiveDate;
   }
 }

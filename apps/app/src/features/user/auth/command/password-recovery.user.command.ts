@@ -1,12 +1,13 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { EmailInputModel } from '../dto/input/email.user.dto';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
-import { UserRepository } from '../../user/repository/user.repository';
 import { EmailAdapter } from '../email.adapter/email.adapter';
+import { UserRepository } from '../../user/repository/user.repository';
 import { ConfigurationType } from '../../../../common/settings/configuration';
+import { ObjResult } from '../../../../../../common/utils/result/object-result';
+import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
+import { UserAccountData } from '../../user/class/accoun-data.fabric';
 
 export class PasswordRecoveryCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -21,42 +22,29 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
     private readonly configService: ConfigService<ConfigurationType, true>,
   ) {}
   async execute(command: PasswordRecoveryCommand): Promise<any> {
-    console.log('command in password recovery use case:', command);
-
     const user = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
-    console.log('user in password recovery use case:', user);
 
     if (!user) {
-      console.log('!user');
-      // return ObjResult.Err(new NotFoundError('User not found'));
       return ObjResult.Err(new BadRequestError('User not found', [{ message: 'User not found', field: 'email' }]));
     }
 
-    const userAccountData = await this.userRepository.findAccountDataById({ id: user.id });
-    console.log('userAccountData in password recovery use case:', userAccountData);
+    const userAccountData: UserAccountData | null = await this.userRepository.findAccountDataById({ id: user.id });
 
     if (!userAccountData) {
-      console.log('!userAccountData');
       return ObjResult.Err(new BadRequestError('I am teapot', [{ message: '', field: '' }]));
     }
 
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
-    console.log('jwtConfiguration in password recovery use case:', jwtConfiguration);
-    const secret = jwtConfiguration.confirmationCode as string;
-    console.log('secret in password recovery use case:', secret);
 
+    // создание recoveryCode
     const recoveryCodePayload = { email: command.inputModel.email };
-    // const secret = '12345'; // process.env.JWT_SECRET_CONFIRMATION_CODE   // я ещё ничего не подтягивал из .env
-
-    // обсудить время жизни confirmationCode
-    const recoveryCode = this.jwtService.sign(recoveryCodePayload, { secret: secret, expiresIn: '500s' });
-    console.log('recoveryCode in password recovery use case:', recoveryCode);
+    const recoveryCodeSecret = jwtConfiguration.recoveryCodeSecret as string;
+    const recoveryCodeLifeTime = jwtConfiguration.recoveryCodeLifeTime as string;
+    const recoveryCode = this.jwtService.sign(recoveryCodePayload, { secret: recoveryCodeSecret, expiresIn: recoveryCodeLifeTime });
 
     userAccountData.updateRecoveryCode({ recoveryCode });
-    console.log('userAccountData in password recovery use case:', userAccountData);
 
-    const savingResult = await this.userRepository.updateAccountData(userAccountData);
-    console.log('savingResult in password recovery use case:', savingResult);
+    await this.userRepository.updateAccountData(userAccountData);
 
     // отправка письма
     this.emailAdapter.sendRecoveryCodeEmail({ email: command.inputModel.email, recoveryCode });
