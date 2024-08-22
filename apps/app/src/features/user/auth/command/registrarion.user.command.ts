@@ -3,14 +3,14 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { EmailAdapter } from '../email.adapter/email.adapter';
-import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { UserRepository } from '../../user/repository/user.repository';
-import { UserEntity } from '../../user/class/user.fabric';
 import { ConfigurationType } from '../../../../common/settings/configuration';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
+import { MailService } from '../../../../providers/mailer/mail.service';
 import { hashRounds } from '../../../../../../app/src/common/constants/constants';
+import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
+import { UserEntity } from '../../user/class/user.fabric';
 
 export class RegistrationUserCommand {
   constructor(public inputModel: RegistrationUserInputModel) {}
@@ -21,18 +21,16 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
-    private readonly emailAdapter: EmailAdapter,
     private readonly configService: ConfigService<ConfigurationType, true>,
+    private readonly mailService: MailService,
   ) {}
   async execute(command: RegistrationUserCommand): Promise<any> {
-    // если isAgreement = false
     if (!command.inputModel.isAgreement) {
       return ObjResult.Err(
         new BadRequestError('I am teapot', [{ message: 'IsAgreement must be true', field: 'isAgreement' }]),
       );
     }
 
-    // если password !== passwordConfirmation
     if (command.inputModel.password !== command.inputModel.passwordConfirmation) {
       return ObjResult.Err(
         new BadRequestError('Passwords must match', [
@@ -88,7 +86,15 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     await this.userRepository.createUser(dataForCreating);
 
     // отправка письма
-    this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
+    try {
+      await this.mailService.sendUserConfirmation({
+        email: command.inputModel.email,
+        login: command.inputModel.userName,
+        token: confirmationCode,
+      });
+    } catch (e) {
+      console.log(e);
+    }
 
     return ObjResult.Ok();
   }

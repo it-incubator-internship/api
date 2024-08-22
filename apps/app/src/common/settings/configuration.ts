@@ -9,7 +9,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
   return {
     apiSettings: {
       PORT: Number.parseInt(environmentVariables.PORT || '6666'),
-      API_PREFIX: 'api/v1',
+      API_PREFIX: 'api-v1',
     },
 
     jwtSetting: {
@@ -30,6 +30,11 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       isLocal: currentEnvironment === Environments.LOCAL,
       isTesting: currentEnvironment === Environments.TEST,
       isDevelopment: currentEnvironment === Environments.DEVELOPMENT,
+    },
+
+    mailSettings: {
+      password: environmentVariables.GMAIL_PASS,
+      email: environmentVariables.GMAIL_USER,
     },
 
     getAllVariables: {
@@ -63,6 +68,8 @@ export const configuration = () => {
     'JWT_SECRET_REFRESH',
     'JWT_SECRET_CONFIRMATION_CODE',
     'JWT_SECRET_RECOVERY_CODE',
+    'GMAIL_USER',
+    'GMAIL_PASS',
     'SHADOW_DATABASE_URL',
     'JWT_LIFE_TIME_ACCESS',
     'JWT_LIFE_TIME_REFRESH',

@@ -1,14 +1,14 @@
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { MailService } from 'apps/app/src/providers/mailer/mail.service';
 
-import { EmailAdapter } from '../email.adapter/email.adapter';
-import { EmailInputModel } from '../dto/input/email.user.dto';
+import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { UserRepository } from '../../user/repository/user.repository';
+import { EmailInputModel } from '../dto/input/email.user.dto';
+import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
 import { UserAccountData, UserConfirmationStatusEnum } from '../../user/class/accoun-data.fabric';
 import { ConfigurationType } from '../../../../common/settings/configuration';
-import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
 
 export class RegistrationEmailResendingCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -19,7 +19,7 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
-    private readonly emailAdapter: EmailAdapter,
+    private readonly mailService: MailService,
     private readonly configService: ConfigService<ConfigurationType, true>,
   ) {}
   async execute(command: RegistrationEmailResendingCommand): Promise<any> {
@@ -59,7 +59,11 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
     await this.userRepository.updateAccountData(userAccountData);
 
     // отправка письма
-    this.emailAdapter.sendConfirmationCodeEmail({ email: command.inputModel.email, confirmationCode });
+    this.mailService.sendUserConfirmation({
+      email: command.inputModel.email,
+      login: user.name,
+      token: confirmationCode,
+    });
 
     return ObjResult.Ok();
   }

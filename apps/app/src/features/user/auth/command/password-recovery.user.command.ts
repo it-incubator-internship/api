@@ -1,6 +1,6 @@
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { JwtService } from '@nestjs/jwt';
 
 import { EmailInputModel } from '../dto/input/email.user.dto';
 import { EmailAdapter } from '../email.adapter/email.adapter';
