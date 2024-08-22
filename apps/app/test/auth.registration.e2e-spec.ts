@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { AppModule } from '../src/app.module';
 import { EmailAdapter } from '../src/features/user/auth/email.adapter/email.adapter';
 import { EmailAdapterMock } from '../src/features/user/auth/email.adapter/email.adapte.mock';
@@ -200,8 +201,6 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-
-
   it('REGISTRATION EMAIL RESENDING with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-email-resending')
@@ -264,10 +263,8 @@ describe('Auth e2e', () => {
       },
     });
 
-    confirmationCode = user!.accountData!.confirmationCode
+    confirmationCode = user!.accountData!.confirmationCode;
   }); // 201
-
-
 
   it('REGISTRATION CONFIRMATION with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
@@ -323,8 +320,6 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-
-
   it('REGISTRATION EMAIL RESENDING with incorrect data (email has already been confirmed)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-email-resending')
@@ -333,8 +328,6 @@ describe('Auth e2e', () => {
       })
       .expect(400);
   }); // 400
-
-
 
   it('LOGIN with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
@@ -371,7 +364,7 @@ describe('Auth e2e', () => {
       .post('/auth/login')
       .send({
         email: 'caramba',
-        password: 'some password'
+        password: 'some password',
       })
       .expect(401);
   }); // 401
@@ -381,7 +374,7 @@ describe('Auth e2e', () => {
       .post('/auth/login')
       .send({
         email: 'caramba@mail.com',
-        password: 'Somepassword=1'
+        password: 'Somepassword=1',
       })
       .expect(401);
   }); // 401
@@ -391,7 +384,7 @@ describe('Auth e2e', () => {
       .post('/auth/login')
       .send({
         email: 'someemail@mail.com',
-        password: 'Somepassword=0'
+        password: 'Somepassword=0',
       })
       .expect(401);
   }); // 401
@@ -402,63 +395,43 @@ describe('Auth e2e', () => {
       .set('User-Agent', 'e2e user-agent')
       .send({
         email: 'someemail@gmail.com',
-        password: 'Somepassword=1'
+        password: 'Somepassword=1',
       })
       .expect(201);
 
-    refreshToken = response.headers['set-cookie']
+    refreshToken = response.headers['set-cookie'];
   }); // 201
 
-
-
   it('UPDATE tokens without refresh token', async () => {
-    await request(app.getHttpServer())
-        .post('/auth/refresh-token')
-        .expect(401)
-  }) // 401
+    await request(app.getHttpServer()).post('/auth/refresh-token').expect(401);
+  }); // 401
 
   it('UPDATE tokens with incorrect refresh token', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/refresh-token')
-      .set('Cookie', 'refreshToken=caramba')
-      .expect(401)
-  }) // 401
+    await request(app.getHttpServer()).post('/auth/refresh-token').set('Cookie', 'refreshToken=caramba').expect(401);
+  }); // 401
 
   it('UPDATE tokens with correct refresh token', async () => {
-
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     const response = await request(app.getHttpServer())
       .post('/auth/refresh-token')
       .set('Cookie', refreshToken)
-      .expect(201)
+      .expect(201);
 
-    refreshToken = response.headers['set-cookie']
-  }) // 201
-
-
+    refreshToken = response.headers['set-cookie'];
+  }); // 201
 
   it('LOGOUT without refresh token', async () => {
-    await request(app.getHttpServer())
-        .post('/auth/logout')
-        .expect(401)
-  }) // 401
+    await request(app.getHttpServer()).post('/auth/logout').expect(401);
+  }); // 401
 
   it('LOGOUT with incorrect refresh token', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/logout')
-      .set('Cookie', 'refreshToken=caramba')
-      .expect(401)
-  }) // 401
+    await request(app.getHttpServer()).post('/auth/logout').set('Cookie', 'refreshToken=caramba').expect(401);
+  }); // 401
 
   it('LOGOUT with correct refresh token', async () => {
-    await request(app.getHttpServer())
-      .post('/auth/logout')
-      .set('Cookie', refreshToken)
-      .expect(201)
-  }) // 201
-
-
+    await request(app.getHttpServer()).post('/auth/logout').set('Cookie', refreshToken).expect(201);
+  }); // 201
 
   it('LOGIN with correct data', async () => {
     await request(app.getHttpServer())
@@ -466,12 +439,10 @@ describe('Auth e2e', () => {
       .set('User-Agent', 'e2e user-agent')
       .send({
         email: 'someemail@gmail.com',
-        password: 'Somepassword=1'
+        password: 'Somepassword=1',
       })
       .expect(201);
   }); // 201
-
-
 
   it('PASSWORD RECOVERY with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
@@ -537,8 +508,6 @@ describe('Auth e2e', () => {
 
     recoveryCode = user!.accountData!.recoveryCode;
   }); // 201
-
-
 
   it('SET NEW PASSWORD with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())

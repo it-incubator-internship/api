@@ -1,6 +1,8 @@
-import bcrypt from 'bcrypt';
 import { randomUUID } from 'crypto';
+
+import bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
+
 import { UserRepository } from '../repository/user.repository';
 import { UserEntity } from '../class/user.fabric';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
@@ -11,7 +13,7 @@ export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   async createUser(data: any) {
-    if (!data ) return ObjResult.Err(new BadRequestError('test is required', [{ message: '', field: '' }]));
+    if (!data) return ObjResult.Err(new BadRequestError('test is required', [{ message: '', field: '' }]));
 
     const confirmationCode = randomUUID();
 

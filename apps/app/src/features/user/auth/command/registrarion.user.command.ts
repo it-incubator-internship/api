@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
 import { EmailAdapter } from '../email.adapter/email.adapter';
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { UserRepository } from '../../user/repository/user.repository';
@@ -40,7 +41,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
       );
     }
 
-    // в строках 45-63 происходит проверка наличия в бд пользователей с вводимыми email или userName
+    // в строках 47-65 происходит проверка наличия в бд пользователей с вводимыми email или userName
     // если у user совпадает email, но не совпадает userName, то email занят
     // если у user совпадает userName, но не совпадает email, то userName занят
     const userByEmail = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
@@ -69,7 +70,10 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     const confirmationCodePayload = { email: command.inputModel.email };
     const confirmationCodeSecret = jwtConfiguration.confirmationCodeSecret as string;
     const confirmationCodeLifeTime = jwtConfiguration.confirmationCodeLifeTime as string;
-    const confirmationCode = this.jwtService.sign(confirmationCodePayload, { secret: confirmationCodeSecret, expiresIn: confirmationCodeLifeTime });
+    const confirmationCode = this.jwtService.sign(confirmationCodePayload, {
+      secret: confirmationCodeSecret,
+      expiresIn: confirmationCodeLifeTime,
+    });
 
     // создание passwordHash
     const passwordHash = bcrypt.hashSync(command.inputModel.password, hashRounds);

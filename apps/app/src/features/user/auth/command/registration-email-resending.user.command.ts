@@ -1,6 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
 import { EmailAdapter } from '../email.adapter/email.adapter';
 import { EmailInputModel } from '../dto/input/email.user.dto';
 import { UserRepository } from '../../user/repository/user.repository';
@@ -35,7 +36,11 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
     }
 
     if (userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM) {
-      return ObjResult.Err(new BadRequestError('Email has already been confirmed', [{ message: 'Email has already been confirmed', field: 'email' }]));
+      return ObjResult.Err(
+        new BadRequestError('Email has already been confirmed', [
+          { message: 'Email has already been confirmed', field: 'email' },
+        ]),
+      );
     }
 
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
@@ -44,7 +49,10 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
     const confirmationCodePayload = { email: command.inputModel.email };
     const confirmationCodeSecret = jwtConfiguration.confirmationCodeSecret as string;
     const confirmationCodeLifeTime = jwtConfiguration.confirmationCodeLifeTime as string;
-    const confirmationCode = this.jwtService.sign(confirmationCodePayload, { secret: confirmationCodeSecret, expiresIn: confirmationCodeLifeTime });
+    const confirmationCode = this.jwtService.sign(confirmationCodePayload, {
+      secret: confirmationCodeSecret,
+      expiresIn: confirmationCodeLifeTime,
+    });
 
     userAccountData.updateConfirmationCode({ confirmationCode });
 

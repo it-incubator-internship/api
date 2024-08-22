@@ -1,6 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
 import { EmailInputModel } from '../dto/input/email.user.dto';
 import { EmailAdapter } from '../email.adapter/email.adapter';
 import { UserRepository } from '../../user/repository/user.repository';
@@ -40,7 +41,10 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
     const recoveryCodePayload = { email: command.inputModel.email };
     const recoveryCodeSecret = jwtConfiguration.recoveryCodeSecret as string;
     const recoveryCodeLifeTime = jwtConfiguration.recoveryCodeLifeTime as string;
-    const recoveryCode = this.jwtService.sign(recoveryCodePayload, { secret: recoveryCodeSecret, expiresIn: recoveryCodeLifeTime });
+    const recoveryCode = this.jwtService.sign(recoveryCodePayload, {
+      secret: recoveryCodeSecret,
+      expiresIn: recoveryCodeLifeTime,
+    });
 
     userAccountData.updateRecoveryCode({ recoveryCode });
 

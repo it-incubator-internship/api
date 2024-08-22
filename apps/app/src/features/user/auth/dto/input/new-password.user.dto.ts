@@ -1,6 +1,8 @@
 import { IsString, Length, Matches } from 'class-validator';
-import { CodeInputModel } from './confirmation-code.user.dto';
+
 import { Trim } from '../../../../../../../common/decorators/trim.decorator';
+
+import { CodeInputModel } from './confirmation-code.user.dto';
 
 export class NewPasswordInputModel extends CodeInputModel {
   @IsString()

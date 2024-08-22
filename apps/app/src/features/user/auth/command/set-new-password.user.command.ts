@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DeletionSessionsCommand } from './deletion-sessions.command';
+
 import { NewPasswordInputModel } from '../dto/input/new-password.user.dto';
 import { UserRepository } from '../../user/repository/user.repository';
 import { ConfigurationType } from '../../../../common/settings/configuration';
@@ -10,6 +10,8 @@ import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
 import { hashRounds, secondToMillisecond } from '../../../../../../app/src/common/constants/constants';
 import { UserAccountData } from '../../user/class/accoun-data.fabric';
+
+import { DeletionSessionsCommand } from './deletion-sessions.command';
 
 export class SetNewPasswordCommand {
   constructor(public inputModel: NewPasswordInputModel) {}
@@ -35,7 +37,7 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
 
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
     const recoveryCodeSecret = jwtConfiguration.recoveryCodeSecret as string;
-    let payload
+    let payload;
 
     try {
       payload = this.jwtService.verify(command.inputModel.code, { secret: recoveryCodeSecret });
@@ -68,7 +70,7 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
 
     await this.userRepository.updateUser(user);
 
-    await this.commandBus.execute(new DeletionSessionsCommand({id: user.id}));
+    await this.commandBus.execute(new DeletionSessionsCommand({ id: user.id }));
 
     return ObjResult.Ok();
   }

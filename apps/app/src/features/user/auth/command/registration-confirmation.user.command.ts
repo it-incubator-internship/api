@@ -1,6 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
 import { UserRepository } from '../../user/repository/user.repository';
 import { UserAccountData, UserConfirmationStatusEnum } from '../../user/class/accoun-data.fabric';
@@ -23,7 +24,7 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
   async execute(command: RegistrationConfirmationCommand): Promise<any> {
     const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
     const confirmationCodeSecret = jwtConfiguration.confirmationCodeSecret as string;
-    let payload
+    let payload;
 
     try {
       payload = this.jwtService.verify(command.inputModel.code, { secret: confirmationCodeSecret });
@@ -33,7 +34,11 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
     }
 
     if (Date.now() > payload.exp * secondToMillisecond) {
-      return ObjResult.Err(new BadRequestError('Confirmation code is expired', [{ message: 'Confirmation code is expired', field: 'code' }]));
+      return ObjResult.Err(
+        new BadRequestError('Confirmation code is expired', [
+          { message: 'Confirmation code is expired', field: 'code' },
+        ]),
+      );
     }
 
     const userAccountData: UserAccountData | null = await this.userRepository.findAccountDataByConfirmationCode({
@@ -41,11 +46,17 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
     });
 
     if (!userAccountData) {
-      return ObjResult.Err(new BadRequestError('UserAccountData not found', [{ message: 'UserAccountData not found', field: 'code' }]));
+      return ObjResult.Err(
+        new BadRequestError('UserAccountData not found', [{ message: 'UserAccountData not found', field: 'code' }]),
+      );
     }
 
     if (userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM) {
-      return ObjResult.Err(new BadRequestError('Email has already been confirmed', [{ message: 'Email has already been confirmed', field: 'email' }]));
+      return ObjResult.Err(
+        new BadRequestError('Email has already been confirmed', [
+          { message: 'Email has already been confirmed', field: 'email' },
+        ]),
+      );
     }
 
     userAccountData.confirmationRegistration();

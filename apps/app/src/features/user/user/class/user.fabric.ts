@@ -1,5 +1,6 @@
-import { UserAccountData } from './accoun-data.fabric';
 import { User } from '../../../../../prisma/client';
+
+import { UserAccountData } from './accoun-data.fabric';
 
 enum UserBanStatusEnum {
   BANNED = 'BANNED',
@@ -31,7 +32,6 @@ export class UserEntity implements User {
       confirmationCode: string;
     } | null;
   }): Omit<UserEntity, 'id'> {
-
     const userProfileDto: {
       name: string;
       email: string;

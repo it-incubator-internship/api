@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
+
+import { PrismaModule } from '../../common/database_module/prisma.module';
+
 import { UserController } from './user/controller/user.controller';
 import { AuthController } from './auth/controller/auth.controller';
 import { UserService } from './user/service/user.service';
@@ -18,7 +21,6 @@ import { LocalStrategy } from './auth/strategies/local.auth.strategy';
 import { RefreshStrategy } from './auth/strategies/refresh-token.auth.strategy';
 import { DeletionSessionsHandler } from './auth/command/deletion-sessions.command';
 import { SessionRepository } from './auth/repository/session.repository';
-import { PrismaModule } from '../../common/database_module/prisma.module';
 
 const userCommands = [];
 const userRepositories = [UserRepository, SessionRepository];
@@ -45,11 +47,8 @@ const userCcommands = [
 //   LogoutUserHandler,
 //   DeletionSessionsHandler,
 // ];
-const stratigies = [
-  LocalStrategy,
-  RefreshStrategy,
-]
-const adapters = [EmailAdapter]
+const stratigies = [LocalStrategy, RefreshStrategy];
+const adapters = [EmailAdapter];
 
 @Module({
   imports: [PrismaModule, CqrsModule, JwtModule.register({})],

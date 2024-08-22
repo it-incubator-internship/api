@@ -14,22 +14,21 @@ export class UserSession implements Session {
     deviceUuid,
     deviceName,
     ip,
-    lastActiveDate
+    lastActiveDate,
   }: {
-    profileId: string,
-    deviceUuid: string,
-    deviceName: string,
-    ip: string,
-    lastActiveDate: string
+    profileId: string;
+    deviceUuid: string;
+    deviceName: string;
+    ip: string;
+    lastActiveDate: string;
   }): Omit<UserSession, 'id'> {
-
     const session = {
       profileId,
       deviceUuid,
       deviceName,
       ip,
-      lastActiveDate
-    }
+      lastActiveDate,
+    };
 
     return Object.assign(new this(), session);
   }
@@ -38,7 +37,7 @@ export class UserSession implements Session {
     return Object.assign(new this(), session);
   }
 
-  updateLastActiveDate({lastActiveDate}: {lastActiveDate: Date}) {
+  updateLastActiveDate({ lastActiveDate }: { lastActiveDate: Date }) {
     this.lastActiveDate = lastActiveDate;
   }
 }

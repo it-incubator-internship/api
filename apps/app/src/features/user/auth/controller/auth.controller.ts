@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
+
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
 import { NewPasswordInputModel } from '../dto/input/new-password.user.dto';
@@ -72,7 +73,7 @@ export class AuthController {
   @Post('login')
   async login(
     @Ip() ipAddress: string,
-    @CurrentUserInformation() userInfo: {userId: string},
+    @CurrentUserInformation() userInfo: { userId: string },
     // @Body() inputModel: {email: string, password: string},
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -93,10 +94,12 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @Post('refresh-token')
   async refreshToken(
-    @RefreshTokenInformation() userInfo: { userId: string, deviceUuid: string },
-    @Res({ passthrough: true }) res: Response
+    @RefreshTokenInformation() userInfo: { userId: string; deviceUuid: string },
+    @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.commandBus.execute(new RefreshTokenCommand({userId: userInfo.userId, deviceUuid: userInfo.deviceUuid}));
+    const result = await this.commandBus.execute(
+      new RefreshTokenCommand({ userId: userInfo.userId, deviceUuid: userInfo.deviceUuid }),
+    );
 
     if (!result.isSuccess) throw result.error;
 
@@ -108,15 +111,17 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @Post('logout')
   async logout(
-    @RefreshTokenInformation() userInfo: { userId: string, deviceUuid: string },
-    @Res({ passthrough: true }) res: Response
+    @RefreshTokenInformation() userInfo: { userId: string; deviceUuid: string },
+    @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.commandBus.execute(new LogoutUserCommand({userId: userInfo.userId, deviceUuid: userInfo.deviceUuid}));
+    const result = await this.commandBus.execute(
+      new LogoutUserCommand({ userId: userInfo.userId, deviceUuid: userInfo.deviceUuid }),
+    );
 
     if (!result.isSuccess) throw result.error;
 
     res.clearCookie('refreshToken');
 
-    return
+    return;
   }
 }

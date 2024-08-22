@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+
 import { UserEntity } from '../class/user.fabric';
 import { UserAccountData } from '../class/accoun-data.fabric';
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
@@ -123,7 +124,11 @@ export class UserRepository {
     return UserAccountData.convert(user);
   }
 
-  async findAccountDataByConfirmationCode({ confirmationCode }: { confirmationCode: string }): Promise<UserAccountData | null> {
+  async findAccountDataByConfirmationCode({
+    confirmationCode,
+  }: {
+    confirmationCode: string;
+  }): Promise<UserAccountData | null> {
     const user = await this.prismaService.accountData.findFirst({
       where: {
         confirmationCode: confirmationCode,
