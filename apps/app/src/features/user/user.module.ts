@@ -36,17 +36,6 @@ const userCcommands = [
   LogoutUserHandler,
   DeletionSessionsHandler,
 ];
-// const sessionCcommands = [
-//   RegistrationUserHandler,
-//   RegistrationEmailResendingHandler,
-//   RegistrationConfirmationHandler,
-//   PasswordRecoveryHandler,
-//   SetNewPasswordHandler,
-//   LoginUserHandler,
-//   RefreshTokenHandler,
-//   LogoutUserHandler,
-//   DeletionSessionsHandler,
-// ];
 const stratigies = [LocalStrategy, RefreshStrategy];
 const adapters = [EmailAdapter];
 

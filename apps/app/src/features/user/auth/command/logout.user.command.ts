@@ -9,9 +9,7 @@ export class LogoutUserCommand {
 
 @CommandHandler(LogoutUserCommand)
 export class LogoutUserHandler implements ICommandHandler<LogoutUserCommand> {
-  constructor(
-    private readonly sessionRepository: SessionRepository,
-  ) {}
+  constructor(private readonly sessionRepository: SessionRepository) {}
   async execute(command: LogoutUserCommand): Promise<any> {
     const session = await this.sessionRepository.findSessionByDeviceUuid({ deviceUuid: command.inputModel.deviceUuid });
 
