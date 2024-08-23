@@ -2,13 +2,13 @@ import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtService } from '@nestjs/jwt';
 
-import { EmailInputModel } from '../dto/input/email.user.dto';
-import { UserRepository } from '../../user/repository/user.repository';
-import { ConfigurationType } from '../../../../common/settings/configuration';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
-import { UserAccountData } from '../../user/class/accoun-data.fabric';
-import { MailService } from '../../../../providers/mailer/mail.service';
+import { EmailInputModel } from '../../dto/input/email.user.dto';
+import { UserRepository } from '../../../user/repository/user.repository';
+import { ConfigurationType } from '../../../../../common/settings/configuration';
+import { ObjResult } from '../../../../../../../common/utils/result/object-result';
+import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
+import { UserAccountData } from '../../../user/class/accoun-data.fabric';
+import { MailService } from '../../../../../providers/mailer/mail.service';
 
 export class PasswordRecoveryCommand {
   constructor(public inputModel: EmailInputModel) {}

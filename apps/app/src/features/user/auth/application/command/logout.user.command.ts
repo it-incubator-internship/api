@@ -1,8 +1,8 @@
-import { UserRepository } from '../../user/repository/user.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { SessionRepository } from '../repository/session.repository';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
+import { UserRepository } from '../../../user/repository/user.repository';
+import { SessionRepository } from '../../repository/session.repository';
+import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 
 export class LogoutUserCommand {
   constructor(public inputModel: { userId: string; deviceUuid: string }) {}
