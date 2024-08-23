@@ -50,6 +50,12 @@ export class SessionRepository {
     });
   }
 
+  async deleteSessionByDeviceUuid({ deviceUuid }: { deviceUuid: string }) {
+    await this.prismaService.session.delete({
+      where: { deviceUuid },
+    });
+  }
+
   async deleteAllSessions({ id }: { id: string }) {
     await this.prismaService.session.deleteMany({
       where: { profileId: id },
