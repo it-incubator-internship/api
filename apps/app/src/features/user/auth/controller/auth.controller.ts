@@ -18,9 +18,9 @@ import { PasswordRecoveryCommand } from '../application/command/password-recover
 import { SetNewPasswordCommand } from '../application/command/set-new-password.user.command';
 import { LocalAuthGuard } from '../guards/local.auth.guard';
 import { RefreshTokenGuard } from '../guards/refresh-token.auth.guard';
-import { RefreshTokenCommand } from '../command/refresh-token.command';
 import { RefreshTokenInformation } from '../decorators/controller/refresh.token.information';
 import { UserIdFromRequest } from '../decorators/controller/userIdFromRequest';
+import { RefreshTokenCommand } from '../application/command/refresh-token.command';
 
 @ApiTags('auth')
 @Controller('auth')

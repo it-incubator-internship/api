@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
-import { UserRepository } from '../../user/repository/user.repository';
-import { UserAccountData, UserConfirmationStatusEnum } from '../../user/class/accoun-data.fabric';
-import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { JwtAdapter } from '../../../../../../app/src/providers/jwt/jwt.adapter';
+import { CodeInputModel } from '../../dto/input/confirmation-code.user.dto';
+import { UserRepository } from '../../../user/repository/user.repository';
+import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
+import { UserAccountData, UserConfirmationStatusEnum } from '../../../user/class/accoun-data.fabric';
+import { ObjResult } from '../../../../../../../common/utils/result/object-result';
+import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
 
 export class RegistrationConfirmationCommand {
   constructor(public inputModel: CodeInputModel) {}

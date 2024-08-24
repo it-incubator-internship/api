@@ -1,17 +1,13 @@
 import bcrypt from 'bcrypt';
-import { ConfigService } from '@nestjs/config';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
-import { UserRepository } from '../../../user/repository/user.repository';
-import { ConfigurationType } from '../../../../../common/settings/configuration';
 import { RegistrationUserInputModel } from '../../dto/input/registration.user.dto';
-import { UserRepository } from '../../user/repository/user.repository';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
-import { hashRounds } from '../../../../../../app/src/common/constants/constants';
-import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
-import { UserEntity } from '../../user/class/user.fabric';
-import { JwtAdapter } from '../../../../../../app/src/providers/jwt/jwt.adapter';
+import { UserRepository } from '../../../user/repository/user.repository';
+import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
+import { ObjResult } from '../../../../../../../common/utils/result/object-result';
+import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
+import { UserEntity } from '../../../user/class/user.fabric';
+import { hashRounds } from '../../../../../common/constants/constants';
 
 export class RegistrationUserCommand {
   constructor(public inputModel: RegistrationUserInputModel) {}
@@ -21,7 +17,6 @@ export class RegistrationUserCommand {
 export class RegistrationUserHandler implements ICommandHandler<RegistrationUserCommand> {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly configService: ConfigService<ConfigurationType, true>,
     private readonly eventBus: EventBus,
     private readonly jwtAdapter: JwtAdapter,
   ) {}

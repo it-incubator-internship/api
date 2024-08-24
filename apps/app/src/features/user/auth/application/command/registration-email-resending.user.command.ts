@@ -1,16 +1,11 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { ConfigService } from '@nestjs/config';
 
-import { UserRepository } from '../../user/repository/user.repository';
-import { EmailInputModel } from '../dto/input/email.user.dto';
-import { UserAccountData } from '../../user/class/accoun-data.fabric';
-import { JwtAdapter } from '../../../../providers/jwt/jwt.adapter';
-import { ObjResult } from '../../../../../../../common/utils/result/object-result';
-import { UserRepository } from '../../../user/repository/user.repository';
 import { EmailInputModel } from '../../dto/input/email.user.dto';
+import { UserRepository } from '../../../user/repository/user.repository';
+import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
+import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
 import { UserAccountData, UserConfirmationStatusEnum } from '../../../user/class/accoun-data.fabric';
-import { ConfigurationType } from '../../../../../common/settings/configuration';
 import { UserResendRegCodeEvent } from '../../../user/class/events/user-resend-reg-code.event';
 
 export class RegistrationEmailResendingCommand {
@@ -22,9 +17,9 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtAdapter: JwtAdapter,
-    private readonly configService: ConfigService<ConfigurationType, true>,
     private readonly eventBus: EventBus,
   ) {}
+  //TODO разобраться с типом
   async execute(command: RegistrationEmailResendingCommand): Promise<any> {
     const user = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
 

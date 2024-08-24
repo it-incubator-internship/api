@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { SessionRepository } from '../repository/session.repository';
-import { secondToMillisecond } from '../../../../common/constants/constants';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { JwtAdapter } from '../../../../../../app/src/providers/jwt/jwt.adapter';
+import { SessionRepository } from '../../repository/session.repository';
+import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
+import { secondToMillisecond } from '../../../../../common/constants/constants';
+import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 
 export class RefreshTokenCommand {
   constructor(public inputModel: { userId: string; deviceUuid: string }) {}

@@ -1,13 +1,12 @@
-import { ConfigService } from '@nestjs/config';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
 import { EmailInputModel } from '../../dto/input/email.user.dto';
 import { UserRepository } from '../../../user/repository/user.repository';
-import { ConfigurationType } from '../../../../../common/settings/configuration';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
 import { UserAccountData } from '../../../user/class/accoun-data.fabric';
-import { JwtAdapter } from '../../../../../../app/src/providers/jwt/jwt.adapter';
+import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
+import { UserNewPasswordRegCodeEvent } from '../../../user/class/events/user-new-password-reg-code.event';
 
 export class PasswordRecoveryCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -17,7 +16,6 @@ export class PasswordRecoveryCommand {
 export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecoveryCommand> {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly configService: ConfigService<ConfigurationType, true>,
     private readonly eventBus: EventBus,
     private readonly jwtAdapter: JwtAdapter,
   ) {}
@@ -41,12 +39,11 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
 
     await this.userRepository.updateAccountData(userAccountData);
 
-    // отправка письма
-    this.mailService.sendPasswordRecovery({
-      email: command.inputModel.email,
-      login: user.name,
-      recoveryCode,
-    });
+    user.events.push(new UserNewPasswordRegCodeEvent(user.name, user.email, recoveryCode));
+
+    await this.userRepository.updateAccountData(userAccountData);
+
+    user.events.forEach((e) => this.eventBus.publish(e));
 
     return ObjResult.Ok();
   }
