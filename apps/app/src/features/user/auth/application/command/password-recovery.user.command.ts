@@ -1,11 +1,12 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { ConfigService } from '@nestjs/config';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
-import { EmailInputModel } from '../dto/input/email.user.dto';
-import { UserRepository } from '../../user/repository/user.repository';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
-import { UserAccountData } from '../../user/class/accoun-data.fabric';
-import { MailService } from '../../../../providers/mailer/mail.service';
+import { EmailInputModel } from '../../dto/input/email.user.dto';
+import { UserRepository } from '../../../user/repository/user.repository';
+import { ConfigurationType } from '../../../../../common/settings/configuration';
+import { ObjResult } from '../../../../../../../common/utils/result/object-result';
+import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
+import { UserAccountData } from '../../../user/class/accoun-data.fabric';
 import { JwtAdapter } from '../../../../../../app/src/providers/jwt/jwt.adapter';
 
 export class PasswordRecoveryCommand {
@@ -16,7 +17,8 @@ export class PasswordRecoveryCommand {
 export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecoveryCommand> {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly mailService: MailService,
+    private readonly configService: ConfigService<ConfigurationType, true>,
+    private readonly eventBus: EventBus,
     private readonly jwtAdapter: JwtAdapter,
   ) {}
   async execute(command: PasswordRecoveryCommand): Promise<any> {
