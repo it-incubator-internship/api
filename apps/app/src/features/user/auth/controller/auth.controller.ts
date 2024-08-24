@@ -10,7 +10,7 @@ import { EmailInputModel } from '../dto/input/email.user.dto';
 import { UserRegistrationOutputDto } from '../dto/output/registratio.output.dto';
 import { UserRegitsrationSwagger } from '../decorators/swagger/user-registration/user-regitsration.swagger.decorator';
 import { RegistrationUserCommand } from '../command/registrarion.user.command';
-import { RegistrationEmailResendingCommand } from '../command/registration-email-resending.user.command';
+import { RegistrationEmailResendingCommand } from '../command/registration-email-resending.command';
 import { RegistrationConfirmationCommand } from '../command/registration-confirmation.user.command';
 import { LoginUserCommand } from '../command/login.user.command';
 import { LogoutUserCommand } from '../command/logout.user.command';
