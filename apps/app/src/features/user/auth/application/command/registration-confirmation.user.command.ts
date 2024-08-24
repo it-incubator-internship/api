@@ -2,12 +2,12 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
-import { UserRepository } from '../../user/repository/user.repository';
-import { UserAccountData, UserConfirmationStatusEnum } from '../../user/class/accoun-data.fabric';
-import { ConfigurationType } from '../../../../common/settings/configuration';
-import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
+import { CodeInputModel } from '../../dto/input/confirmation-code.user.dto';
+import { UserRepository } from '../../../user/repository/user.repository';
+import { UserAccountData, UserConfirmationStatusEnum } from '../../../user/class/accoun-data.fabric';
+import { ConfigurationType } from '../../../../../common/settings/configuration';
+import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
+import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 
 export class RegistrationConfirmationCommand {
   constructor(public inputModel: CodeInputModel) {}

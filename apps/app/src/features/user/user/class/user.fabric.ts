@@ -1,6 +1,7 @@
 import { User } from '../../../../../prisma/client';
 
 import { UserAccountData } from './accoun-data.fabric';
+import { UserRegistrationEvent } from './events/user-registration.event';
 
 enum UserBanStatusEnum {
   BANNED = 'BANNED',
@@ -18,6 +19,7 @@ export class UserEntity implements User {
   banStatus: UserBanStatusEnum;
   banDate: Date | null;
   accountData?: UserAccountData;
+  events: any[] = [];
 
   static create({
     name,
@@ -37,14 +39,18 @@ export class UserEntity implements User {
       email: string;
       passwordHash: string;
       accountData?: object;
+      events?: object[];
     } = {
       email,
       name,
       passwordHash,
+      events: [],
     };
 
     if (accountData) {
       userProfileDto.accountData = UserAccountData.create({ confirmationCode: accountData.confirmationCode });
+      const event = new UserRegistrationEvent(name, email, accountData.confirmationCode);
+      userProfileDto.events!.push(event);
     }
 
     return Object.assign(new this(), userProfileDto);

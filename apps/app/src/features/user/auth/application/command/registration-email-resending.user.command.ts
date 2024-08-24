@@ -1,14 +1,14 @@
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { UserRepository } from '../../user/repository/user.repository';
-import { EmailInputModel } from '../dto/input/email.user.dto';
-import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
-import { UserAccountData, UserConfirmationStatusEnum } from '../../user/class/accoun-data.fabric';
-import { ConfigurationType } from '../../../../common/settings/configuration';
-import { MailService } from '../../../../providers/mailer/mail.service';
+import { ObjResult } from '../../../../../../../common/utils/result/object-result';
+import { UserRepository } from '../../../user/repository/user.repository';
+import { EmailInputModel } from '../../dto/input/email.user.dto';
+import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
+import { UserAccountData, UserConfirmationStatusEnum } from '../../../user/class/accoun-data.fabric';
+import { ConfigurationType } from '../../../../../common/settings/configuration';
+import { UserResendRegCodeEvent } from '../../../user/class/events/user-resend-reg-code.event';
 
 export class RegistrationEmailResendingCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -19,8 +19,8 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
-    private readonly mailService: MailService,
     private readonly configService: ConfigService<ConfigurationType, true>,
+    private readonly eventBus: EventBus,
   ) {}
   async execute(command: RegistrationEmailResendingCommand): Promise<any> {
     const user = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
@@ -57,14 +57,11 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
 
     userAccountData.updateConfirmationCode({ confirmationCode });
 
+    user.events.push(new UserResendRegCodeEvent(user.name, user.email, confirmationCode));
+
     await this.userRepository.updateAccountData(userAccountData);
 
-    // отправка письма
-    this.mailService.sendUserConfirmation({
-      email: command.inputModel.email,
-      login: user.name,
-      token: confirmationCode,
-    });
+    user.events.forEach((event) => this.eventBus.publish(event));
 
     return ObjResult.Ok();
   }

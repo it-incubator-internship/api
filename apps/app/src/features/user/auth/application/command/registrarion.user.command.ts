@@ -1,16 +1,15 @@
 import bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
-import { UserRepository } from '../../user/repository/user.repository';
-import { ConfigurationType } from '../../../../common/settings/configuration';
-import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
-import { MailService } from '../../../../providers/mailer/mail.service';
-import { hashRounds } from '../../../../../../app/src/common/constants/constants';
-import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
-import { UserEntity } from '../../user/class/user.fabric';
+import { UserRepository } from '../../../user/repository/user.repository';
+import { ConfigurationType } from '../../../../../common/settings/configuration';
+import { ObjResult } from '../../../../../../../common/utils/result/object-result';
+import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
+import { hashRounds } from '../../../../../common/constants/constants';
+import { RegistrationUserInputModel } from '../../dto/input/registration.user.dto';
+import { UserEntity } from '../../../user/class/user.fabric';
 
 export class RegistrationUserCommand {
   constructor(public inputModel: RegistrationUserInputModel) {}
@@ -22,7 +21,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService<ConfigurationType, true>,
-    private readonly mailService: MailService,
+    private readonly eventBus: EventBus,
   ) {}
   async execute(command: RegistrationUserCommand): Promise<any> {
     if (!command.inputModel.isAgreement) {
@@ -77,26 +76,16 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     // создание passwordHash
     const passwordHash = bcrypt.hashSync(command.inputModel.password, hashRounds);
 
-    const dataForCreating = UserEntity.create({
+    const newUser = UserEntity.create({
       name: command.inputModel.userName,
       email: command.inputModel.email,
       passwordHash,
       accountData: { confirmationCode },
     });
 
-    await this.userRepository.createUser(dataForCreating);
+    await this.userRepository.createUser(newUser);
 
-    // отправка письма
-    try {
-      await this.mailService.sendUserConfirmation({
-        email: command.inputModel.email,
-        login: command.inputModel.userName,
-        token: confirmationCode,
-      });
-    } catch (e) {
-      //TODO logger
-      console.log(e);
-    }
+    newUser.events.forEach((event) => this.eventBus.publish(event));
 
     return ObjResult.Ok();
   }
