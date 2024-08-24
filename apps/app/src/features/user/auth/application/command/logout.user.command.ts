@@ -1,6 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { UserRepository } from '../../../user/repository/user.repository';
 import { SessionRepository } from '../../repository/session.repository';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 
