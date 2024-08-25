@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
@@ -8,60 +8,49 @@ import { ConfigurationType } from '../../common/settings/configuration';
 
 @Injectable()
 export class JwtAdapter {
+  private readonly logger = new Logger(JwtAdapter.name);
+  private readonly jwtConfiguration: ConfigurationType['jwtSetting'];
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService<ConfigurationType, true>,
-  ) {}
+  ) {
+    this.jwtConfiguration = this.configService.get<ConfigurationType['jwtSetting']>('jwtSetting', {
+      infer: true,
+    }) as ConfigurationType['jwtSetting'];
+  }
 
   async createConfirmationCode({ email }: { email: string }) {
-    const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
-
-    // создание confirmationCode
-    const confirmationCodePayload = { email };
-    const confirmationCodeSecret = jwtConfiguration.confirmationCodeSecret as string;
-    const confirmationCodeLifeTime = jwtConfiguration.confirmationCodeLifeTime as string;
-    const confirmationCode = await this.jwtService.signAsync(confirmationCodePayload, {
-      secret: confirmationCodeSecret,
-      expiresIn: confirmationCodeLifeTime,
-    });
-
-    return { confirmationCode };
+    return {
+      confirmationCode: await this.createToken({
+        payload: { email },
+        secret: this.jwtConfiguration.confirmationCodeSecret,
+        expiresIn: this.jwtConfiguration.confirmationCodeLifeTime,
+      }),
+    };
   }
 
   async createRecoveryCode({ email }: { email: string }) {
-    const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
-
-    // создание recoveryCode
-    const recoveryCodePayload = { email };
-    const recoveryCodeSecret = jwtConfiguration.recoveryCodeSecret as string;
-    const recoveryCodeLifeTime = jwtConfiguration.recoveryCodeLifeTime as string;
-    const recoveryCode = this.jwtService.sign(recoveryCodePayload, {
-      secret: recoveryCodeSecret,
-      expiresIn: recoveryCodeLifeTime,
-    });
-
-    return { recoveryCode };
+    return {
+      recoveryCode: await this.createToken({
+        payload: { email },
+        secret: this.jwtConfiguration.recoveryCodeSecret,
+        expiresIn: this.jwtConfiguration.recoveryCodeLifeTime,
+      }),
+    };
   }
 
   async createAccessAndRefreshTokens({ userId, deviceUuid }: { userId: string; deviceUuid: string }) {
-    const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
-
-    // создание accessToken
-    const accessTokenPayload = { userId };
-    const accessTokenSecret = jwtConfiguration.accessTokenSecret as string;
-    const accessTokenLifeTime = jwtConfiguration.accessTokenLifeTime as string;
-    const accessToken = this.jwtService.sign(accessTokenPayload, {
-      secret: accessTokenSecret,
-      expiresIn: accessTokenLifeTime,
+    const accessToken = await this.createToken({
+      payload: { userId },
+      secret: this.jwtConfiguration.accessTokenSecret,
+      expiresIn: this.jwtConfiguration.accessTokenLifeTime,
     });
 
-    // создание refreshToken
-    const refreshTokenPayload = { userId, deviceUuid };
-    const refreshTokenSecret = jwtConfiguration.refreshTokenSecret as string;
-    const refreshTokenLifeTime = jwtConfiguration.refreshTokenLifeTime as string;
-    const refreshToken = this.jwtService.sign(refreshTokenPayload, {
-      secret: refreshTokenSecret,
-      expiresIn: refreshTokenLifeTime,
+    const refreshToken = await this.createToken({
+      payload: { userId, deviceUuid },
+      secret: this.jwtConfiguration.refreshTokenSecret,
+      expiresIn: this.jwtConfiguration.refreshTokenLifeTime,
     });
 
     const payload = await this.jwtService.decode(refreshToken);
@@ -70,30 +59,42 @@ export class JwtAdapter {
   }
 
   async verifyConfirmationCode({ confirmationCode }: { confirmationCode: string }) {
-    const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
-    const confirmationCodeSecret = jwtConfiguration.confirmationCodeSecret as string;
-
-    try {
-      await this.jwtService.verifyAsync(confirmationCode, { secret: confirmationCodeSecret });
-    } catch (e) {
-      return ObjResult.Err(
-        new BadRequestError('Confirmation code is expired', [
-          { message: 'Confirmation code is expired', field: 'code' },
-        ]),
-      );
-    }
+    return await this.verifyToken({
+      token: confirmationCode,
+      secret: this.jwtConfiguration.confirmationCodeSecret,
+      errorMessage: JwtAdapter.ERROR_CONFIRMATION_CODE_EXPIRED,
+    });
   }
 
   async verifyRecoveryCode({ recoveryCode }: { recoveryCode: string }) {
-    const jwtConfiguration = this.configService.get('jwtSetting', { infer: true });
-    const recoveryCodeSecret = jwtConfiguration.recoveryCodeSecret as string;
+    return await this.verifyToken({
+      token: recoveryCode,
+      secret: this.jwtConfiguration.recoveryCodeSecret,
+      errorMessage: JwtAdapter.ERROR_RECOVERY_CODE_EXPIRED,
+    });
+  }
 
+  private async createToken({
+    payload,
+    secret,
+    expiresIn,
+  }: {
+    payload: object;
+    secret: string;
+    expiresIn: string;
+  }): Promise<string> {
+    return this.jwtService.signAsync(payload, { secret, expiresIn });
+  }
+
+  private async verifyToken({ token, secret, errorMessage }: { token: string; secret: string; errorMessage: string }) {
     try {
-      await this.jwtService.verifyAsync(recoveryCode, { secret: recoveryCodeSecret });
+      await this.jwtService.verifyAsync(token, { secret });
     } catch (e) {
-      return ObjResult.Err(
-        new BadRequestError('Recovery code is expired', [{ message: 'Recovery code is expired', field: 'code' }]),
-      );
+      this.logger.error(`Token verification failed: ${e.message}`);
+      return ObjResult.Err(new BadRequestError(errorMessage, [{ message: errorMessage, field: 'code' }]));
     }
   }
+
+  private static readonly ERROR_CONFIRMATION_CODE_EXPIRED = 'Confirmation code is expired';
+  private static readonly ERROR_RECOVERY_CODE_EXPIRED = 'Recovery code is expired';
 }

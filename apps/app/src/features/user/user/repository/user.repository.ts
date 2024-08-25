@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
-import { UserEntity } from '../class/user.fabric';
-import { UserAccountData } from '../class/accoun-data.fabric';
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
+import { UserEntity } from '../domain/user.fabric';
+import { UserAccountData } from '../domain/accoun-data.fabric';
 
 @Injectable()
 export class UserRepository {

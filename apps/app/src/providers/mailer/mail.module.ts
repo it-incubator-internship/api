@@ -14,10 +14,6 @@ import { MailService } from './mail.service';
     MailerModule.forRootAsync({
       useFactory: (configService: ConfigService<ConfigurationType, true>) => {
         const emailSettings = configService.get('mailSettings', { infer: true });
-        console.log(emailSettings);
-        console.log(emailSettings);
-        console.log(emailSettings);
-        console.log(emailSettings);
         return {
           transport: {
             service: 'gmail',

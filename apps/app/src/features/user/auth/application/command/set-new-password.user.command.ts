@@ -3,11 +3,11 @@ import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { UserRepository } from '../../../user/repository/user.repository';
 import { NewPasswordInputModel } from '../../dto/input/new-password.user.dto';
-import { UserAccountData } from '../../../user/class/accoun-data.fabric';
 import { hashRounds } from '../../../../../common/constants/constants';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError, NotFoundError } from '../../../../../../../common/utils/result/custom-error';
+import { UserAccountData } from '../../../user/domain/accoun-data.fabric';
 
 import { DeletionSessionsCommand } from './deletion-sessions.command';
 

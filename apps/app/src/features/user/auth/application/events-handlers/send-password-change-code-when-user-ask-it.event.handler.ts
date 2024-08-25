@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
 import { MailService } from '../../../../../providers/mailer/mail.service';
-import { UserNewPasswordRegCodeEvent } from '../../../user/class/events/user-new-password-reg-code.event';
+import { UserNewPasswordRegCodeEvent } from '../../../user/domain/events/user-new-password-reg-code.event';
 
 @EventsHandler(UserNewPasswordRegCodeEvent)
 export class SendNewConfirmEmailWhenUserAskItEventHandler implements IEventHandler<UserNewPasswordRegCodeEvent> {
