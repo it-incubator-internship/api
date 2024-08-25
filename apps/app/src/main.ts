@@ -15,7 +15,7 @@ async function bootstrap() {
   const isTestingENV = configService.get('environmentSettings.isTesting', { infer: true });
 
   if (!isTestingENV) {
-    swaggerSetting(app);
+    swaggerSetting(app, apiPrefix);
   }
 
   app.setGlobalPrefix(apiPrefix);

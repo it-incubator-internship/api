@@ -4,9 +4,9 @@ import bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 
 import { UserRepository } from '../repository/user.repository';
-import { UserEntity } from '../class/user.fabric';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../common/utils/result/custom-error';
+import { UserEntity } from '../domain/user.fabric';
 
 @Injectable()
 export class UserService {

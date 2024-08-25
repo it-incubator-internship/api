@@ -13,14 +13,14 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     },
 
     jwtSetting: {
-      accessTokenSecret: environmentVariables.JWT_SECRET_ACCESS,
-      refreshTokenSecret: environmentVariables.JWT_SECRET_REFRESH,
-      confirmationCodeSecret: environmentVariables.JWT_SECRET_CONFIRMATION_CODE,
-      recoveryCodeSecret: environmentVariables.JWT_SECRET_RECOVERY_CODE,
-      accessTokenLifeTime: environmentVariables.JWT_LIFE_TIME_ACCESS,
-      refreshTokenLifeTime: environmentVariables.JWT_LIFE_TIME_REFRESH,
-      confirmationCodeLifeTime: environmentVariables.JWT_LIFE_TIME_CONFIRMATION_CODE,
-      recoveryCodeLifeTime: environmentVariables.JWT_LIFE_TIME_RECOVERY_CODE,
+      accessTokenSecret: environmentVariables.JWT_SECRET_ACCESS as string,
+      refreshTokenSecret: environmentVariables.JWT_SECRET_REFRESH as string,
+      confirmationCodeSecret: environmentVariables.JWT_SECRET_CONFIRMATION_CODE as string,
+      recoveryCodeSecret: environmentVariables.JWT_SECRET_RECOVERY_CODE as string,
+      accessTokenLifeTime: environmentVariables.JWT_LIFE_TIME_ACCESS as string,
+      refreshTokenLifeTime: environmentVariables.JWT_LIFE_TIME_REFRESH as string,
+      confirmationCodeLifeTime: environmentVariables.JWT_LIFE_TIME_CONFIRMATION_CODE as string,
+      recoveryCodeLifeTime: environmentVariables.JWT_LIFE_TIME_RECOVERY_CODE as string,
     },
 
     environmentSettings: {

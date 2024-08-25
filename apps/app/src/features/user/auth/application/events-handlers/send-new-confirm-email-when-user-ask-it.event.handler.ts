@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 
 import { MailService } from '../../../../../providers/mailer/mail.service';
-import { UserResendRegCodeEvent } from '../../../user/class/events/user-resend-reg-code.event';
+import { UserResendRegCodeEvent } from '../../../user/domain/events/user-resend-reg-code.event';
 
 @EventsHandler(UserResendRegCodeEvent)
 export class SendNewConfirmEmailWhenUserAskItEventHandler implements IEventHandler<UserResendRegCodeEvent> {

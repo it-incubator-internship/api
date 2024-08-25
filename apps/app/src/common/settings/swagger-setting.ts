@@ -2,17 +2,19 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-export const swaggerSetting = (app: INestApplication) => {
+export const swaggerSetting = (app: INestApplication, apiPrefix: string) => {
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
     .setVersion('0.1')
     .addBearerAuth()
-    .addServer('/api/v1') // Устанавливаем базовый путь для всех маршрутов
+    .addServer(apiPrefix) // Устанавливаем базовый путь для всех маршрутов
     .build();
+
+  console.log(`/${apiPrefix}/swagger/json`);
 
   const document = SwaggerModule.createDocument(app, config);
   console.log('swagger is enabled, /swagger ');
-  SwaggerModule.setup('/api/v1/swagger', app, document, {
-    jsonDocumentUrl: 'swagger/json',
+  SwaggerModule.setup(`/${apiPrefix}/swagger`, app, document, {
+    jsonDocumentUrl: `/${apiPrefix}/swagger/json`,
   });
 };

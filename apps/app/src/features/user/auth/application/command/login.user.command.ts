@@ -5,8 +5,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { SessionRepository } from '../../repository/session.repository';
 import { secondToMillisecond } from '../../../../../common/constants/constants';
-import { UserSession } from '../../../user/class/session.fabric';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
+import { UserSession } from '../../../user/domain/session.fabric';
 
 export class LoginUserCommand {
   constructor(public inputModel: { ipAddress: string; userAgent: string; userId: string }) {}
