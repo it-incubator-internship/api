@@ -20,7 +20,7 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Unit tests') {
+        stage('e2e tests') {
             steps {
                 script {
                     sh '''
@@ -29,18 +29,6 @@ pipeline {
                        nvm use --lts
                        yarn install
                        yarn run generate:app
-                       yarn test
-                    '''
-                }
-            }
-        }
-        stage('e2e tests') {
-            steps {
-                script {
-                    sh '''
-                       export NVM_DIR="$HOME/.nvm"
-                       [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                       nvm use --lts
                        yarn test:e2e
                     '''
                 }
