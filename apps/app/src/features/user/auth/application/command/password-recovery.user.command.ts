@@ -23,7 +23,14 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
     const user = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
 
     if (!user) {
-      return ObjResult.Err(new BadRequestError('User not found', [{ message: 'User not found', field: 'email' }]));
+      return ObjResult.Err(
+        new BadRequestError(`User with this email doesn't exist`, [
+          {
+            message: `User with this email doesn't exist`,
+            field: 'email',
+          },
+        ]),
+      );
     }
 
     const userAccountData: UserAccountData | null = await this.userRepository.findAccountDataById({ id: user.id });
