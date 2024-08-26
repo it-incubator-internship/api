@@ -21,6 +21,8 @@ model AccountData {
   confirmationStatus ConfirmationStatus @default(NOT_CONFIRM)
   confirmationCode   String
   recoveryCode       String?
+  githubId           String?            @unique
+  googleId           String?            @unique
   user               User               @relation(fields: [profileId], references: [id])
 
   @@map("accountData")
