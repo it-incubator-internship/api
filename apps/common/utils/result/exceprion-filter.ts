@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-import { BadRequestError, CustomError } from './custom-error';
+import { BadRequestError, CustomError, ForbiddenError } from './custom-error';
 
 @Catch(CustomError)
 export class CustomExceptionFilter implements ExceptionFilter {
@@ -16,6 +16,14 @@ export class CustomExceptionFilter implements ExceptionFilter {
         path: request.url,
         message: exception.message,
         fields: exception.getError(),
+      });
+    }
+
+    if (exception instanceof ForbiddenError) {
+      return response.status(HttpStatus.FORBIDDEN).json({
+        timestamp: new Date().toISOString(),
+        path: request.url,
+        message: exception.message,
       });
     }
 

@@ -95,6 +95,6 @@ export class JwtAdapter {
     }
   }
 
-  private static readonly ERROR_CONFIRMATION_CODE_EXPIRED = 'Confirmation code is expired';
-  private static readonly ERROR_RECOVERY_CODE_EXPIRED = 'Recovery code is expired';
+  private static readonly ERROR_CONFIRMATION_CODE_EXPIRED = 'Looks like the verification link has expired. Not to worry, we can send the link again';
+  private static readonly ERROR_RECOVERY_CODE_EXPIRED = 'Looks like the verification link has expired. Not to worry, we can send the link again';
 }

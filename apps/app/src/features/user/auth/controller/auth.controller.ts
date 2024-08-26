@@ -33,20 +33,21 @@ import { LogoutSwagger } from '../decorators/swagger/logout/logout.swagger.decor
 @Controller('auth')
 export class AuthController {
   constructor(private commandBus: CommandBus) {}
-  @Post('registration-email-resending')
-  @RegistrationEmailResendingSwagger()
-  async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
-    const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
+
+  @Post('registration')
+  @UserRegitsrationSwagger()
+  async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
+    const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
 
     if (!result.isSuccess) throw result.error;
 
     return { email: inputModel.email };
   }
 
-  @Post('registration')
-  @UserRegitsrationSwagger()
-  async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
-    const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
+  @Post('registration-email-resending')
+  @RegistrationEmailResendingSwagger()
+  async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
+    const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
 
     if (!result.isSuccess) throw result.error;
 
