@@ -21,11 +21,27 @@ import { RefreshTokenGuard } from '../guards/refresh-token.auth.guard';
 import { RefreshTokenInformation } from '../decorators/controller/refresh.token.information';
 import { UserIdFromRequest } from '../decorators/controller/userIdFromRequest';
 import { RefreshTokenCommand } from '../application/command/refresh-token.command';
+import { RegistrationEmailResendingSwagger } from '../decorators/swagger/registration-email-resending/registration-email-resending.swagger.decorator';
+import { RegistrationConfirmationSwagger } from '../decorators/swagger/registration-confirmation/registration-confirmation.swagger.decorator';
+import { PasswordRecoverySwagger } from '../decorators/swagger/password-recovery/password-recovery.swagger.decorator';
+import { NewPasswordSwagger } from '../decorators/swagger/new-password/new-password.swagger.decorator';
+import { LoginSwagger } from '../decorators/swagger/login/login.swagger.decorator';
+import { RefreshTokenSwagger } from '../decorators/swagger/refresh-token/refresh-token.swagger.decorator';
+import { LogoutSwagger } from '../decorators/swagger/logout/logout.swagger.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private commandBus: CommandBus) {}
+  @Post('registration-email-resending')
+  @RegistrationEmailResendingSwagger()
+  async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
+    const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
+
+    if (!result.isSuccess) throw result.error;
+
+    return { email: inputModel.email };
+  }
 
   @Post('registration')
   @UserRegitsrationSwagger()
@@ -37,16 +53,8 @@ export class AuthController {
     return { email: inputModel.email };
   }
 
-  @Post('registration-email-resending')
-  async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
-    const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
-
-    if (!result.isSuccess) throw result.error;
-
-    return { email: inputModel.email };
-  }
-
   @Post('registration-confirmation')
+  @RegistrationConfirmationSwagger()
   async registrationConfirmation(@Body() inputModel: CodeInputModel) {
     const result = await this.commandBus.execute(new RegistrationConfirmationCommand(inputModel));
 
@@ -54,6 +62,7 @@ export class AuthController {
   }
 
   @Post('password-recovery')
+  @PasswordRecoverySwagger()
   async passwordRecovery(@Body() inputModel: EmailInputModel) {
     const result = await this.commandBus.execute(new PasswordRecoveryCommand(inputModel));
 
@@ -63,6 +72,7 @@ export class AuthController {
   }
 
   @Post('new-password')
+  @NewPasswordSwagger()
   async setNewPassword(@Body() inputModel: NewPasswordInputModel) {
     const result = await this.commandBus.execute(new SetNewPasswordCommand(inputModel));
 
@@ -71,6 +81,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
+  @LoginSwagger()
   async login(
     @Ip() ipAddress: string,
     @UserIdFromRequest() userInfo: { userId: string },
@@ -92,6 +103,7 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @Post('refresh-token')
+  @RefreshTokenSwagger()
   async refreshToken(
     @RefreshTokenInformation() userInfo: { userId: string; deviceUuid: string },
     @Res({ passthrough: true }) res: Response,
@@ -109,6 +121,7 @@ export class AuthController {
 
   @UseGuards(RefreshTokenGuard)
   @Post('logout')
+  @LogoutSwagger()
   async logout(
     @RefreshTokenInformation() userInfo: { userId: string; deviceUuid: string },
     @Res({ passthrough: true }) res: Response,

@@ -3,11 +3,21 @@ import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export const swaggerSetting = (app: INestApplication, apiPrefix: string) => {
+  console.log(apiPrefix, 'apiPrefix for swagger');
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
     .setVersion('0.1')
     .addBearerAuth()
-    .addServer(apiPrefix) // Устанавливаем базовый путь для всех маршрутов
+    .addServer(`/${apiPrefix}`)
+    .addApiKey(
+      {
+        type: 'apiKey',
+        name: 'refreshToken',
+        in: 'header',
+        description: 'рефреш токен для получения новой пары токенов',
+      },
+      'refreshToken',
+    )
     .build();
 
   console.log(`/${apiPrefix}/swagger/json`);
