@@ -8,6 +8,15 @@ export const swaggerSetting = (app: INestApplication, apiPrefix: string) => {
     .setVersion('0.1')
     .addBearerAuth()
     .addServer(apiPrefix) // Устанавливаем базовый путь для всех маршрутов
+    .addApiKey(
+      {
+        type: 'apiKey',
+        name: 'refreshToken',
+        in: 'header',
+        description: 'рефреш токен для получения новой пары токенов',
+      },
+      'refreshToken',
+    )
     .build();
 
   console.log(`/${apiPrefix}/swagger/json`);

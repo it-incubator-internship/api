@@ -10,6 +10,8 @@ export class UserAccountData implements AccountData {
   confirmationStatus: UserConfirmationStatusEnum;
   confirmationCode: string;
   recoveryCode: string | null;
+  githubId: string | null;
+  googleId: string | null;
 
   static create({ confirmationCode }: { confirmationCode: string }): Omit<AccountData, 'profileId'> {
     const userAccountData = {
