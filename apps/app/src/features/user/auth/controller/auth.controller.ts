@@ -28,28 +28,25 @@ import { NewPasswordSwagger } from '../decorators/swagger/new-password/new-passw
 import { LoginSwagger } from '../decorators/swagger/login/login.swagger.decorator';
 import { RefreshTokenSwagger } from '../decorators/swagger/refresh-token/refresh-token.swagger.decorator';
 import { LogoutSwagger } from '../decorators/swagger/logout/logout.swagger.decorator';
-import { LoginUserInputModel } from '../dto/input/login.user.dto';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private commandBus: CommandBus) {}
-
-  @Post('registration')
-  @UserRegitsrationSwagger()
-  async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
-    const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
+  @Post('registration-email-resending')
+  @RegistrationEmailResendingSwagger()
+  async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
+    const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
 
     if (!result.isSuccess) throw result.error;
 
     return { email: inputModel.email };
   }
 
-  @Post('registration-email-resending')
-  // @RegistrationEmailResendingSwagger()
+  @Post('registration')
   @UserRegitsrationSwagger()
-  async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
-    const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
+  async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
+    const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
 
     if (!result.isSuccess) throw result.error;
 
