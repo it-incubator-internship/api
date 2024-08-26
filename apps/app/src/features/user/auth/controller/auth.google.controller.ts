@@ -1,6 +1,6 @@
 // import { Request, Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiExcludeController, ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Post } from '@nestjs/common';
 
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
@@ -22,12 +22,13 @@ import { RegistrationEmailResendingCommand } from '../application/command/regist
 // import { UserIdFromRequest } from '../decorators/controller/userIdFromRequest';
 // import { RefreshTokenCommand } from '../application/command/refresh-token.command';
 
-@ApiTags('auth')
-@Controller('auth')
+
+@ApiExcludeController()
+@Controller('auth/google')
 export class AuthGoogleController {
   constructor(private commandBus: CommandBus) {}
 
-  @Post('google')
+  @Post('')
   @UserRegitsrationSwagger()
   async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
     const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
@@ -37,7 +38,7 @@ export class AuthGoogleController {
     return { email: inputModel.email };
   }
 
-  @Post('google-redirect')
+  @Post('redirect')
   async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
     const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
 

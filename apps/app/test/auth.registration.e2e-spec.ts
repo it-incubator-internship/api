@@ -202,6 +202,17 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
+  it('LOGIN with incorrect data (login without registration confirmation)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .set('User-Agent', 'e2e user-agent')
+      .send({
+        email: 'someemail@gmail.com',
+        password: 'Somepassword=1',
+      })
+      .expect(403);
+  }); // 403
+
   it('REGISTRATION EMAIL RESENDING with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-email-resending')
