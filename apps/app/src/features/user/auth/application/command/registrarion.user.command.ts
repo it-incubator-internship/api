@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import { hashSync } from 'bcrypt';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
 import { RegistrationUserInputModel } from '../../dto/input/registration.user.dto';
@@ -36,7 +36,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     const { confirmationCode } = await this.jwtAdapter.createConfirmationCode({ email });
 
     console.log('перед bcrypt');
-    const passwordHash = bcrypt.hashSync(password, hashRounds);
+    const passwordHash = hashSync(password, hashRounds);
     console.log('после bcrypt', passwordHash);
 
     console.log('создаем пользователя', userName, email, passwordHash, confirmationCode);
