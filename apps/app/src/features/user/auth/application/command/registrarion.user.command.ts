@@ -35,7 +35,10 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
 
     const { confirmationCode } = await this.jwtAdapter.createConfirmationCode({ email });
 
+    console.log('перед bcrypt');
     const passwordHash = bcrypt.hashSync(password, hashRounds);
+    console.log('после bcrypt', passwordHash);
+
     console.log('создаем пользователя', userName, email, passwordHash, confirmationCode);
     const newUser = UserEntity.create({
       name: userName,
