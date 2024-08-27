@@ -45,17 +45,6 @@ export class AuthController {
     return { email: inputModel.email };
   }
 
-  @Post('registration-email')
-  @UserRegitsrationSwagger()
-  async registration1(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
-    console.log('registration', inputModel);
-    const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
-
-    if (!result.isSuccess) throw result.error;
-
-    return { email: inputModel.email };
-  }
-
   @Post('registration-email-resending')
   @RegistrationEmailResendingSwagger()
   async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
