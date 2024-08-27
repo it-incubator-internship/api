@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
 import { PrismaModule } from '../../common/database_module/prisma.module';
+import { CleaningController } from '../cleaning/controller/cleaning.controller';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
@@ -45,7 +46,7 @@ const adapters = [JwtAdapter];
 
 @Module({
   imports: [EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
-  controllers: [UserController, AuthController, AuthGoogleController],
+  controllers: [UserController, AuthController, AuthGoogleController, CleaningController],
   providers: [...userRepositories, ...userService, ...userCommands, ...stratigies, ...events, ...adapters],
 })
 export class UserModule {}
