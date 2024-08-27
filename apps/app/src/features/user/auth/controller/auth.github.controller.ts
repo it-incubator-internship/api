@@ -22,7 +22,6 @@ export class GithubOauthController {
   @UseGuards(GithubOauthGuard)
   async githubAuthCallback(@Req() req: Request) {
     const githubData = req!.user as GithubData;
-    console.log(githubData);
 
     await this.commandBus.execute(new GithubOauthCommand(githubData));
   }

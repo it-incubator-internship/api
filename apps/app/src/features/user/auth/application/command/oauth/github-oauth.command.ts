@@ -14,7 +14,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(command: GithubOauthCommand) {
-    const { id, displayName } = command.data;
+    const { id, displayName, email } = command.data;
 
     const { login } = await this.generateUserName({ userName: displayName });
     console.log(login);
@@ -30,4 +30,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
 
     return { login: userName };
   }
+  // private async findUser({ userName, email }: { userName: string }) {
+  //   const user = await this.userRepository.f({ userName: userName });
+  // }
 }
