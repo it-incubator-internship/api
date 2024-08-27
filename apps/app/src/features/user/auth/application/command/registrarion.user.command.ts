@@ -76,11 +76,13 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
       );
     }
 
-    return this.createError(
-      'User with this user name is already registered',
-      'User with this user name is already registered',
-      'userName',
-    );
+    if (userByEmail && userByEmail.name === userName) {
+      return this.createError(
+        'User with this user name is already registered',
+        'User with this user name is already registered',
+        'userName',
+      );
+    }
   }
 
   private createError(title: string, message: string, field: string) {
