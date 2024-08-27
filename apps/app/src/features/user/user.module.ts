@@ -7,6 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
 import { PrismaModule } from '../../common/database_module/prisma.module';
+import { CleaningController } from '../cleaning/controller/cleaning.controller';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';

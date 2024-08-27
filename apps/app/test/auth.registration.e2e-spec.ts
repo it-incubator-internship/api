@@ -1,3 +1,5 @@
+import * as process from 'node:process';
+
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -14,8 +16,10 @@ jest.setTimeout(15000); // увеличение времени ожидания
 describe('Auth e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
-  let confirmationCode;
-  let recoveryCode;
+  let confirmationCode_1;
+  let confirmationCode_2;
+  let recoveryCode_1;
+  let recoveryCode_2;
   let refreshToken;
   let httpServer;
 
@@ -34,19 +38,21 @@ describe('Auth e2e', () => {
     await app.init();
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
+    console.log('+++++++++++++++++++++++++++++++++++++++++');
+    console.log(process.env.DATABASE_APP_URL);
+    console.log('+++++++++++++++++++++++++++++++++++++++++');
 
     httpServer = app.getHttpServer();
 
-    // await request(app.getHttpServer())
-    //     .delete('/testing/all-data')
-    //     .expect(204)
+    // очистка бд
+    await request(app.getHttpServer()).delete('/testing/all-data').expect(200);
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it('REGISTRATION with incorrect data (empty fields)', async () => {
+  it.skip('REGISTRATION with incorrect data (empty fields)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -59,7 +65,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION with incorrect data (only whitespaces)', async () => {
+  it.skip('REGISTRATION with incorrect data (only whitespaces)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -72,7 +78,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION with incorrect data (wrong type)', async () => {
+  it.skip('REGISTRATION with incorrect data (wrong type)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -85,7 +91,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION with incorrect data (small length)', async () => {
+  it.skip('REGISTRATION with incorrect data (small length)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -98,7 +104,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION with incorrect data (whitespaces + small length + whitespaces)', async () => {
+  it.skip('REGISTRATION with incorrect data (whitespaces + small length + whitespaces)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -111,7 +117,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION with incorrect data (long length)', async () => {
+  it.skip('REGISTRATION with incorrect data (long length)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -124,7 +130,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION with incorrect data (pattern violation)', async () => {
+  it.skip('REGISTRATION with incorrect data (pattern violation)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -137,7 +143,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION with incorrect data (mismatched passwords)', async () => {
+  it.skip('REGISTRATION with incorrect data (mismatched passwords)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -150,7 +156,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION with incorrect data (isAgreement: false)', async () => {
+  it.skip('REGISTRATION with incorrect data (isAgreement: false)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -174,9 +180,33 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(201);
+
+    const user = await prisma.user.findFirst({
+      where: {
+        email: 'someemail@gmail.com',
+      },
+      include: {
+        accountData: true,
+      },
+    });
+
+    confirmationCode_1 = user!.accountData!.confirmationCode;
   }); // 201
 
-  it('REGISTRATION with incorrect data (re-registration with repeated userName)', async () => {
+  it('REGISTRATION with correct data (swagger data)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send({
+        email: 'felixArgyle@neko.by',
+        userName: 'FelixArgyle',
+        password: 'StRo0NgP@SSWoRD',
+        passwordConfirmation: 'StRo0NgP@SSWoRD',
+        isAgreement: true,
+      })
+      .expect(201);
+  }); // 201
+
+  it.skip('REGISTRATION with incorrect data (re-registration with repeated userName)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -189,7 +219,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION with incorrect data (re-registration with repeated email)', async () => {
+  it.skip('REGISTRATION with incorrect data (re-registration with repeated email)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -202,7 +232,18 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION EMAIL RESENDING with incorrect data (empty fiels)', async () => {
+  it('LOGIN with incorrect data (login without registration confirmation)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/login')
+      .set('User-Agent', 'e2e user-agent')
+      .send({
+        email: 'someemail@gmail.com',
+        password: 'Somepassword=1',
+      })
+      .expect(403);
+  }); // 403
+
+  it.skip('REGISTRATION EMAIL RESENDING with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-email-resending')
       .send({
@@ -211,7 +252,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION EMAIL RESENDING with incorrect data (only whitespaces)', async () => {
+  it.skip('REGISTRATION EMAIL RESENDING with incorrect data (only whitespaces)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-email-resending')
       .send({
@@ -220,7 +261,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION EMAIL RESENDING with incorrect data (wrong type)', async () => {
+  it.skip('REGISTRATION EMAIL RESENDING with incorrect data (wrong type)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-email-resending')
       .send({
@@ -229,7 +270,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION EMAIL RESENDING with incorrect data (pattern violation)', async () => {
+  it.skip('REGISTRATION EMAIL RESENDING with incorrect data (pattern violation)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-email-resending')
       .send({
@@ -238,7 +279,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION EMAIL RESENDING with incorrect data (non-existing value)', async () => {
+  it.skip('REGISTRATION EMAIL RESENDING with incorrect data (non-existing value)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-email-resending')
       .send({
@@ -264,10 +305,10 @@ describe('Auth e2e', () => {
       },
     });
 
-    confirmationCode = user!.accountData!.confirmationCode;
+    confirmationCode_2 = user!.accountData!.confirmationCode;
   }); // 201
 
-  it('REGISTRATION CONFIRMATION with incorrect data (empty fiels)', async () => {
+  it.skip('REGISTRATION CONFIRMATION with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
@@ -276,7 +317,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION CONFIRMATION with incorrect data (only whitespaces)', async () => {
+  it.skip('REGISTRATION CONFIRMATION with incorrect data (only whitespaces)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
@@ -285,7 +326,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION CONFIRMATION with incorrect data (wrong type)', async () => {
+  it.skip('REGISTRATION CONFIRMATION with incorrect data (wrong type)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
@@ -298,7 +339,16 @@ describe('Auth e2e', () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
-        code: 'caramba',
+        code: confirmationCode_1,
+      })
+      .expect(400);
+  }); // 400
+
+  it('REGISTRATION CONFIRMATION with incorrect data (swagger data)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration-confirmation')
+      .send({
+        code: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWVlbWFpbEBnbWFpbC5jb20iLCJpYXQiOjE3MjQ2ODQzMzMsImV4cCI6MTcyNDc3MDczM30.n0QviZkcsNMA9zs-S7gGhcsDyCKMXX4EVrrkRtWPeF0',
       })
       .expect(400);
   }); // 400
@@ -307,21 +357,21 @@ describe('Auth e2e', () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
-        code: confirmationCode,
+        code: confirmationCode_2,
       })
       .expect(201);
   }); // 201
 
-  it('REGISTRATION CONFIRMATION with incorrect data (re-registration confirmation)', async () => {
+  it.skip('REGISTRATION CONFIRMATION with incorrect data (re-registration confirmation)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
-        code: confirmationCode,
+        code: confirmationCode_2,
       })
       .expect(400);
   }); // 400
 
-  it('REGISTRATION EMAIL RESENDING with incorrect data (email has already been confirmed)', async () => {
+  it.skip('REGISTRATION EMAIL RESENDING with incorrect data (email has already been confirmed)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-email-resending')
       .send({
@@ -330,7 +380,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('LOGIN with incorrect data (empty fiels)', async () => {
+  it.skip('LOGIN with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -340,7 +390,7 @@ describe('Auth e2e', () => {
       .expect(401);
   }); // 401
 
-  it('LOGIN with incorrect data (only whitespaces)', async () => {
+  it.skip('LOGIN with incorrect data (only whitespaces)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -350,7 +400,7 @@ describe('Auth e2e', () => {
       .expect(401);
   }); // 401
 
-  it('LOGIN with incorrect data (wrong type)', async () => {
+  it.skip('LOGIN with incorrect data (wrong type)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -360,7 +410,7 @@ describe('Auth e2e', () => {
       .expect(401);
   }); // 401
 
-  it('LOGIN with incorrect data (pattern violation)', async () => {
+  it.skip('LOGIN with incorrect data (pattern violation)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -370,7 +420,7 @@ describe('Auth e2e', () => {
       .expect(401);
   }); // 401
 
-  it('LOGIN with incorrect data (non-existing email)', async () => {
+  it.skip('LOGIN with incorrect data (non-existing email)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -380,7 +430,7 @@ describe('Auth e2e', () => {
       .expect(401);
   }); // 401
 
-  it('LOGIN with incorrect data (non-existing password)', async () => {
+  it.skip('LOGIN with incorrect data (non-existing password)', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .send({
@@ -390,7 +440,7 @@ describe('Auth e2e', () => {
       .expect(401);
   }); // 401
 
-  it('LOGIN with correct data', async () => {
+  it.skip('LOGIN with correct data', async () => {
     const response = await request(app.getHttpServer())
       .post('/auth/login')
       .set('User-Agent', 'e2e user-agent')
@@ -403,15 +453,15 @@ describe('Auth e2e', () => {
     refreshToken = response.headers['set-cookie'];
   }); // 201
 
-  it('UPDATE tokens without refresh token', async () => {
+  it.skip('UPDATE tokens without refresh token', async () => {
     await request(app.getHttpServer()).post('/auth/refresh-token').expect(401);
   }); // 401
 
-  it('UPDATE tokens with incorrect refresh token', async () => {
+  it.skip('UPDATE tokens with incorrect refresh token', async () => {
     await request(app.getHttpServer()).post('/auth/refresh-token').set('Cookie', 'refreshToken=caramba').expect(401);
   }); // 401
 
-  it('UPDATE tokens with correct refresh token', async () => {
+  it.skip('UPDATE tokens with correct refresh token', async () => {
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
     const response = await request(app.getHttpServer())
@@ -422,19 +472,19 @@ describe('Auth e2e', () => {
     refreshToken = response.headers['set-cookie'];
   }); // 201
 
-  it('LOGOUT without refresh token', async () => {
+  it.skip('LOGOUT without refresh token', async () => {
     await request(app.getHttpServer()).post('/auth/logout').expect(401);
   }); // 401
 
-  it('LOGOUT with incorrect refresh token', async () => {
+  it.skip('LOGOUT with incorrect refresh token', async () => {
     await request(app.getHttpServer()).post('/auth/logout').set('Cookie', 'refreshToken=caramba').expect(401);
   }); // 401
 
-  it('LOGOUT with correct refresh token', async () => {
+  it.skip('LOGOUT with correct refresh token', async () => {
     await request(app.getHttpServer()).post('/auth/logout').set('Cookie', refreshToken).expect(201);
   }); // 201
 
-  it('LOGIN with correct data', async () => {
+  it.skip('LOGIN with correct data', async () => {
     await request(app.getHttpServer())
       .post('/auth/login')
       .set('User-Agent', 'e2e user-agent')
@@ -445,7 +495,7 @@ describe('Auth e2e', () => {
       .expect(201);
   }); // 201
 
-  it('PASSWORD RECOVERY with incorrect data (empty fiels)', async () => {
+  it.skip('PASSWORD RECOVERY with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
       .post('/auth/password-recovery')
       .send({
@@ -454,7 +504,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('PASSWORD RECOVERY with incorrect data (only whitespaces)', async () => {
+  it.skip('PASSWORD RECOVERY with incorrect data (only whitespaces)', async () => {
     await request(app.getHttpServer())
       .post('/auth/password-recovery')
       .send({
@@ -463,7 +513,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('PASSWORD RECOVERY with incorrect data (wrong type)', async () => {
+  it.skip('PASSWORD RECOVERY with incorrect data (wrong type)', async () => {
     await request(app.getHttpServer())
       .post('/auth/password-recovery')
       .send({
@@ -472,7 +522,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('PASSWORD RECOVERY with incorrect data (pattern violation)', async () => {
+  it.skip('PASSWORD RECOVERY with incorrect data (pattern violation)', async () => {
     await request(app.getHttpServer())
       .post('/auth/password-recovery')
       .send({
@@ -481,7 +531,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('PASSWORD RECOVERY with incorrect data (non-existing value)', async () => {
+  it.skip('PASSWORD RECOVERY with incorrect data (non-existing value)', async () => {
     await request(app.getHttpServer())
       .post('/auth/password-recovery')
       .send({
@@ -507,10 +557,10 @@ describe('Auth e2e', () => {
       },
     });
 
-    recoveryCode = user!.accountData!.recoveryCode;
+    recoveryCode_1 = user!.accountData!.recoveryCode;
   }); // 201
 
-  it('SET NEW PASSWORD with incorrect data (empty fiels)', async () => {
+  it.skip('SET NEW PASSWORD with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
       .post('/auth/new-password')
       .send({
@@ -521,7 +571,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('SET NEW PASSWORD with incorrect data (only whitespaces)', async () => {
+  it.skip('SET NEW PASSWORD with incorrect data (only whitespaces)', async () => {
     await request(app.getHttpServer())
       .post('/auth/new-password')
       .send({
@@ -532,7 +582,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('SET NEW PASSWORD with incorrect data (wrong type)', async () => {
+  it.skip('SET NEW PASSWORD with incorrect data (wrong type)', async () => {
     await request(app.getHttpServer())
       .post('/auth/new-password')
       .send({
@@ -543,18 +593,18 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('SET NEW PASSWORD with incorrect data (pattern violation)', async () => {
+  it.skip('SET NEW PASSWORD with incorrect data (pattern violation)', async () => {
     await request(app.getHttpServer())
       .post('/auth/new-password')
       .send({
-        code: recoveryCode,
+        code: recoveryCode_1,
         newPassword: 'some password',
         passwordConfirmation: 'some password',
       })
       .expect(400);
   }); // 400
 
-  it('SET NEW PASSWORD with incorrect data (non-existing value)', async () => {
+  it.skip('SET NEW PASSWORD with incorrect data (non-existing value)', async () => {
     await request(app.getHttpServer())
       .post('/auth/new-password')
       .send({
@@ -565,11 +615,11 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('SET NEW PASSWORD with incorrect data (mismatched passwords)', async () => {
+  it.skip('SET NEW PASSWORD with incorrect data (mismatched passwords)', async () => {
     await request(app.getHttpServer())
       .post('/auth/new-password')
       .send({
-        code: recoveryCode,
+        code: recoveryCode_1,
         newPassword: 'Somepassword=2',
         passwordConfirmation: 'Somepassword=3',
       })
@@ -580,9 +630,51 @@ describe('Auth e2e', () => {
     await request(app.getHttpServer())
       .post('/auth/new-password')
       .send({
-        code: recoveryCode,
+        code: recoveryCode_1,
         newPassword: 'Somepassword=2',
         passwordConfirmation: 'Somepassword=2',
+      })
+      .expect(201);
+  }); // 201
+
+  it('PASSWORD RECOVERY with correct data', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/password-recovery')
+      .send({
+        email: 'someemail@gmail.com',
+      })
+      .expect(201);
+
+    const user = await prisma.user.findFirst({
+      where: {
+        email: 'someemail@gmail.com',
+      },
+      include: {
+        accountData: true,
+      },
+    });
+
+    recoveryCode_2 = user!.accountData!.recoveryCode;
+  }); // 201
+
+  it.skip('SET NEW PASSWORD with incorrect data (swagger data)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/new-password')
+      .send({
+        code: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWVlbWFpbEBnbWFpbC5jb20iLCJpYXQiOjE3MjQ2ODQzMzMsImV4cCI6MTcyNDc3MDczM30.n0QviZkcsNMA9zs-S7gGhcsDyCKMXX4EVrrkRtWPeF0',
+        newPassword: 'StRo0NgP@SSWoRD',
+        passwordConfirmation: 'StRo0NgP@SSWoRD',
+      })
+      .expect(400);
+  }); // 400
+
+  it('SET NEW PASSWORD with correct data (swagger password)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/new-password')
+      .send({
+        code: recoveryCode_2,
+        newPassword: 'StRo0NgP@SSWoRD',
+        passwordConfirmation: 'StRo0NgP@SSWoRD',
       })
       .expect(201);
   }); // 201

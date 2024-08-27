@@ -1,7 +1,9 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 
 import { UserService } from '../service/user.service';
 
+@ApiExcludeController()
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

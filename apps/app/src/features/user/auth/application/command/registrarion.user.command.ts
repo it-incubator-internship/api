@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import { hashSync } from 'bcrypt';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
 import { RegistrationUserInputModel } from '../../dto/input/registration.user.dto';
@@ -23,23 +23,23 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
 
   async execute(command: RegistrationUserCommand): Promise<any> {
     const { email, password, passwordConfirmation, userName, isAgreement } = command.inputModel;
-
+    console.log('команда сработала', email, password, passwordConfirmation, userName, isAgreement);
     const agreementCheck = this.checkAgreement(isAgreement);
     if (agreementCheck) return agreementCheck;
 
     const passwordCheck = this.checkPasswordMatch(password, passwordConfirmation);
     if (passwordCheck) return passwordCheck;
 
-    const emailCheck = await this.checkEmailAvailability(email, userName);
-    if (emailCheck) return emailCheck;
-
-    const userNameCheck = await this.checkUserNameAvailability(userName, email);
-    if (userNameCheck) return userNameCheck;
+    const existCheck = await this.checkAvailability(email, userName);
+    if (existCheck) return existCheck;
 
     const { confirmationCode } = await this.jwtAdapter.createConfirmationCode({ email });
 
-    const passwordHash = bcrypt.hashSync(password, hashRounds);
+    console.log('перед bcrypt');
+    const passwordHash = hashSync(password, hashRounds);
+    console.log('после bcrypt', passwordHash);
 
+    console.log('создаем пользователя', userName, email, passwordHash, confirmationCode);
     const newUser = UserEntity.create({
       name: userName,
       email,
@@ -49,7 +49,11 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
 
     await this.userRepository.createUser(newUser);
 
+    console.log('создание пользователя завершено', newUser);
+
     newUser.events.forEach((event) => this.eventBus.publish(event));
+
+    console.log('создание событий завершено', newUser);
 
     return ObjResult.Ok();
   }
@@ -66,22 +70,20 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     }
   }
 
-  private async checkEmailAvailability(email: string, userName: string) {
-    const userByEmail = await this.userRepository.findUserByEmail({ email });
+  private async checkAvailability(email: string, userName: string) {
+    const userByEmail = await this.userRepository.findByEmailOrName({ email, name: userName });
 
-    if (userByEmail && userByEmail.name !== userName) {
+    console.log(userByEmail, 'userByEmail');
+
+    if (userByEmail && userByEmail.email === email) {
       return this.createError(
         'User with this email is already registered',
         'User with this email is already registered',
         'email',
       );
     }
-  }
 
-  private async checkUserNameAvailability(userName: string, email: string) {
-    const userByUserName = await this.userRepository.findUserByUserName({ userName });
-
-    if (userByUserName && userByUserName.email !== email) {
+    if (userByEmail && userByEmail.name === userName) {
       return this.createError(
         'User with this user name is already registered',
         'User with this user name is already registered',

@@ -1,14 +1,11 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiOperation, ApiResponse, ApiSecurity } from '@nestjs/swagger';
-
-import { UserRegistrationOutputDto } from '../../../dto/output/registratio.output.dto';
-import { BasicBadRequestOutputType } from '../../../../../../common/models/basic-badquest.output.type';
+import { ApiOperation, ApiResponse, ApiSecurity, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
 export function RefreshTokenSwagger() {
   return applyDecorators(
     ApiOperation({ summary: 'Обновление токенов' }),
-    ApiResponse({ status: 201, type: () => UserRegistrationOutputDto }),
-    ApiBadRequestResponse({ status: 400, type: () => BasicBadRequestOutputType }),
+    ApiResponse({ status: 201 }),
+    ApiUnauthorizedResponse({ status: 401 }),
     ApiSecurity('refreshToken'),
   );
 }

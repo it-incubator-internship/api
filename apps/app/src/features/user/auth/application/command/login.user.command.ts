@@ -7,6 +7,9 @@ import { SessionRepository } from '../../repository/session.repository';
 import { secondToMillisecond } from '../../../../../common/constants/constants';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { UserSession } from '../../../user/domain/session.fabric';
+import { UserRepository } from '../../../user/repository/user.repository';
+import { UserConfirmationStatusEnum } from '../../../user/domain/accoun-data.fabric';
+import { ForbiddenError } from '../../../../../../../common/utils/result/custom-error';
 
 export class LoginUserCommand {
   constructor(public inputModel: { ipAddress: string; userAgent: string; userId: string }) {}
@@ -15,11 +18,18 @@ export class LoginUserCommand {
 @CommandHandler(LoginUserCommand)
 export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
   constructor(
+    private readonly userRepository: UserRepository,
     private readonly sessionRepository: SessionRepository,
     private readonly jwtAdapter: JwtAdapter,
   ) {}
   async execute(command: LoginUserCommand): Promise<any> {
     const deviceUuid = randomUUID();
+
+    const user = await this.userRepository.findAccountDataById({ id: command.inputModel.userId });
+
+    if (user!.confirmationStatus === UserConfirmationStatusEnum.NOT_CONFIRM) {
+      return ObjResult.Err(new ForbiddenError(`User with this email doesn't exist`));
+    }
 
     // создание accessToken и refreshToken + получение payload от refreshToken
     const { accessToken, refreshToken, payload } = await this.jwtAdapter.createAccessAndRefreshTokens({

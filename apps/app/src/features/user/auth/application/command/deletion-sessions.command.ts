@@ -11,7 +11,7 @@ export class DeletionSessionsCommand {
 export class DeletionSessionsHandler implements ICommandHandler<DeletionSessionsCommand> {
   constructor(private readonly sessionRepository: SessionRepository) {}
   async execute(command: DeletionSessionsCommand): Promise<any> {
-    await this.sessionRepository.deleteAllSessions({ id: command.inputModel.id });
+    await this.sessionRepository.deleteAllSessionsByProfileId({ id: command.inputModel.id });
 
     return ObjResult.Ok();
   }

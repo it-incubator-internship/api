@@ -82,6 +82,21 @@ export class UserRepository {
     return UserEntity.convert(user);
   }
 
+  async findByEmailOrName({ email, name }: { email: string; name: string }) {
+    return this.prismaService.user.findFirst({
+      where: {
+        OR: [
+          {
+            email: email,
+          },
+          {
+            name: name,
+          },
+        ],
+      },
+    });
+  }
+
   async findUserByEmail({ email }: { email: string }): Promise<UserEntity | null> {
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -154,5 +169,11 @@ export class UserRepository {
     }
 
     return UserAccountData.convert(user);
+  }
+
+  // применяется для очистки БД при тестировании
+  async deleteAllUsers() {
+    await this.prismaService.accountData.deleteMany();
+    await this.prismaService.user.deleteMany();
   }
 }
