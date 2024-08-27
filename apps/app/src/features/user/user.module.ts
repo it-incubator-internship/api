@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
+import { HttpModule } from '@nestjs/axios';
 
 import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
@@ -48,7 +49,7 @@ const strategies = [LocalStrategy, RefreshStrategy, GithubOauthStrategy];
 const adapters = [JwtAdapter];
 
 @Module({
-  imports: [EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
+  imports: [HttpModule, EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
   controllers: [UserController, AuthController, AuthGoogleController, GithubOauthController],
   providers: [...userRepositories, ...userService, ...userCommands, ...strategies, ...events, ...adapters],
 })
