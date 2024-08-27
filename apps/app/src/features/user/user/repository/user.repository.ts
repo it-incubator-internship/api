@@ -170,4 +170,10 @@ export class UserRepository {
 
     return UserAccountData.convert(user);
   }
+
+  // применяется для очистки БД при тестировании
+  async deleteAllUsers() {
+    await this.prismaService.accountData.deleteMany();
+    await this.prismaService.user.deleteMany();
+  }
 }

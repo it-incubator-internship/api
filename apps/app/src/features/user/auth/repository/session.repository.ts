@@ -56,9 +56,14 @@ export class SessionRepository {
     });
   }
 
-  async deleteAllSessions({ id }: { id: string }) {
+  async deleteAllSessionsByProfileId({ id }: { id: string }) {
     await this.prismaService.session.deleteMany({
       where: { profileId: id },
     });
+  }
+
+  // применяется для очистки БД при тестировании
+  async deleteAllSessions() {
+    await this.prismaService.session.deleteMany();
   }
 }

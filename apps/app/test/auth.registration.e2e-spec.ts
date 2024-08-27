@@ -44,9 +44,8 @@ describe('Auth e2e', () => {
 
     httpServer = app.getHttpServer();
 
-    // await request(app.getHttpServer())
-    //     .delete('/testing/all-data')
-    //     .expect(204)
+    // очистка бд
+    await request(app.getHttpServer()).delete('/testing/all-data').expect(200);
   });
 
   afterAll(async () => {
