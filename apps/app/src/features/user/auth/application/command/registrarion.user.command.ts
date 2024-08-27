@@ -30,11 +30,8 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     const passwordCheck = this.checkPasswordMatch(password, passwordConfirmation);
     if (passwordCheck) return passwordCheck;
 
-    const emailCheck = await this.checkEmailAvailability(email, userName);
-    if (emailCheck) return emailCheck;
-
-    const userNameCheck = await this.checkUserNameAvailability(userName, email);
-    if (userNameCheck) return userNameCheck;
+    const existCheck = await this.checkAvailability(email, userName);
+    if (existCheck) return existCheck;
 
     const { confirmationCode } = await this.jwtAdapter.createConfirmationCode({ email });
 
@@ -66,28 +63,24 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     }
   }
 
-  private async checkEmailAvailability(email: string, userName: string) {
-    const userByEmail = await this.userRepository.findUserByEmail({ email });
+  private async checkAvailability(email: string, userName: string) {
+    const userByEmail = await this.userRepository.findByEmailOrName({ email, name: userName });
 
-    if (userByEmail && userByEmail.name !== userName) {
+    console.log(userByEmail, 'userByEmail');
+
+    if (userByEmail && userByEmail.email === email) {
       return this.createError(
         'User with this email is already registered',
         'User with this email is already registered',
         'email',
       );
     }
-  }
 
-  private async checkUserNameAvailability(userName: string, email: string) {
-    const userByUserName = await this.userRepository.findUserByUserName({ userName });
-
-    if (userByUserName && userByUserName.email !== email) {
-      return this.createError(
-        'User with this user name is already registered',
-        'User with this user name is already registered',
-        'userName',
-      );
-    }
+    return this.createError(
+      'User with this user name is already registered',
+      'User with this user name is already registered',
+      'userName',
+    );
   }
 
   private createError(title: string, message: string, field: string) {
