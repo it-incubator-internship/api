@@ -23,7 +23,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
 
   async execute(command: RegistrationUserCommand): Promise<any> {
     const { email, password, passwordConfirmation, userName, isAgreement } = command.inputModel;
-
+    console.log('команда сработала', email, password, passwordConfirmation, userName, isAgreement);
     const agreementCheck = this.checkAgreement(isAgreement);
     if (agreementCheck) return agreementCheck;
 
@@ -36,7 +36,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
     const { confirmationCode } = await this.jwtAdapter.createConfirmationCode({ email });
 
     const passwordHash = bcrypt.hashSync(password, hashRounds);
-
+    console.log('создаем пользователя', userName, email, passwordHash, confirmationCode);
     const newUser = UserEntity.create({
       name: userName,
       email,
@@ -46,7 +46,11 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
 
     await this.userRepository.createUser(newUser);
 
+    console.log('создание пользователя завершено', newUser);
+
     newUser.events.forEach((event) => this.eventBus.publish(event));
+
+    console.log('создание событий завершено', newUser);
 
     return ObjResult.Ok();
   }
