@@ -39,7 +39,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   }
   //TODO обговорить
   private async addProviderToUser({ userId, provider }) {
-    await this.userRepository.addProviderToUser({ userId, provider });
+    // await this.userRepository.addProviderToUser({ userId, provider });
   }
   private async createNewUser({ id, displayName, oldEmail }) {
     const password = generatePassword();

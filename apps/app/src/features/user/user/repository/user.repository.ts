@@ -98,7 +98,7 @@ export class UserRepository {
   }
 
   async findUserByEmail({ email }: { email: string }): Promise<UserEntity | null> {
-    const user = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findFirst({
       where: {
         email: email,
       },
