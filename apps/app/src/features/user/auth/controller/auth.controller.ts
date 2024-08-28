@@ -37,7 +37,6 @@ export class AuthController {
   @Post('registration')
   @UserRegitsrationSwagger()
   async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
-    console.log('registration', inputModel);
     const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
 
     if (!result.isSuccess) throw result.error;

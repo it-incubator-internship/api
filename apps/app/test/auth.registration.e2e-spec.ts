@@ -38,9 +38,7 @@ describe('Auth e2e', () => {
     await app.init();
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
-    console.log('+++++++++++++++++++++++++++++++++++++++++');
     console.log(process.env.DATABASE_APP_URL);
-    console.log('+++++++++++++++++++++++++++++++++++++++++');
 
     httpServer = app.getHttpServer();
 

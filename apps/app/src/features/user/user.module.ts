@@ -7,7 +7,6 @@ import { HttpModule } from '@nestjs/axios';
 import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
 import { PrismaModule } from '../../common/database_module/prisma.module';
-import { CleaningController } from '../cleaning/controller/cleaning.controller';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
@@ -30,12 +29,14 @@ import { AuthGoogleController } from './auth/controller/auth.google.controller';
 import { GithubOauthController } from './auth/controller/auth.github.controller';
 import { GithubOauthStrategy } from './auth/controller/passport/github-oauth.strategy';
 import { GithubOauthHandler } from './auth/application/command/oauth/github-oauth.command';
+import { SendNewConfirmEmailWhenUserAskItEventHandler } from './auth/application/events-handlers/send-new-confirm-email-when-user-ask-it.event.handler';
 
 const userRepositories = [UserRepository, SessionRepository];
 const userService = [UserService];
 const userCommands = [
   RegistrationUserHandler,
   RegistrationEmailResendingHandler,
+  SendNewConfirmEmailWhenUserAskItEventHandler,
   RegistrationConfirmationHandler,
   PasswordRecoveryHandler,
   SetNewPasswordHandler,
