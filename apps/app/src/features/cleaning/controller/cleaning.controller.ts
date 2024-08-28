@@ -4,6 +4,7 @@ import { ApiExcludeController } from '@nestjs/swagger';
 import { UserRepository } from '../../user/user/repository/user.repository';
 import { SessionRepository } from '../../user/auth/repository/session.repository';
 
+//TODO вынести в отдельный модуль
 @ApiExcludeController()
 @Controller('testing')
 export class CleaningController {
