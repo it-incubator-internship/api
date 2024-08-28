@@ -18,7 +18,7 @@ export class UserRepository {
           ? {
               accountData: {
                 create: {
-                  confirmationCode: userProfile.accountData!.confirmationCode,
+                  ...userProfile.accountData!,
                 },
               },
             }
@@ -98,7 +98,7 @@ export class UserRepository {
   }
 
   async findUserByEmail({ email }: { email: string }): Promise<UserEntity | null> {
-    const user = await this.prismaService.user.findUnique({
+    const user = await this.prismaService.user.findFirst({
       where: {
         email: email,
       },
@@ -137,6 +137,17 @@ export class UserRepository {
     }
 
     return UserAccountData.convert(user);
+  }
+
+  async addAccountDataGitHubProvider({ userId, providerId }: { userId: string; providerId: string }) {
+    return this.prismaService.accountData.update({
+      where: {
+        profileId: userId,
+      },
+      data: {
+        githubId: providerId,
+      },
+    });
   }
 
   async findAccountDataByConfirmationCode({

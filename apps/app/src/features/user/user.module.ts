@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
+import { HttpModule } from '@nestjs/axios';
 
 import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
@@ -26,6 +27,9 @@ import { RefreshStrategy } from './auth/strategies/refresh-token.auth.strategy';
 import { UserController } from './user/controller/user.controller';
 import { AuthController } from './auth/controller/auth.controller';
 import { AuthGoogleController } from './auth/controller/auth.google.controller';
+import { GithubOauthController } from './auth/controller/auth.github.controller';
+import { GithubOauthStrategy } from './auth/controller/passport/github-oauth.strategy';
+import { GithubOauthHandler } from './auth/application/command/oauth/github-oauth.command';
 
 const userRepositories = [UserRepository, SessionRepository];
 const userService = [UserService];
@@ -39,14 +43,15 @@ const userCommands = [
   RefreshTokenHandler,
   LogoutUserHandler,
   DeletionSessionsHandler,
+  GithubOauthHandler,
 ];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler];
-const stratigies = [LocalStrategy, RefreshStrategy];
+const strategies = [LocalStrategy, RefreshStrategy, GithubOauthStrategy];
 const adapters = [JwtAdapter];
 
 @Module({
-  imports: [EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
-  controllers: [UserController, AuthController, AuthGoogleController, CleaningController],
-  providers: [...userRepositories, ...userService, ...userCommands, ...stratigies, ...events, ...adapters],
+  imports: [HttpModule, EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
+  controllers: [UserController, AuthController, AuthGoogleController, GithubOauthController],
+  providers: [...userRepositories, ...userService, ...userCommands, ...strategies, ...events, ...adapters],
 })
 export class UserModule {}
