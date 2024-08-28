@@ -30,6 +30,7 @@ import { GithubOauthController } from './auth/controller/auth.github.controller'
 import { GithubOauthStrategy } from './auth/controller/passport/github-oauth.strategy';
 import { GithubOauthHandler } from './auth/application/command/oauth/github-oauth.command';
 import { SendNewConfirmEmailWhenUserAskItEventHandler } from './auth/application/events-handlers/send-new-confirm-email-when-user-ask-it.event.handler';
+import { SendNewPasswordRecoveryEmailWhenUserAskIt } from './auth/application/events-handlers/send-password-change-code-when-user-ask-it.event.handler';
 
 const userRepositories = [UserRepository, SessionRepository];
 const userService = [UserService];
@@ -38,6 +39,7 @@ const userCommands = [
   RegistrationEmailResendingHandler,
   SendNewConfirmEmailWhenUserAskItEventHandler,
   RegistrationConfirmationHandler,
+  SendNewPasswordRecoveryEmailWhenUserAskIt,
   PasswordRecoveryHandler,
   SetNewPasswordHandler,
   LoginUserHandler,
