@@ -1,5 +1,5 @@
-import { hashSync } from 'bcrypt';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { hashSync } from 'bcryptjs';
 
 import { RegistrationUserInputModel } from '../../dto/input/registration.user.dto';
 import { UserRepository } from '../../../user/repository/user.repository';

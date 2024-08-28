@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'crypto';
 
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { hashSync } from 'bcrypt';
+import { hashSync } from 'bcryptjs';
 
 import { GithubData } from '../../../controller/passport/github-oauth.strategy';
 import { UserRepository } from '../../../../user/repository/user.repository';

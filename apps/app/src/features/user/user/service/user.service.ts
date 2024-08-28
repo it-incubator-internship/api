@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
 
-import bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
+import { hashSync } from 'bcryptjs';
 
 import { UserRepository } from '../repository/user.repository';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
@@ -17,7 +17,7 @@ export class UserService {
 
     const confirmationCode = randomUUID();
 
-    const passwordHash = bcrypt.hashSync(data.password, 10);
+    const passwordHash = hashSync(data.password, 10);
 
     const dataForCreating = UserEntity.create({
       name: data.name as string,

@@ -1,7 +1,7 @@
-import bcrypt from 'bcrypt';
 import { Strategy } from 'passport-local';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { compare } from 'bcryptjs';
 
 import { UserRepository } from '../../user/repository/user.repository';
 
@@ -24,7 +24,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       return null;
     }
 
-    const isMatch = await bcrypt.compare(password, user!.passwordHash);
+    const isMatch = await compare(password, user!.passwordHash);
 
     if (!isMatch) {
       return null;

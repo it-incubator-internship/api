@@ -1,5 +1,5 @@
-import bcrypt from 'bcrypt';
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { hashSync } from 'bcryptjs';
 
 import { UserRepository } from '../../../user/repository/user.repository';
 import { NewPasswordInputModel } from '../../dto/input/new-password.user.dto';
@@ -49,7 +49,7 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
       throw new Error(`User with id ${accountData.profileId} not found, but recovery code is valid`);
     }
 
-    const passwordHash = bcrypt.hashSync(command.inputModel.newPassword, hashRounds);
+    const passwordHash = hashSync(command.inputModel.newPassword, hashRounds);
 
     user.updatePasswordHash({ passwordHash });
 
