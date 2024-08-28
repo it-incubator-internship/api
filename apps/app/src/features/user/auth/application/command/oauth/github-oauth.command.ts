@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID } from 'crypto';
 
-import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { hashSync } from 'bcryptjs';
 
 import { GithubData } from '../../../controller/passport/github-oauth.strategy';
@@ -15,64 +15,60 @@ export class GithubOauthCommand {
 
 @CommandHandler(GithubOauthCommand)
 export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly commandBus: CommandBus,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async execute(command: GithubOauthCommand) {
     const { id, displayName, email } = command.data;
 
-    let isExistUser: null | { userId: string } = null;
+    let existingUser: null | { userId: string } = null;
 
     if (email) {
-      isExistUser = await this.checkExistUser({ email });
+      existingUser = await this.checkExistUser({ email });
+      if (existingUser) {
+        await this.addProviderToUser({ userId: existingUser.userId, providerId: id });
+        return;
+      }
     }
 
-    if (!isExistUser) {
-      await this.createNewUser({ id, displayName, oldEmail: email });
-    }
+    // Если email отсутствует или пользователь не найден, создаем нового пользователя
+    await this.createNewUser({ id, displayName, email });
+  }
 
-    if (isExistUser) {
-      await this.createNewUser({ id, displayName, oldEmail: email });
-    }
+  private async addProviderToUser({ userId, providerId }) {
+    await this.userRepository.addAccountDataGitHubProvider({ userId, providerId });
   }
-  //TODO обговорить
-  private async addProviderToUser({ userId, provider }) {
-    // await this.userRepository.addProviderToUser({ userId, provider });
-  }
-  private async createNewUser({ id, displayName, oldEmail }) {
+
+  private async createNewUser({ id, displayName, email }) {
     const password = generatePassword();
-    const userName = await this.generateUserName({ userName: displayName });
-    //TODO переговорить с фронтом
-    const email = oldEmail ?? '';
+    const userName = await this.generateUserName(displayName);
 
     const accountData = UserAccountData.create({ confirmationCode: randomUUID() });
     accountData.confirmationStatus = UserConfirmationStatusEnum.CONFIRM;
     accountData.githubId = id;
 
     const newUser = UserEntity.create({
-      name: userName.login,
-      email,
+      name: userName,
+      email: email ?? '',
       passwordHash: hashSync(password, 10),
     });
     newUser.accountData = accountData as UserAccountData;
 
     await this.userRepository.createUser(newUser);
   }
-  private async generateUserName({ userName }: { userName: string }) {
-    const isExistUser = await this.userRepository.findUserByUserName({ userName: userName });
 
-    if (isExistUser) {
-      const random = randomBytes(3).toString('hex');
-      return { login: userName + random };
+  private async generateUserName(userName: string): Promise<string> {
+    const existingUser = await this.userRepository.findUserByUserName({ userName });
+
+    if (existingUser) {
+      const randomSuffix = randomBytes(3).toString('hex');
+      return `${userName}${randomSuffix}`;
     }
 
-    return { login: userName };
+    return userName;
   }
+
   private async checkExistUser({ email }: { email: string }) {
     const user = await this.userRepository.findUserByEmail({ email });
-    if (!user) return null;
-    return { userId: user.id };
+    return user ? { userId: user.id } : null;
   }
 }
