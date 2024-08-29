@@ -12,7 +12,7 @@ export class GoogleAuthCommand {
   constructor(
     public inputModel: {
       googleId: string;
-      email: string;
+      email: string | null;
       emailValidation: boolean;
       // ipAddress: string;
       // userAgent: string;
@@ -39,7 +39,10 @@ export class GoogleAuthHandler implements ICommandHandler<GoogleAuthCommand> {
     if (accountDataByGoogleId) {
       console.log('console.log in google auth command (accountDataByGoogleId)');
 
-      return ObjResult.Ok();
+      console.log(ObjResult.Ok());
+
+      return '1';
+      // return ObjResult.Ok();
 
       // login user
       // const result = await this.commandBus.execute(
@@ -79,7 +82,8 @@ export class GoogleAuthHandler implements ICommandHandler<GoogleAuthCommand> {
       );
       console.log('registrationResult in google auth command (!command.inputModel.email):', registrationResult);
 
-      return ObjResult.Ok();
+      return '2';
+      // return ObjResult.Ok();
 
       // login user
       // const loginResult = await this.commandBus.execute(
@@ -115,7 +119,8 @@ export class GoogleAuthHandler implements ICommandHandler<GoogleAuthCommand> {
 
         await this.userRepository.updateAccountData(accountData!);
 
-        return ObjResult.Ok();
+        return '3';
+        // return ObjResult.Ok();
 
         // login user
         // const loginResult = await this.commandBus.execute(
@@ -168,7 +173,8 @@ export class GoogleAuthHandler implements ICommandHandler<GoogleAuthCommand> {
         );
         console.log('registrationResult in google auth command (!userByEmail):', registrationResult);
 
-        return ObjResult.Ok();
+        return '4';
+        // return ObjResult.Ok();
 
         // login user
         // const loginResult = await this.commandBus.execute(

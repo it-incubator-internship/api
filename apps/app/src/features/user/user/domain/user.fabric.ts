@@ -3,7 +3,7 @@ import { User } from '../../../../../prisma/client';
 import { UserAccountData } from './accoun-data.fabric';
 import { UserRegistrationEvent } from './events/user-registration.event';
 
-enum UserBanStatusEnum {
+export enum UserBanStatusEnum {
   BANNED = 'BANNED',
   NOT_BANNED = 'NOT_BANNED',
 }

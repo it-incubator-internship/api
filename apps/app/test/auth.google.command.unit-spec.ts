@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { CommandBus } from '@nestjs/cqrs';
 
 import {
   GoogleAuthCommand,
@@ -6,10 +7,12 @@ import {
 } from '../src/features/user/auth/application/command/google.auth.command';
 import { UserRepository } from '../src/features/user/user/repository/user.repository';
 import { UserAccountData, UserConfirmationStatusEnum } from '../src/features/user/user/domain/accoun-data.fabric';
+import { UserBanStatusEnum, UserEntity } from '../src/features/user/user/domain/user.fabric';
 
 describe('CreateBlogUseCase unit', () => {
   let googleAuthHandler: GoogleAuthHandler;
   let userRepository: UserRepository;
+  let commandBus: CommandBus;
 
   beforeEach(async () => {
     // используется для инициализации тестового модуля и зависимостей перед каждым тестом
@@ -28,18 +31,26 @@ describe('CreateBlogUseCase unit', () => {
             findUserByUserName: jest.fn(), // создание mock функции для метода findUserByUserName() в UserRepository
           },
         },
+        {
+          provide: CommandBus,
+          useValue: {
+            execute: jest.fn(),
+          },
+        },
+        CommandBus,
       ],
     }).compile(); // компиляция тестового модуля и подготовка его к использованию
 
     googleAuthHandler = module.get<GoogleAuthHandler>(GoogleAuthHandler); // получение экземпляра GoogleAuthHandler из тестового модуля
     userRepository = module.get<UserRepository>(UserRepository); // получение экземпляра UserRepository из тестового модуля
+    commandBus = module.get<CommandBus>(CommandBus); // получение экземпляра CommandBus из тестового модуля
   });
 
   it('AUTH with account data by googleId', async () => {
     const accoutData = UserAccountData.convert({
       profileId: '111',
       confirmationStatus: UserConfirmationStatusEnum.CONFIRM,
-      confirmationCode: '',
+      confirmationCode: 'someConfirmationCode',
       recoveryCode: null,
       githubId: null,
       googleId: '1',
@@ -50,52 +61,86 @@ describe('CreateBlogUseCase unit', () => {
 
     const result = await googleAuthHandler.execute(command); // вызов метода execute() в googleAuthHandler
 
-    expect(result).toEqual({
-      isSuccess: true,
-      errorStatus: 0,
-      data: 777,
-      errors: null,
-    });
+    expect(result).toEqual('1');
   });
 
-  // it('CREATE blog without user id (success)', async () => {
-  //   const command = new CreateBlogCommand(null, 'some name', 'some description', 'https://somewebsiteurl.com'); // создание экземпляра класса CreateBlogCommand
-  //   // const blog = Blog.create(command.name, command.description, command.websiteUrl, null);   // создание экземпляра класса Blog
-  //   jest.spyOn(blogDbRepository, 'saveBlog').mockResolvedValue(777); // создание mock функции для метода saveBlog() (когда этот метод будет вызван, он будет возвращать 777)
+  it('AUTH without account data by googleId and without email in request', async () => {
+    const command = new GoogleAuthCommand({ googleId: '1', email: null, emailValidation: true }); // создание экземпляра класса GoogleAuthCommand
+    jest.spyOn(userRepository, 'findAccountDataByGoogleId').mockResolvedValue(null); // создание mock функции для метода findAccountDataByGoogleId()
+    jest.spyOn(commandBus, 'execute').mockResolvedValue(null); // создание mock функции для метода execute()
 
-  //   const result = await useCase.execute(command); // вызов метода execute() в useCase
+    const result = await googleAuthHandler.execute(command); // вызов метода execute() в googleAuthHandler
 
-  //   expect(result).toEqual({
-  //     isSuccess: true,
-  //     errorStatus: 0,
-  //     data: 777,
-  //     errors: null,
-  //   });
-  // });
+    expect(result).toEqual('2');
+  });
 
-  // it('CREATE blog with user id (fail)', async () => {
-  //   const command = new CreateBlogCommand('1', 'Test Blog', 'Test Description', 'https://example.com'); // создание экземпляра класса CreateBlogCommand
-  //   // const blog = Blog.create(command.name, command.description, command.websiteUrl, Number(command.userId));   // создание экземпляра класса Blog
-  //   jest.spyOn(blogDbRepository, 'saveBlog').mockResolvedValue(null); // создание mock функции для метода saveBlog() (когда этот метод будет вызван, он будет возвращать null)
+  it('AUTH without account data by googleId and with email in request and with user by email', async () => {
+    const user = UserEntity.convert({
+      id: '111',
+      name: 'someName',
+      email: 'someemail@mail.ru',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+      passwordHash: 'somePasswordHash',
+      banStatus: UserBanStatusEnum.NOT_BANNED,
+      banDate: null,
+    });
 
-  //   const result = await useCase.execute(command); // вызов метода execute() в useCase
+    const accoutData = UserAccountData.convert({
+      profileId: '111',
+      confirmationStatus: UserConfirmationStatusEnum.CONFIRM,
+      confirmationCode: 'someConfirmationCode',
+      recoveryCode: null,
+      githubId: null,
+      googleId: null,
+    });
 
-  //   expect(result).toEqual({
-  //     isSuccess: false,
-  //     errorStatus: 418,
-  //     data: null,
-  //     errors: null,
-  //   });
-  // });
+    const command = new GoogleAuthCommand({ googleId: '1', email: 'someemail@mail.ru', emailValidation: true }); // создание экземпляра класса GoogleAuthCommand
+    jest.spyOn(userRepository, 'findAccountDataByGoogleId').mockResolvedValue(null); // создание mock функции для метода findAccountDataByGoogleId()
+    jest.spyOn(userRepository, 'findUserByEmail').mockResolvedValue(user); // создание mock функции для метода findUserByEmail()
+    jest.spyOn(userRepository, 'findAccountDataById').mockResolvedValue(accoutData); // создание mock функции для метода findAccountDataById()
+    jest.spyOn(userRepository, 'updateAccountData').mockResolvedValue(accoutData); // создание mock функции для метода updateAccountData()
+    jest.spyOn(commandBus, 'execute').mockResolvedValue(null); // создание mock функции для метода execute()
+
+    const result = await googleAuthHandler.execute(command); // вызов метода execute() в googleAuthHandler
+
+    expect(result).toEqual('3');
+  });
+
+  it('AUTH without account data by googleId and with email in request and without user by email and without user by userName', async () => {
+    const command = new GoogleAuthCommand({ googleId: '1', email: 'someemail@mail.ru', emailValidation: true }); // создание экземпляра класса GoogleAuthCommand
+    jest.spyOn(userRepository, 'findAccountDataByGoogleId').mockResolvedValue(null); // создание mock функции для метода findAccountDataByGoogleId()
+    jest.spyOn(userRepository, 'findUserByEmail').mockResolvedValue(null); // создание mock функции для метода findUserByEmail()
+    jest.spyOn(userRepository, 'findUserByUserName').mockResolvedValue(null); // создание mock функции для метода findUserByUserName()
+    jest.spyOn(commandBus, 'execute').mockResolvedValue(null); // создание mock функции для метода execute()
+
+    const result = await googleAuthHandler.execute(command); // вызов метода execute() в googleAuthHandler
+
+    expect(result).toEqual('4');
+  });
+
+  it('AUTH without account data by googleId and with email in request and without user by email and with user by userName', async () => {
+    const user = UserEntity.convert({
+      id: '111',
+      name: 'someemail',
+      email: 'someemail@mail.ru',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+      passwordHash: 'somePasswordHash',
+      banStatus: UserBanStatusEnum.NOT_BANNED,
+      banDate: null,
+    });
+
+    const command = new GoogleAuthCommand({ googleId: '1', email: 'someemail@mail.ru', emailValidation: true }); // создание экземпляра класса GoogleAuthCommand
+    jest.spyOn(userRepository, 'findAccountDataByGoogleId').mockResolvedValue(null); // создание mock функции для метода findAccountDataByGoogleId()
+    jest.spyOn(userRepository, 'findUserByEmail').mockResolvedValue(null); // создание mock функции для метода findUserByEmail()
+    jest.spyOn(userRepository, 'findUserByUserName').mockResolvedValue(user); // создание mock функции для метода findUserByUserName()
+    jest.spyOn(commandBus, 'execute').mockResolvedValue(null); // создание mock функции для метода execute()
+
+    const result = await googleAuthHandler.execute(command); // вызов метода execute() в googleAuthHandler
+
+    expect(result).toEqual('4');
+  });
 });
-
-// expect(blogDbRepository.saveBlog).toHaveBeenCalledWith(blog);
-// expect(blogDbRepository.saveBlog).toHaveBeenCalledWith(
-//     expect.objectContaining({
-//         name: "Test Blog",
-//         description: "Test Description",
-//         isBanned: false,
-//         isMembership: false,
-//         userId: 1
-//     })
-// )
