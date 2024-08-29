@@ -37,6 +37,12 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       email: environmentVariables.GMAIL_USER,
     },
 
+    googleAuthorizationSettings: {
+      clientID: environmentVariables.GOOGLE_CLIENT_ID,
+      clientSecret: environmentVariables.GOOGLE_CLIENT_SECRET,
+      callbackURL: environmentVariables.GOOGLE_CALLBACK_URL,
+    },
+
     getAllVariables: {
       ...environmentVariables,
     },
@@ -75,6 +81,9 @@ export const configuration = () => {
     'JWT_LIFE_TIME_REFRESH',
     'JWT_LIFE_TIME_CONFIRMATION_CODE',
     'JWT_LIFE_TIME_RECOVERY_CODE',
+    'GOOGLE_CLIENT_ID',
+    'GOOGLE_CLIENT_SECRET',
+    'GOOGLE_CALLBACK_URL',
   ];
 
   //Эти значения выводятся в сваггере
