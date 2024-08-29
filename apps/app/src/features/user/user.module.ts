@@ -7,6 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
 import { PrismaModule } from '../../common/database_module/prisma.module';
+import { CleaningController } from '../cleaning/controller/cleaning.controller';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
@@ -31,25 +32,27 @@ import { GithubOauthStrategy } from './auth/controller/passport/github-oauth.str
 import { GithubOauthHandler } from './auth/application/command/oauth/github-oauth.command';
 import { SendNewConfirmEmailWhenUserAskItEventHandler } from './auth/application/events-handlers/send-new-confirm-email-when-user-ask-it.event.handler';
 import { SendNewPasswordRecoveryEmailWhenUserAskIt } from './auth/application/events-handlers/send-password-change-code-when-user-ask-it.event.handler';
+import { GoogleAuthStrategy } from './auth/strategies/google.auth.strategy';
+import { RegistrationUserByGoogleHandler } from './auth/application/command/registration-by-google.user.command';
+import { GoogleAuthHandler } from './auth/application/command/google.auth.command';
 
 const userRepositories = [UserRepository, SessionRepository];
 const userService = [UserService];
 const userCommands = [
   RegistrationUserHandler,
   RegistrationEmailResendingHandler,
-  SendNewConfirmEmailWhenUserAskItEventHandler,
   RegistrationConfirmationHandler,
-  SendNewPasswordRecoveryEmailWhenUserAskIt,
   PasswordRecoveryHandler,
   SetNewPasswordHandler,
   LoginUserHandler,
   RefreshTokenHandler,
   LogoutUserHandler,
   DeletionSessionsHandler,
-  GithubOauthHandler,
+  GoogleAuthHandler,
+  RegistrationUserByGoogleHandler,
 ];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler];
-const strategies = [LocalStrategy, RefreshStrategy, GithubOauthStrategy];
+const stratigies = [LocalStrategy, RefreshStrategy,GoogleAuthStrategy,GithubOauthStrategy];
 const adapters = [JwtAdapter];
 
 @Module({

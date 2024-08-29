@@ -3,7 +3,7 @@ import { User } from '../../../../../prisma/client';
 import { UserAccountData } from './accoun-data.fabric';
 import { UserRegistrationEvent } from './events/user-registration.event';
 
-enum UserBanStatusEnum {
+export enum UserBanStatusEnum {
   BANNED = 'BANNED',
   NOT_BANNED = 'NOT_BANNED',
 }
@@ -32,6 +32,8 @@ export class UserEntity implements User {
     passwordHash: string;
     accountData?: {
       confirmationCode: string;
+      // googleId: string;
+      // githubId: string;
     } | null;
   }): Omit<UserEntity, 'id'> {
     const userProfileDto: {
