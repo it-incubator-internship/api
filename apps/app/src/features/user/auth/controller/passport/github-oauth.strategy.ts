@@ -23,7 +23,6 @@ export class GithubOauthStrategy extends PassportStrategy(Strategy, 'github') {
   }
 
   async validate(accessToken: string, _refreshToken: string, profile: Profile, ...args: any[]): Promise<GithubData> {
-    // Первоначальная попытка получить email из профиля
     let email = profile.emails?.[0]?.value || null;
 
     // Если email не найден в профиле, запросим его через API GitHub

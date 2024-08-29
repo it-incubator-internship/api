@@ -52,7 +52,7 @@ describe('GithubOauthHandler (Integration)', () => {
     await prismaService.$disconnect(); // Закрываем соединение с базой данных
   });
 
-  it('создаем нового пользователя с нормальным ником если он уже не занят и почта свободна', async () => {
+  it('создаем нового пользователя с нормальным ником если он не занят и почта свободна', async () => {
     const command = new GithubOauthCommand({
       id: mockUser.id,
       displayName: mockUser.displayName,
@@ -67,7 +67,7 @@ describe('GithubOauthHandler (Integration)', () => {
     expect(user!.name).toBe(mockUser.displayName);
   });
 
-  it('создаем нового пользователя измененным  ником если он уже занят и почта свободна', async () => {
+  it('создаем нового пользователя с измененным  ником если он уже занят и почта свободна', async () => {
     await prismaService.user.create({
       data: {
         id: randomUUID(),
@@ -113,7 +113,7 @@ describe('GithubOauthHandler (Integration)', () => {
         id: randomUUID(),
         name: mockUser.displayName,
         email: 'test@example.com',
-        passwordHash: 'some-hash',
+        passwordHash: 'some-`hash`',
       },
     });
 
