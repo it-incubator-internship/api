@@ -56,6 +56,7 @@ export class UserRepository {
           recoveryCode: userAccountData.recoveryCode,
           confirmationCode: userAccountData.confirmationCode,
           confirmationStatus: userAccountData.confirmationStatus,
+          googleId: userAccountData.googleId,
         },
       });
     } catch (e) {
@@ -82,6 +83,23 @@ export class UserRepository {
     return UserEntity.convert(user);
   }
 
+  async findAccountDataByGoogleId({ googleId }: { googleId: string }): Promise<UserAccountData | null> {
+    console.log('googleId in user repository (findUserByGoogleId):', googleId);
+
+    const user = await this.prismaService.accountData.findUnique({
+      where: {
+        googleId: googleId,
+      },
+    });
+    console.log('user in user repository (findUserByGoogleId):', user);
+
+    if (!user) {
+      return null;
+    }
+
+    return UserAccountData.convert(user);
+  }
+
   async findByEmailOrName({ email, name }: { email: string; name: string }) {
     return this.prismaService.user.findFirst({
       where: {
@@ -98,11 +116,14 @@ export class UserRepository {
   }
 
   async findUserByEmail({ email }: { email: string }): Promise<UserEntity | null> {
+    console.log('email in user repository (findUserByEmail):', email);
+
     const user = await this.prismaService.user.findUnique({
       where: {
         email: email,
       },
     });
+    console.log('user in user repository (findUserByEmail):', user);
 
     if (!user) {
       return null;

@@ -1,49 +1,58 @@
 // import { Request, Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
-import { ApiExcludeController, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Post } from '@nestjs/common';
+import { ApiExcludeController /*, ApiTags */ } from '@nestjs/swagger';
+import { Controller, Get, /* Ip, */ Req, /* Res, */ UseGuards } from '@nestjs/common';
 
-import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
-// import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
-// import { NewPasswordInputModel } from '../dto/input/new-password.user.dto';
-import { EmailInputModel } from '../dto/input/email.user.dto';
-import { UserRegistrationOutputDto } from '../dto/output/registratio.output.dto';
-import { UserRegitsrationSwagger } from '../decorators/swagger/user-registration/user-regitsration.swagger.decorator';
-import { RegistrationUserCommand } from '../application/command/registrarion.user.command';
-import { RegistrationEmailResendingCommand } from '../application/command/registration-email-resending.user.command';
-// import { RegistrationConfirmationCommand } from '../application/command/registration-confirmation.user.command';
-// import { LoginUserCommand } from '../application/command/login.user.command';
-// import { LogoutUserCommand } from '../application/command/logout.user.command';
-// import { PasswordRecoveryCommand } from '../application/command/password-recovery.user.command';
-// import { SetNewPasswordCommand } from '../application/command/set-new-password.user.command';
-// import { LocalAuthGuard } from '../guards/local.auth.guard';
-// import { RefreshTokenGuard } from '../guards/refresh-token.auth.guard';
-// import { RefreshTokenInformation } from '../decorators/controller/refresh.token.information';
-// import { UserIdFromRequest } from '../decorators/controller/userIdFromRequest';
-// import { RefreshTokenCommand } from '../application/command/refresh-token.command';
-
+import { GoogleAuthCommand } from '../application/command/google.auth.command';
+import { GoogleOauthGuard } from '../guards/google.auth.guard';
+import { GoogleAuthInformation } from '../decorators/controller/google.auth.information';
 
 @ApiExcludeController()
 @Controller('auth/google')
 export class AuthGoogleController {
   constructor(private commandBus: CommandBus) {}
 
-  @Post('')
-  @UserRegitsrationSwagger()
-  async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
-    const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
-
-    if (!result.isSuccess) throw result.error;
-
-    return { email: inputModel.email };
+  @Get()
+  @UseGuards(GoogleOauthGuard)
+  async googleAuth(@Req() req) {
+    console.log('console.log in auth google controller (googleAuth)');
+    return;
   }
 
-  @Post('redirect')
-  async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
-    const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
+  @Get('redirect')
+  @UseGuards(GoogleOauthGuard)
+  async googleAuthRedirect(
+    // @Ip() ipAddress: string,
+    @GoogleAuthInformation() userInfo: { googleId: string; email: string; emailVerification: boolean },
+    // @Req() req: Request,
+    // @Res({ passthrough: true }) res: Response,
+  ) {
+    console.log('console.log in auth google controller (googleAuthRedirect)');
+
+    // // определение ipAddress
+    // console.log('ipAddress in auth google controller (googleAuthRedirect):', ipAddress);
+
+    console.log('userInfo in auth google controller (googleAuthRedirect):', userInfo);
+
+    // // определение userAgent
+    // const userAgent = req.headers['user-agent'] || 'unknown';
+    // console.log('userAgent in auth google controller (googleAuthRedirect):', userAgent);
+
+    const result = await this.commandBus.execute(
+      new GoogleAuthCommand({
+        googleId: userInfo.googleId,
+        email: userInfo.email,
+        emailValidation: userInfo.emailVerification,
+        // ipAddress,
+        // userAgent,
+      }),
+    );
+    console.log('result in auth google controller (googleAuthRedirect):', result);
 
     if (!result.isSuccess) throw result.error;
+    // //TODO указать в куки куда она должна приходить
+    // res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
 
-    return { email: inputModel.email };
+    // return { accessToken: result.value.accessToken };
   }
 }

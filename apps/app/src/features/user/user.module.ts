@@ -26,6 +26,10 @@ import { RefreshStrategy } from './auth/strategies/refresh-token.auth.strategy';
 import { UserController } from './user/controller/user.controller';
 import { AuthController } from './auth/controller/auth.controller';
 import { AuthGoogleController } from './auth/controller/auth.google.controller';
+import { GoogleAuthStrategy } from './auth/strategies/google.auth.strategy';
+// import { JwtStrategy } from './auth/strategies/jwt.auth.strategy';
+import { RegistrationUserByGoogleHandler } from './auth/application/command/registration-by-google.user.command';
+import { GoogleAuthHandler } from './auth/application/command/google.auth.command';
 
 const userRepositories = [UserRepository, SessionRepository];
 const userService = [UserService];
@@ -39,9 +43,11 @@ const userCommands = [
   RefreshTokenHandler,
   LogoutUserHandler,
   DeletionSessionsHandler,
+  GoogleAuthHandler,
+  RegistrationUserByGoogleHandler,
 ];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler];
-const stratigies = [LocalStrategy, RefreshStrategy];
+const stratigies = [LocalStrategy, RefreshStrategy, GoogleAuthStrategy /* , JwtStrategy */];
 const adapters = [JwtAdapter];
 
 @Module({

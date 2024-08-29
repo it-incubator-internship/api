@@ -32,6 +32,8 @@ export class UserEntity implements User {
     passwordHash: string;
     accountData?: {
       confirmationCode: string;
+      // googleId: string;
+      // githubId: string;
     } | null;
   }): Omit<UserEntity, 'id'> {
     const userProfileDto: {
