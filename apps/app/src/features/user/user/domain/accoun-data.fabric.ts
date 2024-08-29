@@ -36,4 +36,8 @@ export class UserAccountData implements AccountData {
   updateRecoveryCode({ recoveryCode }: { recoveryCode: string }) {
     this.recoveryCode = recoveryCode;
   }
+
+  addGoogleId({ googleId }: { googleId: string }) {
+    this.googleId = googleId;
+  }
 }

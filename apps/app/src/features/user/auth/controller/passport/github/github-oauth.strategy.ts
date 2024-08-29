@@ -13,6 +13,7 @@ export class GithubData {
 @Injectable()
 export class GithubOauthStrategy extends PassportStrategy(Strategy, 'github') {
   constructor(private readonly httpService: HttpService) {
+    //TODO вынести в константы
     super({
       clientID: 'Ov23liPXUAuNE4Qn65BU',
       clientSecret: '9da09759fffa95c8860b113ed7da349a501fba86',
@@ -22,7 +23,6 @@ export class GithubOauthStrategy extends PassportStrategy(Strategy, 'github') {
   }
 
   async validate(accessToken: string, _refreshToken: string, profile: Profile, ...args: any[]): Promise<GithubData> {
-    // Первоначальная попытка получить email из профиля
     let email = profile.emails?.[0]?.value || null;
 
     // Если email не найден в профиле, запросим его через API GitHub

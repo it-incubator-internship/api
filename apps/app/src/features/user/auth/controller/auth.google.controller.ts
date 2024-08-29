@@ -1,49 +1,48 @@
 // import { Request, Response } from 'express';
-import { CommandBus } from '@nestjs/cqrs';
-import { ApiExcludeController, ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Post } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
+import { Controller, Get, Ip, Req, Res, UseGuards } from '@nestjs/common';
+import { Request, Response } from 'express';
 
-import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
-// import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
-// import { NewPasswordInputModel } from '../dto/input/new-password.user.dto';
-import { EmailInputModel } from '../dto/input/email.user.dto';
-import { UserRegistrationOutputDto } from '../dto/output/registratio.output.dto';
-import { UserRegitsrationSwagger } from '../decorators/swagger/user-registration/user-regitsration.swagger.decorator';
-import { RegistrationUserCommand } from '../application/command/registrarion.user.command';
-import { RegistrationEmailResendingCommand } from '../application/command/registration-email-resending.user.command';
-// import { RegistrationConfirmationCommand } from '../application/command/registration-confirmation.user.command';
-// import { LoginUserCommand } from '../application/command/login.user.command';
-// import { LogoutUserCommand } from '../application/command/logout.user.command';
-// import { PasswordRecoveryCommand } from '../application/command/password-recovery.user.command';
-// import { SetNewPasswordCommand } from '../application/command/set-new-password.user.command';
-// import { LocalAuthGuard } from '../guards/local.auth.guard';
-// import { RefreshTokenGuard } from '../guards/refresh-token.auth.guard';
-// import { RefreshTokenInformation } from '../decorators/controller/refresh.token.information';
-// import { UserIdFromRequest } from '../decorators/controller/userIdFromRequest';
-// import { RefreshTokenCommand } from '../application/command/refresh-token.command';
+import { GoogleAuthInformation } from '../decorators/controller/google.auth.information';
+import { OauthService } from '../application/service/oauth.service';
 
+import { GoogleOauthGuard } from './passport/google/google.auth.guard';
 
 @ApiExcludeController()
 @Controller('auth/google')
 export class AuthGoogleController {
-  constructor(private commandBus: CommandBus) {}
+  constructor(private readonly oathService: OauthService) {}
 
-  @Post('')
-  @UserRegitsrationSwagger()
-  async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
-    const result = await this.commandBus.execute(new RegistrationUserCommand(inputModel));
+  @Get()
+  @UseGuards(GoogleOauthGuard)
+  async googleAuth() {}
+
+  @Get('redirect')
+  @UseGuards(GoogleOauthGuard)
+  async googleAuthRedirect(
+    @Ip() ipAddress: string,
+    @GoogleAuthInformation() userInfo: { googleId: string; email: string; emailVerification: boolean },
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const userAgent = req.headers['user-agent'] || 'unknown';
+
+    const loginData = {
+      userAgent,
+      ip: ipAddress,
+    };
+
+    const googleRegistrationData = {
+      googleId: userInfo.googleId,
+      email: userInfo.email,
+    };
+
+    const result = await this.oathService.GoogleAuth(loginData, googleRegistrationData);
 
     if (!result.isSuccess) throw result.error;
+    //TODO указать в куки куда она должна приходить
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
 
-    return { email: inputModel.email };
-  }
-
-  @Post('redirect')
-  async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
-    const result = await this.commandBus.execute(new RegistrationEmailResendingCommand(inputModel));
-
-    if (!result.isSuccess) throw result.error;
-
-    return { email: inputModel.email };
+    return { accessToken: result.value.accessToken };
   }
 }

@@ -1,18 +1,17 @@
 import { ApiExcludeController } from '@nestjs/swagger';
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
-import { Request } from 'express';
+import { Controller, Get, Ip, Req, Res, UseGuards } from '@nestjs/common';
+import { Request, Response } from 'express';
 
-import { GithubOauthCommand } from '../application/command/oauth/github-oauth.command';
+import { OauthService } from '../application/service/oauth.service';
 
-import { GithubOauthGuard } from './passport/github-oauth.guard';
-import { GithubData } from './passport/github-oauth.strategy';
+import { GithubOauthGuard } from './passport/github/github-oauth.guard';
+import { GithubData } from './passport/github/github-oauth.strategy';
 
 // @ApiTags('auth/github')
 @ApiExcludeController()
 @Controller('auth/github')
 export class GithubOauthController {
-  constructor(private commandBus: CommandBus) {}
+  constructor(private readonly oathService: OauthService) {}
 
   @Get('')
   @UseGuards(GithubOauthGuard)
@@ -20,9 +19,27 @@ export class GithubOauthController {
 
   @Get('callback')
   @UseGuards(GithubOauthGuard)
-  async githubAuthCallback(@Req() req: Request) {
+  async githubAuthCallback(@Ip() ipAddress: string, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const githubData = req!.user as GithubData;
+    const userAgent = req.headers['user-agent'] || 'unknown';
 
-    await this.commandBus.execute(new GithubOauthCommand(githubData));
+    const loginData = {
+      userAgent,
+      ip: ipAddress,
+    };
+
+    const githubRegistrationData = {
+      githubId: githubData.id,
+      email: githubData.email,
+      login: githubData.displayName,
+    };
+
+    const result = await this.oathService.githubAuth(loginData, githubRegistrationData);
+
+    if (!result.isSuccess) throw result.error;
+    //TODO указать в куки куда она должна приходить
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
+
+    return { accessToken: result.value.accessToken };
   }
 }
