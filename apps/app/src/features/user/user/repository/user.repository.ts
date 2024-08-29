@@ -3,12 +3,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
 import { UserEntity } from '../domain/user.fabric';
 import { UserAccountData } from '../domain/accoun-data.fabric';
+import { User } from '../../../../../prisma/client';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createUser(userProfile: Omit<UserEntity, 'id'>) {
+  async createUser(userProfile: Omit<UserEntity, 'id'>): Promise<User> {
     return this.prismaService.user.create({
       data: {
         name: userProfile.name,
@@ -105,10 +106,16 @@ export class UserRepository {
       where: {
         OR: [
           {
-            email: email,
+            email: {
+              equals: email,
+              mode: 'insensitive',
+            },
           },
           {
-            name: name,
+            name: {
+              equals: name,
+              mode: 'insensitive',
+            },
           },
         ],
       },
@@ -118,7 +125,10 @@ export class UserRepository {
   async findUserByEmail({ email }: { email: string }): Promise<UserEntity | null> {
     const user = await this.prismaService.user.findFirst({
       where: {
-        email: email,
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
       },
     });
 
@@ -132,7 +142,10 @@ export class UserRepository {
   async findUserByUserName({ userName }: { userName: string }): Promise<UserEntity | null> {
     const user = await this.prismaService.user.findFirst({
       where: {
-        name: userName,
+        name: {
+          equals: userName,
+          mode: 'insensitive',
+        },
       },
     });
 

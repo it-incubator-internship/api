@@ -1,5 +1,5 @@
-import { hashSync } from 'bcrypt';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { hashSync } from 'bcryptjs';
 
 import { UserRepository } from '../../../user/repository/user.repository';
 // import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';

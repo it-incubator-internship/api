@@ -22,7 +22,7 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
     private readonly sessionRepository: SessionRepository,
     private readonly jwtAdapter: JwtAdapter,
   ) {}
-  async execute(command: LoginUserCommand): Promise<any> {
+  async execute(command: LoginUserCommand): Promise<ObjResult<{ accessToken: string; refreshToken: string }>> {
     const deviceUuid = randomUUID();
 
     const user = await this.userRepository.findAccountDataById({ id: command.inputModel.userId });

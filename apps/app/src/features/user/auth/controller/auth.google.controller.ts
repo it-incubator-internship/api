@@ -1,58 +1,48 @@
 // import { Request, Response } from 'express';
-import { CommandBus } from '@nestjs/cqrs';
-import { ApiExcludeController /*, ApiTags */ } from '@nestjs/swagger';
-import { Controller, Get, /* Ip, */ Req, /* Res, */ UseGuards } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
+import { Controller, Get, Ip, Req, Res, UseGuards } from '@nestjs/common';
+import { Request, Response } from 'express';
 
-import { GoogleAuthCommand } from '../application/command/google.auth.command';
-import { GoogleOauthGuard } from '../guards/google.auth.guard';
 import { GoogleAuthInformation } from '../decorators/controller/google.auth.information';
+import { OauthService } from '../application/service/oauth.service';
+
+import { GoogleOauthGuard } from './passport/google/google.auth.guard';
 
 @ApiExcludeController()
 @Controller('auth/google')
 export class AuthGoogleController {
-  constructor(private commandBus: CommandBus) {}
+  constructor(private readonly oathService: OauthService) {}
 
   @Get()
   @UseGuards(GoogleOauthGuard)
-  async googleAuth(@Req() req) {
-    console.log('console.log in auth google controller (googleAuth)');
-    return;
-  }
+  async googleAuth() {}
 
   @Get('redirect')
   @UseGuards(GoogleOauthGuard)
   async googleAuthRedirect(
-    // @Ip() ipAddress: string,
+    @Ip() ipAddress: string,
     @GoogleAuthInformation() userInfo: { googleId: string; email: string; emailVerification: boolean },
-    // @Req() req: Request,
-    // @Res({ passthrough: true }) res: Response,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    console.log('console.log in auth google controller (googleAuthRedirect)');
+    const userAgent = req.headers['user-agent'] || 'unknown';
 
-    // // определение ipAddress
-    // console.log('ipAddress in auth google controller (googleAuthRedirect):', ipAddress);
+    const loginData = {
+      userAgent,
+      ip: ipAddress,
+    };
 
-    console.log('userInfo in auth google controller (googleAuthRedirect):', userInfo);
+    const googleRegistrationData = {
+      googleId: userInfo.googleId,
+      email: userInfo.email,
+    };
 
-    // // определение userAgent
-    // const userAgent = req.headers['user-agent'] || 'unknown';
-    // console.log('userAgent in auth google controller (googleAuthRedirect):', userAgent);
-
-    const result = await this.commandBus.execute(
-      new GoogleAuthCommand({
-        googleId: userInfo.googleId,
-        email: userInfo.email,
-        emailValidation: userInfo.emailVerification,
-        // ipAddress,
-        // userAgent,
-      }),
-    );
-    console.log('result in auth google controller (googleAuthRedirect):', result);
+    const result = await this.oathService.GoogleAuth(loginData, googleRegistrationData);
 
     if (!result.isSuccess) throw result.error;
-    // //TODO указать в куки куда она должна приходить
-    // res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
+    //TODO указать в куки куда она должна приходить
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
 
-    // return { accessToken: result.value.accessToken };
+    return { accessToken: result.value.accessToken };
   }
 }

@@ -4,7 +4,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import {
   GoogleAuthCommand,
   GoogleAuthHandler,
-} from '../src/features/user/auth/application/command/google.auth.command';
+} from '../src/features/user/auth/application/command/oauth/google.auth.command';
 import { UserRepository } from '../src/features/user/user/repository/user.repository';
 import { UserAccountData, UserConfirmationStatusEnum } from '../src/features/user/user/domain/accoun-data.fabric';
 import { UserBanStatusEnum, UserEntity } from '../src/features/user/user/domain/user.fabric';

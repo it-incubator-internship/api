@@ -3,11 +3,12 @@ import { randomBytes, randomUUID } from 'crypto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { hashSync } from 'bcryptjs';
 
-import { GithubData } from '../../../controller/passport/github-oauth.strategy';
+import { GithubData } from '../../../controller/passport/github/github-oauth.strategy';
 import { UserRepository } from '../../../../user/repository/user.repository';
 import { UserEntity } from '../../../../user/domain/user.fabric';
 import { UserAccountData, UserConfirmationStatusEnum } from '../../../../user/domain/accoun-data.fabric';
 import { generatePassword } from '../../../../../../../../common/utils/password-generator';
+import { ObjResult } from '../../../../../../../../common/utils/result/object-result';
 
 export class GithubOauthCommand {
   constructor(public data: GithubData) {}
@@ -26,19 +27,20 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
       existingUser = await this.checkExistUser({ email });
       if (existingUser) {
         await this.addProviderToUser({ userId: existingUser.userId, providerId: id });
-        return;
+        return ObjResult.Ok({ userId: existingUser.userId });
       }
     }
 
     // Если email отсутствует или пользователь не найден, создаем нового пользователя
-    await this.createNewUser({ id, displayName, email });
+    const { userId } = await this.createNewUser({ id, displayName, email });
+    return ObjResult.Ok({ userId });
   }
 
   private async addProviderToUser({ userId, providerId }) {
     await this.userRepository.addAccountDataGitHubProvider({ userId, providerId });
   }
 
-  private async createNewUser({ id, displayName, email }) {
+  private async createNewUser({ id, displayName, email }): Promise<{ userId: string }> {
     const password = generatePassword();
     const userName = await this.generateUserName(displayName);
 
@@ -53,7 +55,8 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
     });
     newUser.accountData = accountData as UserAccountData;
 
-    await this.userRepository.createUser(newUser);
+    const createdUser = await this.userRepository.createUser(newUser);
+    return { userId: createdUser.id };
   }
 
   private async generateUserName(userName: string): Promise<string> {

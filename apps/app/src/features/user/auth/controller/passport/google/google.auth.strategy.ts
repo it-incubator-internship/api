@@ -22,14 +22,16 @@ export class GoogleAuthStrategy extends PassportStrategy(Strategy, 'google') {
     console.log('email in google strategy (validate):', email);
     console.log('email_verified in google strategy (validate):', email_verified);
 
+    if (email && !email_verified) {
+      return false;
+    }
+
     const user = {
       googleId: sub,
       email,
       emailVerification: email_verified,
     };
     console.log('user in google strategy (validate):', user);
-
-    done(null, user);
 
     return user;
   }

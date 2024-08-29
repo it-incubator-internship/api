@@ -7,7 +7,6 @@ import { HttpModule } from '@nestjs/axios';
 import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
 import { PrismaModule } from '../../common/database_module/prisma.module';
-import { CleaningController } from '../cleaning/controller/cleaning.controller';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
@@ -28,16 +27,15 @@ import { UserController } from './user/controller/user.controller';
 import { AuthController } from './auth/controller/auth.controller';
 import { AuthGoogleController } from './auth/controller/auth.google.controller';
 import { GithubOauthController } from './auth/controller/auth.github.controller';
-import { GithubOauthStrategy } from './auth/controller/passport/github-oauth.strategy';
-import { GithubOauthHandler } from './auth/application/command/oauth/github-oauth.command';
-import { SendNewConfirmEmailWhenUserAskItEventHandler } from './auth/application/events-handlers/send-new-confirm-email-when-user-ask-it.event.handler';
-import { SendNewPasswordRecoveryEmailWhenUserAskIt } from './auth/application/events-handlers/send-password-change-code-when-user-ask-it.event.handler';
-import { GoogleAuthStrategy } from './auth/strategies/google.auth.strategy';
+import { GithubOauthStrategy } from './auth/controller/passport/github/github-oauth.strategy';
+import { GoogleAuthStrategy } from './auth/controller/passport/google/google.auth.strategy';
 import { RegistrationUserByGoogleHandler } from './auth/application/command/registration-by-google.user.command';
-import { GoogleAuthHandler } from './auth/application/command/google.auth.command';
+import { GoogleAuthHandler } from './auth/application/command/oauth/google.auth.command';
+import { OauthService } from './auth/application/service/oauth.service';
+import { GithubOauthHandler } from './auth/application/command/oauth/github-oauth.command';
 
 const userRepositories = [UserRepository, SessionRepository];
-const userService = [UserService];
+const userService = [UserService, OauthService];
 const userCommands = [
   RegistrationUserHandler,
   RegistrationEmailResendingHandler,
@@ -49,10 +47,11 @@ const userCommands = [
   LogoutUserHandler,
   DeletionSessionsHandler,
   GoogleAuthHandler,
+  GithubOauthHandler,
   RegistrationUserByGoogleHandler,
 ];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler];
-const stratigies = [LocalStrategy, RefreshStrategy,GoogleAuthStrategy,GithubOauthStrategy];
+const strategies = [LocalStrategy, RefreshStrategy, GoogleAuthStrategy, GithubOauthStrategy];
 const adapters = [JwtAdapter];
 
 @Module({
