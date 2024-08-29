@@ -132,4 +132,31 @@ describe('GithubOauthHandler (Integration)', () => {
     expect(user!.email).toBe('');
     expect(user!.name).not.toBe(mockUser.displayName);
   });
+
+  it('мерджим гитхаб ак к уже существующему пользователю', async () => {
+    await prismaService.user.create({
+      data: {
+        name: 'test',
+        email: mockUser.displayName,
+        passwordHash: 'some-hash',
+      },
+    });
+
+    const command = new GithubOauthCommand({
+      id: mockUser.id,
+      displayName: mockUser.displayName,
+      email: mockUser.email,
+    });
+
+    await handler.execute(command);
+
+    const user = await prismaService.user.findFirst({ where: { email: mockUser.email } });
+
+    expect(user).toBeDefined();
+    expect(user!.email).toBe(mockUser.email);
+
+    const accountData = await prismaService.accountData.findFirst({ where: { githubId: mockUser.id } });
+    expect(accountData?.githubId).toBe(mockUser.id);
+    expect(accountData?.profileId).toBe(user!.id);
+  });
 });

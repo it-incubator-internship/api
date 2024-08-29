@@ -13,6 +13,7 @@ export class GithubData {
 @Injectable()
 export class GithubOauthStrategy extends PassportStrategy(Strategy, 'github') {
   constructor(private readonly httpService: HttpService) {
+    //TODO вынести в константы
     super({
       clientID: 'Ov23liPXUAuNE4Qn65BU',
       clientSecret: '9da09759fffa95c8860b113ed7da349a501fba86',
