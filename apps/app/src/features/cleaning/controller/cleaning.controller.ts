@@ -1,7 +1,7 @@
 import { Controller, Delete } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 
-import { PrismaService } from '../../../../../app/src/common/database_module/prisma-connection.service';
+import { PrismaService } from '../../../common/database_module/prisma-connection.service';
 
 //TODO вынести в отдельный модуль
 @ApiExcludeController()

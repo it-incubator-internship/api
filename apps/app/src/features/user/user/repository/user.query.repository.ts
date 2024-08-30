@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
-import { UserInformationOutputDto } from '../../auth/dto/output/information.output.dto';
+import { AuthMeOutput } from '../../auth/dto/output/information.output.dto';
 
 @Injectable()
 export class UserQueryRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findUserById({ id }: { id: string }): Promise<UserInformationOutputDto | null> {
+  async findUserMeInformation({ id }: { id: string }): Promise<AuthMeOutput | null> {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: id,
@@ -19,6 +19,12 @@ export class UserQueryRepository {
       },
     });
 
-    return user;
+    if (!user) return null;
+
+    return {
+      userId: user.id,
+      email: user.email,
+      userName: user.name,
+    };
   }
 }

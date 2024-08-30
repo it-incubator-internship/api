@@ -23,7 +23,6 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
 
   async execute(command: RegistrationUserCommand): Promise<any> {
     const { email, password, passwordConfirmation, userName, isAgreement } = command.inputModel;
-    console.log('команда сработала', email, password, passwordConfirmation, userName, isAgreement);
     const agreementCheck = this.checkAgreement(isAgreement);
     if (agreementCheck) return agreementCheck;
 

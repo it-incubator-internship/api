@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Get, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Ip, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
 
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
@@ -20,7 +20,7 @@ import { LocalAuthGuard } from '../guards/local.auth.guard';
 import { RefreshTokenGuard } from '../guards/refresh-token.auth.guard';
 import { RefreshTokenInformation } from '../decorators/controller/refresh.token.information';
 import { UserIdFromRequest } from '../decorators/controller/userIdFromRequest';
-import { RefreshTokenCommand } from '../application/command/refresh-token.command';
+import { RefreshTokenCommand, TokensPair } from '../application/command/refresh-token.command';
 import { RegistrationEmailResendingSwagger } from '../decorators/swagger/registration-email-resending/registration-email-resending.swagger.decorator';
 import { RegistrationConfirmationSwagger } from '../decorators/swagger/registration-confirmation/registration-confirmation.swagger.decorator';
 import { PasswordRecoverySwagger } from '../decorators/swagger/password-recovery/password-recovery.swagger.decorator';
@@ -30,7 +30,9 @@ import { RefreshTokenSwagger } from '../decorators/swagger/refresh-token/refresh
 import { LogoutSwagger } from '../decorators/swagger/logout/logout.swagger.decorator';
 import { UserQueryRepository } from '../../user/repository/user.query.repository';
 import { JwtAuthGuard } from '../guards/jwt.auth.guard';
-import { UserInformationOutputDto } from '../dto/output/information.output.dto';
+import { AuthMeOutput } from '../dto/output/information.output.dto';
+import { AccessTokenOutput } from '../dto/output/login.output.dto';
+import { ObjResult } from '../../../../../../common/utils/result/object-result';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -70,7 +72,7 @@ export class AuthController {
 
   @Post('password-recovery')
   @PasswordRecoverySwagger()
-  async passwordRecovery(@Body() inputModel: EmailInputModel) {
+  async passwordRecovery(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
     const result = await this.commandBus.execute(new PasswordRecoveryCommand(inputModel));
 
     if (!result.isSuccess) throw result.error;
@@ -94,7 +96,7 @@ export class AuthController {
     @UserIdFromRequest() userInfo: { userId: string },
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-  ) {
+  ): Promise<AccessTokenOutput> {
     const userAgent = req.headers['user-agent'] || 'unknown';
 
     const result = await this.commandBus.execute(
@@ -114,8 +116,8 @@ export class AuthController {
   async refreshToken(
     @RefreshTokenInformation() userInfo: { userId: string; deviceUuid: string },
     @Res({ passthrough: true }) res: Response,
-  ) {
-    const result = await this.commandBus.execute(
+  ): Promise<AccessTokenOutput> {
+    const result = await this.commandBus.execute<RefreshTokenCommand, ObjResult<TokensPair>>(
       new RefreshTokenCommand({ userId: userInfo.userId, deviceUuid: userInfo.deviceUuid }),
     );
 
@@ -146,15 +148,11 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getInformationAboutCerruntUser(
-    @UserIdFromRequest() userInfo: { userId: string },
-  ): Promise<UserInformationOutputDto> {
-    const user = await this.userRepository.findUserById({ id: userInfo.userId });
+  async getInformationAboutCerruntUser(@UserIdFromRequest() userInfo: { userId: string }): Promise<AuthMeOutput> {
+    const user = await this.userRepository.findUserMeInformation({ id: userInfo.userId });
 
-    return {
-      email: user!.email,
-      name: user!.name,
-      id: user!.id,
-    };
+    if (!user) throw new NotFoundException();
+
+    return user;
   }
 }

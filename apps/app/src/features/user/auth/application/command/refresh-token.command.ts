@@ -5,6 +5,11 @@ import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { secondToMillisecond } from '../../../../../common/constants/constants';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 
+export class TokensPair {
+  accessToken: string;
+  refreshToken: string;
+}
+
 export class RefreshTokenCommand {
   constructor(public inputModel: { userId: string; deviceUuid: string }) {}
 }
@@ -15,7 +20,7 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
     private readonly sessionRepository: SessionRepository,
     private readonly jwtAdapter: JwtAdapter,
   ) {}
-  async execute(command: RefreshTokenCommand): Promise<any> {
+  async execute(command: RefreshTokenCommand): Promise<ObjResult<TokensPair>> {
     const session = await this.sessionRepository.findSessionByDeviceUuid({ deviceUuid: command.inputModel.deviceUuid });
 
     // создание accessToken и refreshToken + получение payload от refreshToken
