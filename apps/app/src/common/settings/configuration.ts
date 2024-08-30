@@ -81,9 +81,9 @@ export const configuration = () => {
     'JWT_LIFE_TIME_REFRESH',
     'JWT_LIFE_TIME_CONFIRMATION_CODE',
     'JWT_LIFE_TIME_RECOVERY_CODE',
-    'GOOGLE_CLIENT_ID',
-    'GOOGLE_CLIENT_SECRET',
-    'GOOGLE_CALLBACK_URL',
+    // 'GOOGLE_CLIENT_ID',
+    // 'GOOGLE_CLIENT_SECRET',
+    // 'GOOGLE_CALLBACK_URL',
   ];
 
   //Эти значения выводятся в сваггере

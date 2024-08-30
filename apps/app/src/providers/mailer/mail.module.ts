@@ -25,7 +25,7 @@ import { MailService } from './mail.service';
             },
           },
           defaults: {
-            from: 'Vlad_Nyah <linesgreenTest@gmail.com>',
+            from: 'navaibe.ru <linesgreenTest@gmail.com>',
           },
           template: {
             dir: join(__dirname, 'providers', 'mailer', 'templates'),
