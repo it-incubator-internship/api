@@ -145,16 +145,8 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getInformationAboutCerruntUser(
-    @UserIdFromRequest() userInfo: { userId: string },
-  )/*:*/ {
-    console.log('userInfo in auth controller (getInformationAboutCerruntUser):', userInfo);
+  async getInformationAboutCerruntUser(@UserIdFromRequest() userInfo: { userId: string }) {
     const user = await this.userRepository.findUserById({ id: userInfo.userId });
-    console.log('user in auth controller (getInformationAboutCerruntUser):', user);
-
-    if (!user) {
-      console.log('I am teapod');
-    }
 
     return {
       email: user!.email,

@@ -9,7 +9,7 @@ import { PrismaService } from '../../../../common/database_module/prisma-connect
 export class UserQueryRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findUserById({ id }: { id: string }) /*: Promise<UserEntity | null>*/ {
+  async findUserById({ id }: { id: string }): Promise<{ id: string; name: string; email: string } | null> {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: id,
@@ -20,7 +20,6 @@ export class UserQueryRepository {
         email: true,
       },
     });
-    console.log('user in user query repoditory:', user);
 
     return user;
   }

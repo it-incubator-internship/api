@@ -1,21 +1,18 @@
 import { Controller, Delete } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 
-import { UserRepository } from '../../user/user/repository/user.repository';
-import { SessionRepository } from '../../user/auth/repository/session.repository';
+import { PrismaService } from '../../../../../app/src/common/database_module/prisma-connection.service';
 
 //TODO вынести в отдельный модуль
 @ApiExcludeController()
 @Controller('testing')
 export class CleaningController {
-  constructor(
-    private readonly userRepository: UserRepository,
-    private readonly sessionRepository: SessionRepository,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   @Delete('all-data')
   async deleteAllData() {
-    await this.sessionRepository.deleteAllSessions();
-    await this.userRepository.deleteAllUsers();
+    await this.prismaService.session.deleteMany();
+    await this.prismaService.accountData.deleteMany();
+    await this.prismaService.user.deleteMany();
   }
 }
