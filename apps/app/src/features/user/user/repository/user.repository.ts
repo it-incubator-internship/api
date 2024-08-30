@@ -99,7 +99,7 @@ export class UserRepository {
   }
 
   async findUserByEmailOrName({ email, name }: { email: string; name: string }) {
-    return this.prismaService.user.findFirst({
+    const user = await this.prismaService.user.findFirst({
       where: {
         OR: [
           {
@@ -117,6 +117,10 @@ export class UserRepository {
         ],
       },
     });
+
+    if (!user) return null;
+
+    return UserEntity.convert(user);
   }
 
   async findUserByEmail({ email }: { email: string }): Promise<UserEntity | null> {
