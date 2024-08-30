@@ -14,13 +14,8 @@ export class GoogleAuthStrategy extends PassportStrategy(Strategy, 'google') {
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
-    console.log('console.log in google strategy (validate)');
-    console.log('profile in google strategy (validate):', profile);
 
     const { sub, email, email_verified } = profile;
-    console.log('sub in google strategy (validate):', sub);
-    console.log('email in google strategy (validate):', email);
-    console.log('email_verified in google strategy (validate):', email_verified);
 
     if (email && !email_verified) {
       return false;
@@ -31,7 +26,6 @@ export class GoogleAuthStrategy extends PassportStrategy(Strategy, 'google') {
       email,
       emailVerification: email_verified,
     };
-    console.log('user in google strategy (validate):', user);
 
     return user;
   }

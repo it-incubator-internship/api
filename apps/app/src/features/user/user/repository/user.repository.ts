@@ -85,14 +85,11 @@ export class UserRepository {
   }
 
   async findAccountDataByGoogleId({ googleId }: { googleId: string }): Promise<UserAccountData | null> {
-    console.log('googleId in user repository (findUserByGoogleId):', googleId);
-
     const user = await this.prismaService.accountData.findUnique({
       where: {
         googleId: googleId,
       },
     });
-    console.log('user in user repository (findUserByGoogleId):', user);
 
     if (!user) {
       return null;
@@ -101,7 +98,7 @@ export class UserRepository {
     return UserAccountData.convert(user);
   }
 
-  async findByEmailOrName({ email, name }: { email: string; name: string }) {
+  async findUserByEmailOrName({ email, name }: { email: string; name: string }) {
     return this.prismaService.user.findFirst({
       where: {
         OR: [
@@ -211,11 +208,5 @@ export class UserRepository {
     }
 
     return UserAccountData.convert(user);
-  }
-
-  // применяется для очистки БД при тестировании
-  async deleteAllUsers() {
-    await this.prismaService.accountData.deleteMany();
-    await this.prismaService.user.deleteMany();
   }
 }
