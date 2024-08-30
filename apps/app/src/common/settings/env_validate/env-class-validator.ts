@@ -22,12 +22,6 @@ export class EnvironmentVariables {
   DATABASE_APP_URL: string;
 
   @IsString()
-  EMAIL: string;
-
-  @IsString()
-  EMAIL_PASS: string;
-
-  @IsString()
   JWT_SECRET_ACCESS: string;
 
   @IsString()

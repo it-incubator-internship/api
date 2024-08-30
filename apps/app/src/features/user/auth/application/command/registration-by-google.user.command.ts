@@ -8,7 +8,7 @@ import { UserEntity } from '../../../user/domain/user.fabric';
 export class RegistrationUserByGoogleCommand {
   constructor(public inputModel: { googleId: string; password: string; email: string; userName: string }) {}
 }
-
+//TODO добавить ивенты
 @CommandHandler(RegistrationUserByGoogleCommand)
 export class RegistrationUserByGoogleHandler implements ICommandHandler<RegistrationUserByGoogleCommand> {
   constructor(

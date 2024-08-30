@@ -68,8 +68,6 @@ export const configuration = () => {
     'NODE_ENV',
     'PORT',
     'DATABASE_APP_URL',
-    'EMAIL',
-    'EMAIL_PASS',
     'JWT_SECRET_ACCESS',
     'JWT_SECRET_REFRESH',
     'JWT_SECRET_CONFIRMATION_CODE',
