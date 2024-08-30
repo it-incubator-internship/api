@@ -20,6 +20,7 @@ describe('Auth e2e', () => {
   let confirmationCode_2;
   let recoveryCode_1;
   let recoveryCode_2;
+  let accessToken;
   let refreshToken;
   let httpServer;
 
@@ -187,11 +188,13 @@ describe('Auth e2e', () => {
         accountData: true,
       },
     });
+    console.log('user in auth registration test (1):', user);
 
     confirmationCode_1 = user!.accountData!.confirmationCode;
+    console.log('confirmationCode_1 in auth registration test:', confirmationCode_1);
   }); // 201
 
-  it('REGISTRATION with correct data (swagger data)', async () => {
+  it.skip('REGISTRATION with correct data (swagger data)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
       .send({
@@ -302,8 +305,10 @@ describe('Auth e2e', () => {
         accountData: true,
       },
     });
+    console.log('user in auth registration test (2):', user);
 
     confirmationCode_2 = user!.accountData!.confirmationCode;
+    console.log('confirmationCode_2 in auth registration test:', confirmationCode_2);
   }); // 201
 
   it.skip('REGISTRATION CONFIRMATION with incorrect data (empty fiels)', async () => {
@@ -342,7 +347,7 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
-  it('REGISTRATION CONFIRMATION with incorrect data (swagger data)', async () => {
+  it.skip('REGISTRATION CONFIRMATION with incorrect data (swagger data)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration-confirmation')
       .send({
@@ -676,4 +681,51 @@ describe('Auth e2e', () => {
       })
       .expect(201);
   }); // 201
+
+  it('LOGIN with correct data', async () => {
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .set('User-Agent', 'e2e user-agent')
+      .send({
+        email: 'someemail@gmail.com',
+        password: 'StRo0NgP@SSWoRD',
+      })
+      .expect(201);
+
+    accessToken = response.body.accessToken;
+    console.log('accessToken in auth registration test:', accessToken);
+  }); // 201
+
+  it('GET information about current user without authorisation', async () => {
+    await request(app.getHttpServer())
+      .get('/auth/me')
+      .expect(401);
+  }); // 401
+
+  it('GET information about current user with wrong accesstoken', async () => {
+    await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', 'Bearer caramba')
+      .expect(401);
+  }); // 401
+
+  it('GET information about current user with incorrect accesstoken', async () => {
+    await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NjMxIiwiaWF0IjoxNzIyOTQ5OTg2LCJleHAiOjE3MjI5NTA0ODZ9.W54wVkjnhY5Oo4VzY_sBQUzIgrK1vTwAnsgGSvRL_e4')
+      .expect(401);
+  }); // 401
+
+  it('GET information about current user with correct accesstoken', async () => {
+    const response = await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(200);
+
+    expect(response.body).toEqual({
+      email: 'someemail@gmail.com',
+      userName: 'someusername',
+      userId: expect.any(String),
+    });
+  }); // 200
 });

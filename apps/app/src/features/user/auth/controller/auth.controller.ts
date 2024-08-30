@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Ip, Post, Req, Res, UseGuards } from '@nestjs/common';
 
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
@@ -28,11 +28,16 @@ import { NewPasswordSwagger } from '../decorators/swagger/new-password/new-passw
 import { LoginSwagger } from '../decorators/swagger/login/login.swagger.decorator';
 import { RefreshTokenSwagger } from '../decorators/swagger/refresh-token/refresh-token.swagger.decorator';
 import { LogoutSwagger } from '../decorators/swagger/logout/logout.swagger.decorator';
+import { UserQueryRepository } from '../../user/repository/user.query.repository';
+import { JwtAuthGuard } from '../guards/jwt.auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private commandBus: CommandBus) {}
+  constructor(
+    private commandBus: CommandBus,
+    private userRepository: UserQueryRepository,
+  ) {}
 
   @Post('registration')
   @UserRegitsrationSwagger()
@@ -136,5 +141,25 @@ export class AuthController {
     res.clearCookie('refreshToken');
 
     return;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getInformationAboutCerruntUser(
+    @UserIdFromRequest() userInfo: { userId: string },
+  )/*:*/ {
+    console.log('userInfo in auth controller (getInformationAboutCerruntUser):', userInfo);
+    const user = await this.userRepository.findUserById({ id: userInfo.userId });
+    console.log('user in auth controller (getInformationAboutCerruntUser):', user);
+
+    if (!user) {
+      console.log('I am teapod');
+    }
+
+    return {
+      email: user!.email,
+      userName: user!.name,
+      userId: user!.id,
+    };
   }
 }

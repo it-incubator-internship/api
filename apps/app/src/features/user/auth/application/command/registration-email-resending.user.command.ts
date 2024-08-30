@@ -24,9 +24,11 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
     const { email } = command.inputModel;
 
     const user = await this.userRepository.findUserByEmail({ email });
+    console.log('user in registrtion email resending command:', user)
     if (!user) return this.createError('User not found', 'email');
 
     const userAccountData = await this.userRepository.findAccountDataById({ id: user.id });
+    console.log('userAccountData in registrtion email resending command:', userAccountData)
     if (!userAccountData) return this.createError('Account data not found', 'email');
 
     if (userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM) {
@@ -34,10 +36,14 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
     }
 
     const { confirmationCode } = await this.jwtAdapter.createConfirmationCode({ email });
+    console.log('confirmationCode in registrtion email resending command:', confirmationCode)
     userAccountData.updateConfirmationCode({ confirmationCode });
+    console.log('userAccountData in registrtion email resending command:', userAccountData)
 
     user.events.push(new UserResendRegCodeEvent(user.name, user.email, confirmationCode));
-    await this.userRepository.updateAccountData(userAccountData);
+    // await this.userRepository.updateAccountData(userAccountData);
+    const result = await this.userRepository.updateAccountData(userAccountData);
+    console.log('result in registrtion email resending command:', result)
     user.events.forEach((event) => this.eventBus.publish(event));
 
     return ObjResult.Ok();

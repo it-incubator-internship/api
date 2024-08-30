@@ -33,8 +33,10 @@ import { RegistrationUserByGoogleHandler } from './auth/application/command/regi
 import { GoogleAuthHandler } from './auth/application/command/oauth/google.auth.command';
 import { OauthService } from './auth/application/service/oauth.service';
 import { GithubOauthHandler } from './auth/application/command/oauth/github-oauth.command';
+import { UserQueryRepository } from './user/repository/user.query.repository';
+import { JwtAuthStrategy } from './auth/strategies/jwt.auth.strategy';
 
-const userRepositories = [UserRepository, SessionRepository];
+const userRepositories = [UserRepository, SessionRepository, UserQueryRepository];
 const userService = [UserService, OauthService];
 const userCommands = [
   RegistrationUserHandler,
@@ -51,7 +53,7 @@ const userCommands = [
   RegistrationUserByGoogleHandler,
 ];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler];
-const strategies = [LocalStrategy, RefreshStrategy, GoogleAuthStrategy, GithubOauthStrategy];
+const strategies = [LocalStrategy, RefreshStrategy, GoogleAuthStrategy, GithubOauthStrategy, JwtAuthStrategy];
 const adapters = [JwtAdapter];
 
 @Module({
