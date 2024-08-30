@@ -30,6 +30,7 @@ import { RefreshTokenSwagger } from '../decorators/swagger/refresh-token/refresh
 import { LogoutSwagger } from '../decorators/swagger/logout/logout.swagger.decorator';
 import { UserQueryRepository } from '../../user/repository/user.query.repository';
 import { JwtAuthGuard } from '../guards/jwt.auth.guard';
+import { UserInformationOutputDto } from '../dto/output/information.output.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -145,13 +146,15 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getInformationAboutCerruntUser(@UserIdFromRequest() userInfo: { userId: string }) {
+  async getInformationAboutCerruntUser(
+    @UserIdFromRequest() userInfo: { userId: string },
+  ): Promise<UserInformationOutputDto> {
     const user = await this.userRepository.findUserById({ id: userInfo.userId });
 
     return {
       email: user!.email,
-      userName: user!.name,
-      userId: user!.id,
+      name: user!.name,
+      id: user!.id,
     };
   }
 }

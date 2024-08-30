@@ -98,7 +98,7 @@ export class UserRepository {
     return UserAccountData.convert(user);
   }
 
-  async findByEmailOrName({ email, name }: { email: string; name: string }) {
+  async findUserByEmailOrName({ email, name }: { email: string; name: string }) {
     return this.prismaService.user.findFirst({
       where: {
         OR: [

@@ -64,7 +64,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
   }
 
   private async checkAvailability(email: string, userName: string) {
-    const userByEmail = await this.userRepository.findByEmailOrName({ email, name: userName });
+    const userByEmail = await this.userRepository.findUserByEmailOrName({ email, name: userName });
 
     console.log(userByEmail, 'userByEmail');
 
