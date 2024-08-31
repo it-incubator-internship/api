@@ -6,7 +6,11 @@ import { BasicBadRequestOutputType } from '../../../../../../common/models/basic
 export function NewPasswordSwagger() {
   return applyDecorators(
     ApiOperation({ summary: 'Смена пароля' }),
-    ApiResponse({ status: 201 }),
-    ApiBadRequestResponse({ status: 400, type: () => BasicBadRequestOutputType }),
+    ApiResponse({ status: 201, description: 'Смена password произведена.' }),
+    ApiBadRequestResponse({
+      status: 400,
+      description: 'В случае ввода некорректных данных.',
+      type: () => BasicBadRequestOutputType,
+    }),
   );
 }

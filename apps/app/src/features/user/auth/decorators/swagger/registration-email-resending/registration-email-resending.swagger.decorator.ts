@@ -7,7 +7,15 @@ import { BasicBadRequestOutputType } from '../../../../../../common/models/basic
 export function RegistrationEmailResendingSwagger() {
   return applyDecorators(
     ApiOperation({ summary: 'Повторная отправка кода подтверждения' }),
-    ApiResponse({ status: 201, type: () => UserRegistrationOutputDto }),
-    ApiBadRequestResponse({ status: 400, type: () => BasicBadRequestOutputType }),
+    ApiResponse({
+      status: 201,
+      description: 'Повторная отправка кода подтверждения произведена на указанную почту.',
+      type: () => UserRegistrationOutputDto,
+    }),
+    ApiBadRequestResponse({
+      status: 400,
+      description: 'В случае ввода некорректных данных.',
+      type: () => BasicBadRequestOutputType,
+    }),
   );
 }

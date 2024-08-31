@@ -7,7 +7,15 @@ import { BasicBadRequestOutputType } from '../../../../../../common/models/basic
 export function PasswordRecoverySwagger() {
   return applyDecorators(
     ApiOperation({ summary: 'Восстановление пароля' }),
-    ApiResponse({ status: 201, type: () => UserRegistrationOutputDto }),
-    ApiBadRequestResponse({ status: 400, type: () => BasicBadRequestOutputType }),
+    ApiResponse({
+      status: 201,
+      description: 'Код подтверждения смены пароля отправлен на указанную почту.',
+      type: () => UserRegistrationOutputDto,
+    }),
+    ApiBadRequestResponse({
+      status: 400,
+      description: 'В случае ввода некорректных данных.',
+      type: () => BasicBadRequestOutputType,
+    }),
   );
 }

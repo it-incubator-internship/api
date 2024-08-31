@@ -726,8 +726,8 @@ describe('Auth e2e', () => {
 
     expect(response.body).toEqual({
       email: 'someemail@gmail.com',
-      name: 'someusername',
-      id: expect.any(String),
+      userName: 'someusername',
+      userId: expect.any(String),
     });
   }); // 200
 });
