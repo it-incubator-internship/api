@@ -6,7 +6,11 @@ import { BasicBadRequestOutputType } from '../../../../../../common/models/basic
 export function RegistrationConfirmationSwagger() {
   return applyDecorators(
     ApiOperation({ summary: 'Подтверждение регистрации' }),
-    ApiResponse({ status: 201 }),
-    ApiBadRequestResponse({ status: 400, type: () => BasicBadRequestOutputType }),
+    ApiResponse({ status: 201, description: 'Email подтверждён. Аккаунт активирован.' }),
+    ApiBadRequestResponse({
+      status: 400,
+      description: 'В случае ввода некорректных данных.',
+      type: () => BasicBadRequestOutputType,
+    }),
   );
 }

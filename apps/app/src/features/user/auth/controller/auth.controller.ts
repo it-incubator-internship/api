@@ -33,6 +33,7 @@ import { JwtAuthGuard } from '../guards/jwt.auth.guard';
 import { AuthMeOutput } from '../dto/output/information.output.dto';
 import { AccessTokenOutput } from '../dto/output/login.output.dto';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
+import { MeSwagger } from '../decorators/swagger/me/me.swagger.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -148,6 +149,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
+  @MeSwagger()
   async getInformationAboutCerruntUser(@UserIdFromRequest() userInfo: { userId: string }): Promise<AuthMeOutput> {
     const user = await this.userRepository.findUserMeInformation({ id: userInfo.userId });
 

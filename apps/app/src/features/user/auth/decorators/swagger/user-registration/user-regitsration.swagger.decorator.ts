@@ -9,7 +9,15 @@ export function UserRegitsrationSwagger() {
   return applyDecorators(
     ApiOperation({ summary: 'Регистрация пользователя' }),
     ApiBody({ type: () => RegistrationUserInputModel }),
-    ApiResponse({ status: 201, type: () => UserRegistrationOutputDto }),
-    ApiBadRequestResponse({ status: 400, type: () => BasicBadRequestOutputType }),
+    ApiResponse({
+      status: 201,
+      description: 'Регистрация произведена. Код подтверждения отправлен на почту, указанную при регистрации.',
+      type: () => UserRegistrationOutputDto,
+    }),
+    ApiBadRequestResponse({
+      status: 400,
+      description: 'В случае ввода некорректных данных.',
+      type: () => BasicBadRequestOutputType,
+    }),
   );
 }
