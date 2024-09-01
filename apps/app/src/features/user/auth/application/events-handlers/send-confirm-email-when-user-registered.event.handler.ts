@@ -8,10 +8,12 @@ export class SendConfirmEmailWhenUserRegisteredEventHandler implements IEventHan
   constructor(private readonly mailService: MailService) {}
 
   handle(event: UserRegistrationEvent): any {
-    this.mailService.sendUserConfirmation({
-      email: event.email,
-      login: event.login,
-      token: event.confirmationCode,
-    });
+    this.mailService
+      .sendUserConfirmation({
+        email: event.email,
+        login: event.login,
+        token: event.confirmationCode,
+      })
+      .catch((error) => console.log(error));
   }
 }
