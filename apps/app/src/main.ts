@@ -8,7 +8,10 @@ import { swaggerSetting } from './common/settings/swagger-setting';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   appSettings(app);
+
+  //достаем env
   const configService = app.get(ConfigService<ConfigurationType, true>);
   const apiPrefix = configService.get('apiSettings.API_PREFIX', { infer: true });
   const port = configService.get('apiSettings.PORT', { infer: true });
@@ -22,7 +25,6 @@ async function bootstrap() {
   console.log(port);
   console.log('prefix', apiPrefix);
 
-  app.enableCors();
   await app.init();
   await app.listen(port);
 }

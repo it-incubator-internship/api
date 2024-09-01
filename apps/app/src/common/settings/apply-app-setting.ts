@@ -30,6 +30,13 @@ export const appSettings = (app: INestApplication) => {
     }),
   );
 
+  app.enableCors({
+    credentials: true,
+    origin: ['http://localhost:3000', 'https://navaibe.ru/'],
+    methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
+    allowedHeaders: ['Accept', 'Content-Type', 'Authorization'],
+  });
+
   /**
    * exception filters, заполнять снизу вверх
    */
