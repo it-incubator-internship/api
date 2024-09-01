@@ -43,6 +43,12 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       callbackURL: environmentVariables.GOOGLE_CALLBACK_URL,
     },
 
+    githubAuthorizationSettings: {
+      clientID: environmentVariables.GITHUB_CLIENT_ID,
+      clientSecret: environmentVariables.GITHUB_CLIENT_SECRET,
+      callbackURL: environmentVariables.GITHUB_CALLBACK_URL,
+    },
+
     getAllVariables: {
       ...environmentVariables,
     },
@@ -79,9 +85,13 @@ export const configuration = () => {
     'JWT_LIFE_TIME_REFRESH',
     'JWT_LIFE_TIME_CONFIRMATION_CODE',
     'JWT_LIFE_TIME_RECOVERY_CODE',
-    // 'GOOGLE_CLIENT_ID',
-    // 'GOOGLE_CLIENT_SECRET',
-    // 'GOOGLE_CALLBACK_URL',
+    //OAUTH
+    'GITHUB_CLIENT_ID',
+    'GITHUB_CLIENT_SECRET',
+    'GITHUB_CALLBACK_URL',
+    'GOOGLE_CLIENT_ID',
+    'GOOGLE_CLIENT_SECRET',
+    'GOOGLE_CALLBACK_URL',
   ];
 
   //Эти значения выводятся в сваггере

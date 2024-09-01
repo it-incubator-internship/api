@@ -3,6 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Profile, Strategy } from 'passport-github';
 import { lastValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
+
+import { ConfigurationType } from '../../../../../../common/settings/configuration';
 
 export class GithubData {
   id: string;
@@ -12,12 +15,17 @@ export class GithubData {
 
 @Injectable()
 export class GithubOauthStrategy extends PassportStrategy(Strategy, 'github') {
-  constructor(private readonly httpService: HttpService) {
-    //TODO вынести в константы
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService<ConfigurationType, true>,
+  ) {
+    const githubSetting = configService.get('githubAuthorizationSettings', {
+      infer: true,
+    });
     super({
-      clientID: 'Ov23liPXUAuNE4Qn65BU',
-      clientSecret: '9da09759fffa95c8860b113ed7da349a501fba86',
-      callbackURL: 'http://localhost:3000/api/v1/auth/github/callback',
+      clientID: githubSetting.clientID,
+      clientSecret: githubSetting.clientSecret,
+      callbackURL: githubSetting.callbackURL,
       scope: ['user:email'],
     });
   }

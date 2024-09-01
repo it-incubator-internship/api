@@ -1,20 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth2';
+import { ConfigService } from '@nestjs/config';
+
+import { ConfigurationType } from '../../../../../../common/settings/configuration';
 
 @Injectable()
 export class GoogleAuthStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor() {
+  constructor(private readonly configService: ConfigService<ConfigurationType, true>) {
+    const googleAuthorizationSettings = configService.get('googleAuthorizationSettings', {
+      infer: true,
+    });
+
     super({
-      clientID: '145106821045-oud30j9s8m88l6icdc536vqhoc3k7un7.apps.googleusercontent.com',
-      clientSecret: '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',
-      callbackURL: 'http://localhost:3000/api/v1/auth/google/redirect',
+      clientID: googleAuthorizationSettings.clientID,
+      clientSecret: googleAuthorizationSettings.clientSecret,
+      callbackURL: googleAuthorizationSettings.callbackURL,
       scope: ['profile', 'email'],
     });
   }
 
   async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
-
     const { sub, email, email_verified } = profile;
 
     if (email && !email_verified) {
