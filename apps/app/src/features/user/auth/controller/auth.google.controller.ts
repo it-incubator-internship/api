@@ -44,7 +44,7 @@ export class AuthGoogleController {
     const result = await this.oathService.GoogleAuth(loginData, googleRegistrationData);
 
     if (!result.isSuccess) throw result.error;
-    //TODO указать в куки куда она должна приходить
+
     res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
 
     return { accessToken: result.value.accessToken };
