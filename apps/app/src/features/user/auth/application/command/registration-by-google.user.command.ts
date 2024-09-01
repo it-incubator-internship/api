@@ -4,6 +4,7 @@ import { hashSync } from 'bcryptjs';
 import { UserRepository } from '../../../user/repository/user.repository';
 import { hashRounds } from '../../../../../common/constants/constants';
 import { UserEntity } from '../../../user/domain/user.fabric';
+import { UserOauthRegisreationEvent } from '../events/user-oauth-regisreation.event';
 
 export class RegistrationUserByGoogleCommand {
   constructor(public inputModel: { googleId: string; password: string; email: string; userName: string }) {}
@@ -35,16 +36,11 @@ export class RegistrationUserByGoogleHandler implements ICommandHandler<Registra
 
     accountData!.addGoogleId({ googleId });
 
-    const updatingResult = await this.userRepository.updateAccountData(accountData!);
+    await this.userRepository.updateAccountData(accountData!);
 
-    return updatingResult;
-
-    // console.log('создание пользователя завершено', newUser);
-
-    // newUser.events.forEach((event) => this.eventBus.publish(event));
-
-    // console.log('создание событий завершено', newUser);
-
-    // return ObjResult.Ok();
+    if (newUser.email.length > 2) {
+      const event = new UserOauthRegisreationEvent(newUser.name, newUser.email, 'google');
+      this.eventBus.publish(event);
+    }
   }
 }

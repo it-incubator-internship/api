@@ -60,7 +60,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
     newUser.accountData = accountData as UserAccountData;
 
     if (newUser.email.length > 2) {
-      const event = new UserOauthRegisreationEvent(newUser.name, newUser.email);
+      const event = new UserOauthRegisreationEvent(newUser.name, newUser.email, 'github');
       this.eventBus.publish(event);
     }
 

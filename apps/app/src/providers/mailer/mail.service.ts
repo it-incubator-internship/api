@@ -21,6 +21,26 @@ export class MailService {
     });
   }
 
+  async sendUerOauthRegistration({
+    email,
+    login,
+    service,
+  }: {
+    email: string;
+    login: string;
+    service: string;
+  }): Promise<void> {
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Здравствуйте! Вы авторизовались с помощью OAuth',
+      template: './oauth-registration',
+      context: {
+        name: login,
+        service: service,
+      },
+    });
+  }
+
   async sendPasswordRecovery({
     email,
     login,
