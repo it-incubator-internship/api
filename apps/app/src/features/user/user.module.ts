@@ -33,6 +33,7 @@ import { OauthService } from './auth/application/service/oauth.service';
 import { GithubOauthHandler } from './auth/application/command/oauth/github-oauth.command';
 import { UserQueryRepository } from './user/repository/user.query.repository';
 import { JwtAuthStrategy } from './auth/strategies/jwt.auth.strategy';
+import { SendEmailAfterOauthRegistrationEventHandler } from './auth/application/events-handlers/oauth/send-email-afret-oauth-registration.event.handler';
 
 const userRepositories = [UserRepository, SessionRepository, UserQueryRepository];
 const userService = [OauthService];
@@ -50,7 +51,7 @@ const userCommands = [
   GithubOauthHandler,
   RegistrationUserByGoogleHandler,
 ];
-const events = [SendConfirmEmailWhenUserRegisteredEventHandler, SendConfirmEmailWhenUserRegisteredEventHandler];
+const events = [SendConfirmEmailWhenUserRegisteredEventHandler, SendEmailAfterOauthRegistrationEventHandler];
 const strategies = [LocalStrategy, RefreshStrategy, GoogleAuthStrategy, GithubOauthStrategy, JwtAuthStrategy];
 const adapters = [JwtAdapter];
 
