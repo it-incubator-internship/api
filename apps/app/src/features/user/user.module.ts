@@ -50,7 +50,7 @@ const userCommands = [
   GithubOauthHandler,
   RegistrationUserByGoogleHandler,
 ];
-const events = [SendConfirmEmailWhenUserRegisteredEventHandler];
+const events = [SendConfirmEmailWhenUserRegisteredEventHandler, SendConfirmEmailWhenUserRegisteredEventHandler];
 const strategies = [LocalStrategy, RefreshStrategy, GoogleAuthStrategy, GithubOauthStrategy, JwtAuthStrategy];
 const adapters = [JwtAdapter];
 
