@@ -4,7 +4,7 @@ import { UserOauthRegisreationEvent } from '../../events/user-oauth-regisreation
 import { MailService } from '../../../../../../providers/mailer/mail.service';
 
 @EventsHandler(UserOauthRegisreationEvent)
-export class SendConfirmEmailWhenUserRegisteredEventHandler implements IEventHandler<UserOauthRegisreationEvent> {
+export class SendEmailAfterOauthRegistrationEventHandler implements IEventHandler<UserOauthRegisreationEvent> {
   constructor(private readonly mailService: MailService) {}
 
   handle(event: UserOauthRegisreationEvent): any {
