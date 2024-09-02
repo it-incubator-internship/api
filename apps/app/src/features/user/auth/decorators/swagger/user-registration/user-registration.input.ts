@@ -19,7 +19,7 @@ export const passwordApiProperty = () =>
     example: 'StRo0NgP@SSWoRD',
     required: true,
     pattern: '^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!"#$%&\'()*+,-./:;<=>?@[\\]_\\^`{|}~]).{8,}$',
-    minLength: 8,
+    minLength: 6,
     maxLength: 20,
   });
 
@@ -30,7 +30,7 @@ export const passwordConfirmationApiProperty = () =>
     example: 'StRo0NgP@SSWoRD',
     required: true,
     pattern: '^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!"#$%&\'()*+,-./:;<=>?@[\\]_\\^`{|}~]).{8,}$',
-    minLength: 8,
+    minLength: 6,
     maxLength: 20,
   });
 

@@ -1,9 +1,12 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
-import { CustomExceptionFilter, ErrorExceptionFilter } from '../../../../common/utils/result/exceprion-filter';
+
+import {
+  CustomExceptionFilter,
+  ErrorExceptionFilter,
+  HttpExceptionFilter,
+} from '../../../../common/utils/result/exceprion-filter';
 import { BadRequestError } from '../../../../common/utils/result/custom-error';
-import { ConfigService } from '@nestjs/config';
-import { ConfigurationType } from './configuration';
 
 export const appSettings = (app: INestApplication) => {
   app.use(cookieParser());
@@ -27,14 +30,16 @@ export const appSettings = (app: INestApplication) => {
     }),
   );
 
+  app.enableCors({
+    credentials: true,
+    origin: ['http://localhost:3000', 'https://navaibe.ru/'],
+    methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
+    allowedHeaders: ['Accept', 'Content-Type', 'Authorization'],
+  });
+
   /**
    * exception filters, заполнять снизу вверх
    */
 
-  app.useGlobalFilters(new ErrorExceptionFilter(), new CustomExceptionFilter());
-
-  const configService = app.get(ConfigService<ConfigurationType, true>);
-  const apiPrefix = configService.get('apiSettings.API_PREFIX', { infer: true });
-
-  console.log('prefix', apiPrefix);
+  app.useGlobalFilters(new ErrorExceptionFilter(), new HttpExceptionFilter(), new CustomExceptionFilter());
 };

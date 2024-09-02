@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { UserEntity } from '../class/user.fabric';
+
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
-import { UserAccountData } from '../class/accoun-data.fabric';
+import { UserEntity } from '../domain/user.fabric';
+import { UserAccountData } from '../domain/accoun-data.fabric';
+import { User } from '../../../../../prisma/client';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createUser(userProfile: Omit<UserEntity, 'id'>) {
-    console.log('userProfile in user repository (createUser):', userProfile);
-
+  async createUser(userProfile: Omit<UserEntity, 'id'>): Promise<User> {
     return this.prismaService.user.create({
       data: {
         name: userProfile.name,
@@ -19,7 +19,7 @@ export class UserRepository {
           ? {
               accountData: {
                 create: {
-                  confirmationCode: userProfile.accountData!.confirmationCode,
+                  ...userProfile.accountData!,
                 },
               },
             }
@@ -29,8 +29,6 @@ export class UserRepository {
   }
 
   async updateUser(userProfile: Omit<UserEntity, 'id'>) {
-    console.log('userProfile in user repository (updateUser):', userProfile);
-
     return this.prismaService.user.update({
       where: {
         email: userProfile.email,
@@ -51,8 +49,6 @@ export class UserRepository {
 
   async updateAccountData(userAccountData: UserAccountData) {
     try {
-      console.log('userAccountData in user repository (updateAccountData):', userAccountData);
-
       return this.prismaService.accountData.update({
         where: {
           profileId: userAccountData.profileId,
@@ -61,6 +57,7 @@ export class UserRepository {
           recoveryCode: userAccountData.recoveryCode,
           confirmationCode: userAccountData.confirmationCode,
           confirmationStatus: userAccountData.confirmationStatus,
+          googleId: userAccountData.googleId,
         },
       });
     } catch (e) {
@@ -69,122 +66,151 @@ export class UserRepository {
     }
   }
 
-  // пока не используется
   async findAllUsers() {
     return this.prismaService.user.findMany();
   }
 
-  async findUserById({ id }: { id: string }) {
-    console.log('id in user repository (findUserById):', id);
-
+  async findUserById({ id }: { id: string }): Promise<UserEntity | null> {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: id,
       },
     });
-    console.log('user in user repository (findUserById):', user);
 
     if (!user) {
       return null;
     }
 
-    const result: UserEntity = UserEntity.convert(user);
-    console.log('result in user repository (findUserById):', result);
-    return result;
+    return UserEntity.convert(user);
   }
 
-  async findUserByEmail({ email }: { email: string }) {
-    console.log('email in user repository (findUserByEmail):', email);
-
-    const user = await this.prismaService.user.findUnique({
+  async findAccountDataByGoogleId({ googleId }: { googleId: string }): Promise<UserAccountData | null> {
+    const user = await this.prismaService.accountData.findUnique({
       where: {
-        email: email,
+        googleId: googleId,
       },
     });
 
-    console.log('user in user repository (findUserByEmail):', user);
-
     if (!user) {
       return null;
     }
 
-    const result: UserEntity = UserEntity.convert(user);
-    console.log('result in user repository (findUserById):', result);
-    return result;
+    return UserAccountData.convert(user);
   }
 
-  async findUserByUserName({ userName }: { userName: string }) {
-    console.log('userName in user repository (findUserByUserName):', userName);
+  async findUserByEmailOrName({ email, name }: { email: string; name: string }) {
     const user = await this.prismaService.user.findFirst({
       where: {
-        name: userName,
+        OR: [
+          {
+            email: {
+              equals: email,
+              mode: 'insensitive',
+            },
+          },
+          {
+            name: {
+              equals: name,
+              mode: 'insensitive',
+            },
+          },
+        ],
       },
     });
-    console.log('user in user repository (findUserByUserName):', user);
+
+    if (!user) return null;
+
+    return UserEntity.convert(user);
+  }
+
+  async findUserByEmail({ email }: { email: string }): Promise<UserEntity | null> {
+    const user = await this.prismaService.user.findFirst({
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
+      },
+    });
 
     if (!user) {
       return null;
     }
 
-    const result: UserEntity = UserEntity.convert(user);
-    console.log('result in user repository (findUserById):', result);
-    return result;
+    return UserEntity.convert(user);
   }
 
-  async findAccountDataById({ id }: { id: string }) {
-    console.log('id in user repository (findAccountDataById):', id);
+  async findUserByUserName({ userName }: { userName: string }): Promise<UserEntity | null> {
+    const user = await this.prismaService.user.findFirst({
+      where: {
+        name: {
+          equals: userName,
+          mode: 'insensitive',
+        },
+      },
+    });
 
+    if (!user) {
+      return null;
+    }
+
+    return UserEntity.convert(user);
+  }
+
+  async findAccountDataById({ id }: { id: string }): Promise<UserAccountData | null> {
     const user = await this.prismaService.accountData.findUnique({
       where: {
         profileId: id,
       },
     });
-    console.log('user in user repository (findAccountDataById):', user);
 
     if (!user) {
       return null;
     }
 
-    const result: UserAccountData = UserAccountData.convert(user);
-    console.log('result in user repository (findAccountDataById):', result);
-    return result;
+    return UserAccountData.convert(user);
   }
 
-  async findAccountDataByConfirmationCode({ confirmationCode }: { confirmationCode: string }) {
-    console.log('confirmationCode in user repository (findAccountDataByConfirmationCode):', confirmationCode);
+  async addAccountDataGitHubProvider({ userId, providerId }: { userId: string; providerId: string }) {
+    return this.prismaService.accountData.update({
+      where: {
+        profileId: userId,
+      },
+      data: {
+        githubId: providerId,
+      },
+    });
+  }
 
+  async findAccountDataByConfirmationCode({
+    confirmationCode,
+  }: {
+    confirmationCode: string;
+  }): Promise<UserAccountData | null> {
     const user = await this.prismaService.accountData.findFirst({
       where: {
         confirmationCode: confirmationCode,
       },
     });
-    console.log('user in user repository (findAccountDataByConfirmationCode):', user);
 
     if (!user) {
       return null;
     }
 
-    const result: UserAccountData = UserAccountData.convert(user);
-    console.log('result in user repository (findAccountDataByConfirmationCode):', result);
-    return result;
+    return UserAccountData.convert(user);
   }
 
-  async findAccountDataByRecoveryCode({ recoveryCode }: { recoveryCode: string }) {
-    console.log('recoveryCode in user repository (findAccountDataByRecoveryCode):', recoveryCode);
-
+  async findAccountDataByRecoveryCode({ recoveryCode }: { recoveryCode: string }): Promise<UserAccountData | null> {
     const user = await this.prismaService.accountData.findFirst({
       where: {
         recoveryCode: recoveryCode,
       },
     });
-    console.log('user in user repository (findAccountDataByRecoveryCode):', user);
 
     if (!user) {
       return null;
     }
 
-    const result: UserAccountData = UserAccountData.convert(user);
-    console.log('result in user repository (findAccountDataByRecoveryCode):', result);
-    return result;
+    return UserAccountData.convert(user);
   }
 }

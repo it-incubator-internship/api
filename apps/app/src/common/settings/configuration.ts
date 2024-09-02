@@ -13,10 +13,14 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     },
 
     jwtSetting: {
-      accessToken: environmentVariables.JWT_SECRET_ACCESS,
-      refreshToken: environmentVariables.JWT_SECRET_REFRESH,
-      confirmationCode: environmentVariables.JWT_SECRET_CONF_CODE,
-      recoveryCode: environmentVariables.JWT_SECRET_RECOVERY_CODE,
+      accessTokenSecret: environmentVariables.JWT_SECRET_ACCESS as string,
+      refreshTokenSecret: environmentVariables.JWT_SECRET_REFRESH as string,
+      confirmationCodeSecret: environmentVariables.JWT_SECRET_CONFIRMATION_CODE as string,
+      recoveryCodeSecret: environmentVariables.JWT_SECRET_RECOVERY_CODE as string,
+      accessTokenLifeTime: environmentVariables.JWT_LIFE_TIME_ACCESS as string,
+      refreshTokenLifeTime: environmentVariables.JWT_LIFE_TIME_REFRESH as string,
+      confirmationCodeLifeTime: environmentVariables.JWT_LIFE_TIME_CONFIRMATION_CODE as string,
+      recoveryCodeLifeTime: environmentVariables.JWT_LIFE_TIME_RECOVERY_CODE as string,
     },
 
     environmentSettings: {
@@ -26,6 +30,23 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       isLocal: currentEnvironment === Environments.LOCAL,
       isTesting: currentEnvironment === Environments.TEST,
       isDevelopment: currentEnvironment === Environments.DEVELOPMENT,
+    },
+
+    mailSettings: {
+      password: environmentVariables.GMAIL_PASS,
+      email: environmentVariables.GMAIL_USER,
+    },
+
+    googleAuthorizationSettings: {
+      clientID: environmentVariables.GOOGLE_CLIENT_ID,
+      clientSecret: environmentVariables.GOOGLE_CLIENT_SECRET,
+      callbackURL: environmentVariables.GOOGLE_CALLBACK_URL,
+    },
+
+    githubAuthorizationSettings: {
+      clientID: environmentVariables.GITHUB_CLIENT_ID,
+      clientSecret: environmentVariables.GITHUB_CLIENT_SECRET,
+      callbackURL: environmentVariables.GITHUB_CALLBACK_URL,
     },
 
     getAllVariables: {
@@ -53,12 +74,24 @@ export const configuration = () => {
     'NODE_ENV',
     'PORT',
     'DATABASE_APP_URL',
-    'EMAIL',
-    'EMAIL_PASS',
     'JWT_SECRET_ACCESS',
     'JWT_SECRET_REFRESH',
-    'JWT_SECRET_CONF_CODE',
+    'JWT_SECRET_CONFIRMATION_CODE',
     'JWT_SECRET_RECOVERY_CODE',
+    'GMAIL_USER',
+    'GMAIL_PASS',
+    'SHADOW_DATABASE_URL',
+    'JWT_LIFE_TIME_ACCESS',
+    'JWT_LIFE_TIME_REFRESH',
+    'JWT_LIFE_TIME_CONFIRMATION_CODE',
+    'JWT_LIFE_TIME_RECOVERY_CODE',
+    //OAUTH
+    'GITHUB_CLIENT_ID',
+    'GITHUB_CLIENT_SECRET',
+    'GITHUB_CALLBACK_URL',
+    'GOOGLE_CLIENT_ID',
+    'GOOGLE_CLIENT_SECRET',
+    'GOOGLE_CALLBACK_URL',
   ];
 
   //Эти значения выводятся в сваггере

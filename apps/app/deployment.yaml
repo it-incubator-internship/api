@@ -16,14 +16,109 @@ spec:
         project: PROJECT
     spec:
       containers:
-        - name: PROJECT
-          image: REGISTRY_HOSTNAME/PROJECT:TAG_VERSION
-          ports:
-            - containerPort: PORT_CONTAINER
+         - name: PROJECT
+           image: REGISTRY_HOSTNAME/PROJECT:TAG_VERSION
+           ports:
+             - containerPort: PORT_CONTAINER
 
-          env:
-            - name: DATABASE_APP_URL
-              valueFrom:
-                secretKeyRef:
-                  name: app-4-try-production-config-secret
-                  key: DATABASE_APP_URL
+           env:
+             - name: SHADOW_DATABASE_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: SHADOW_DATABASE_URL
+             - name: EMAIL
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: EMAIL
+             - name: EMAIL_PASS
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: EMAIL_PASS
+             - name: JWT_SECRET_ACCESS
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: JWT_SECRET_ACCESS
+             - name: JWT_SECRET_REFRESH
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: JWT_SECRET_REFRESH
+             - name: JWT_SECRET_CONFIRMATION_CODE
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: JWT_SECRET_CONFIRMATION_CODE
+             - name: JWT_SECRET_RECOVERY_CODE
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: JWT_SECRET_RECOVERY_CODE
+             - name: GMAIL_USER
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: GMAIL_USER
+             - name: GMAIL_PASS
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: GMAIL_PASS
+             - name: JWT_LIFE_TIME_ACCESS
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: JWT_LIFE_TIME_ACCESS
+             - name: JWT_LIFE_TIME_REFRESH
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: JWT_LIFE_TIME_REFRESH
+             - name: JWT_LIFE_TIME_CONFIRMATION_CODE
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: JWT_LIFE_TIME_CONFIRMATION_CODE
+             - name: JWT_LIFE_TIME_RECOVERY_CODE
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: JWT_LIFE_TIME_RECOVERY_CODE
+             - name: GOOGLE_CLIENT_ID
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: GOOGLE_CLIENT_ID
+             - name: GOOGLE_CLIENT_SECRET
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: GOOGLE_CLIENT_SECRET
+             - name: GOOGLE_CALLBACK_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: GOOGLE_CALLBACK_URL
+             - name: GITHUB_CLIENT_ID
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: GITHUB_CLIENT_ID
+             - name: GITHUB_CLIENT_SECRET
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: GITHUB_CLIENT_SECRET
+             - name: GITHUB_CALLBACK_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: GITHUB_CALLBACK_URL
+             - name: DATABASE_APP_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: DATABASE_APP_URL

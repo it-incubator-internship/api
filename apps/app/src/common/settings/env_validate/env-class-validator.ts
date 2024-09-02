@@ -22,22 +22,31 @@ export class EnvironmentVariables {
   DATABASE_APP_URL: string;
 
   @IsString()
-  EMAIL: string;
-
-  @IsString()
-  EMAIL_PASS: string;
-
-  @IsString()
   JWT_SECRET_ACCESS: string;
 
   @IsString()
   JWT_SECRET_REFRESH: string;
 
   @IsString()
-  JWT_SECRET_CONF_CODE: string;
+  JWT_SECRET_CONFIRMATION_CODE: string;
 
   @IsString()
   JWT_SECRET_RECOVERY_CODE: string;
+
+  @IsString()
+  SHADOW_DATABASE_URL: string;
+
+  @IsString()
+  JWT_LIFE_TIME_ACCESS: string;
+
+  @IsString()
+  JWT_LIFE_TIME_REFRESH: string;
+
+  @IsString()
+  JWT_LIFE_TIME_CONFIRMATION_CODE: string;
+
+  @IsString()
+  JWT_LIFE_TIME_RECOVERY_CODE: string;
 }
 
 export function validate(config: Record<string, unknown>) {
