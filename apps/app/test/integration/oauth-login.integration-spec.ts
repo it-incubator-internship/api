@@ -20,6 +20,7 @@ const mockUser = {
   email: 'vlad@mail.ru',
 };
 
+//TODO пофиксить тесты
 describe('GithubOauthHandler (Integration)', () => {
   let handler: GithubOauthHandler;
   let prismaService: PrismaService;
