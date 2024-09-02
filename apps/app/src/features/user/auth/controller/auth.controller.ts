@@ -34,6 +34,8 @@ import { AuthMeOutput } from '../dto/output/information.output.dto';
 import { AccessTokenOutput } from '../dto/output/login.output.dto';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { MeSwagger } from '../decorators/swagger/me/me.swagger.decorator';
+import { RecaptchaAuthGuard } from '../guards/recaptcha.auth.guard';
+import { PasswordRecoveryInputModel } from '../dto/input/password-recovery.user.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -71,9 +73,10 @@ export class AuthController {
     if (!result.isSuccess) throw result.error;
   }
 
+  @UseGuards(RecaptchaAuthGuard)
   @Post('password-recovery')
   @PasswordRecoverySwagger()
-  async passwordRecovery(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
+  async passwordRecovery(@Body() inputModel: PasswordRecoveryInputModel): Promise<UserRegistrationOutputDto> {
     const result = await this.commandBus.execute(new PasswordRecoveryCommand(inputModel));
 
     if (!result.isSuccess) throw result.error;
