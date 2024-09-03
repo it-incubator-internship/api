@@ -1,11 +1,17 @@
+import { Request } from 'express';
 import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { Request } from 'express';
 import { lastValueFrom } from 'rxjs';
+import { ConfigService } from '@nestjs/config';
+
+import { ConfigurationType } from '../../../../../../app/src/common/settings/configuration';
 
 @Injectable()
 export class RecaptchaAuthGuard implements CanActivate {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService<ConfigurationType, true>,
+  ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest();
 
@@ -16,13 +22,14 @@ export class RecaptchaAuthGuard implements CanActivate {
       throw new ForbiddenException('reCAPTCHA token missing');
     }
 
-    // секретный ключ reCAPTCHA
-    const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz&response';
+    const recaptchaSetting = this.configService.get('recaptchaSettings', { infer: true });
+    const recaptchaSekret = recaptchaSetting.recaptchaSecret as string;
+    const recaptchaURL = recaptchaSetting.recaptchaURL as string;
 
     const response = await lastValueFrom(
-      this.httpService.post(`https://www.google.com/recaptcha/api/siteverify`, null, {
+      this.httpService.post(recaptchaURL, null, {
         params: {
-          secret: secretKey,
+          secret: recaptchaSekret,
           response: recaptchaToken,
         },
       }),
