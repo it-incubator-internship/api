@@ -1,4 +1,3 @@
-// import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { Controller, Get, Ip, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
@@ -45,7 +44,7 @@ export class AuthGoogleController {
 
     if (!result.isSuccess) throw result.error;
 
-    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true, sameSite: 'none' });
 
     return { accessToken: result.value.accessToken };
   }
