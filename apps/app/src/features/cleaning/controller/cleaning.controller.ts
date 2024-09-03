@@ -1,18 +1,15 @@
 import { Controller, Delete } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 
-import { PrismaService } from '../../../common/database_module/prisma-connection.service';
+import { CleaningService } from '../cleaning.service';
 
-//TODO вынести в отдельный модуль
 @ApiExcludeController()
 @Controller('testing')
 export class CleaningController {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly cleaningService: CleaningService) {}
 
   @Delete('all-data')
   async deleteAllData() {
-    await this.prismaService.session.deleteMany();
-    await this.prismaService.accountData.deleteMany();
-    await this.prismaService.user.deleteMany();
+    await this.cleaningService.cleanDB();
   }
 }
