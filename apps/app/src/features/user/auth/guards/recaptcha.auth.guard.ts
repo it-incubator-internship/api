@@ -13,6 +13,7 @@ export class RecaptchaAuthGuard implements CanActivate {
     const recaptchaToken = request.body!.recaptchaToken;
 
     if (!recaptchaToken) {
+      console.log('recaptcha token missing');
       throw new ForbiddenException('reCAPTCHA token missing');
     }
 
@@ -27,6 +28,8 @@ export class RecaptchaAuthGuard implements CanActivate {
         },
       }),
     );
+
+    console.log('recaptcha response', response);
 
     const { score } = response.data;
 
