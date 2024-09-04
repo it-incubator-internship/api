@@ -9,6 +9,9 @@ import { BadRequestError } from '../../../../../../../common/utils/result/custom
 import { hashRounds } from '../../../../../common/constants/constants';
 import { AccountDataEntityNEW, UserEntityNEW } from '../../../user/domain/account-data.entity';
 import { UserRegistrationEvent } from '../../../user/domain/events/user-registration.event';
+import { $Enums } from '../../../../../../prisma/client';
+
+import ConfirmationStatus = $Enums.ConfirmationStatus;
 
 export class RegistrationUserCommand {
   constructor(public inputModel: RegistrationUserInputModel) {}
@@ -47,6 +50,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
 
     const newAccountData = AccountDataEntityNEW.createForDatabase({
       profileId: userFromDB.id,
+      confirmationStatus: ConfirmationStatus.NOT_CONFIRM,
       confirmationCode,
       recoveryCode: null,
       githubId: null,

@@ -1,7 +1,5 @@
 import { $Enums, AccountData, Prisma, Session, User } from '../../../../../prisma/client';
 
-import { UserBanStatusEnum } from './user.fabric';
-
 import BanStatus = $Enums.BanStatus;
 import ConfirmationStatus = $Enums.ConfirmationStatus;
 
@@ -64,12 +62,12 @@ export class UserEntityNEW implements User {
   }
 
   banUser() {
-    this.banStatus = UserBanStatusEnum.BANNED;
+    this.banStatus = BanStatus.BANNED;
     this.banDate = new Date();
   }
 
   unbanUser() {
-    this.banStatus = UserBanStatusEnum.NOT_BANNED;
+    this.banStatus = BanStatus.NOT_BANNED;
     this.banDate = null;
   }
 }
@@ -91,7 +89,7 @@ export class AccountDataEntityNEW implements AccountData {
     }
   }
 
-  static createForDatabase(data: Omit<AccountData, 'confirmationStatus' | 'user'>): Prisma.AccountDataCreateInput {
+  static createForDatabase(data: Omit<AccountData, 'user'>): Prisma.AccountDataCreateInput {
     return {
       user: { connect: { id: data.profileId } },
       confirmationCode: data.confirmationCode,

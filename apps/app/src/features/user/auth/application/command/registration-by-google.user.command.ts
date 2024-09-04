@@ -3,8 +3,11 @@ import { hashSync } from 'bcryptjs';
 
 import { UserRepository } from '../../../user/repository/user.repository';
 import { hashRounds } from '../../../../../common/constants/constants';
-import { UserEntity } from '../../../user/domain/user.fabric';
 import { UserOauthRegisreationEvent } from '../events/user-oauth-regisreation.event';
+import { AccountDataEntityNEW, UserEntityNEW } from '../../../user/domain/account-data.entity';
+import { $Enums } from '../../../../../../prisma/client';
+
+import ConfirmationStatus = $Enums.ConfirmationStatus;
 
 export class RegistrationUserByGoogleCommand {
   constructor(public inputModel: { googleId: string; password: string; email: string; userName: string }) {}
@@ -22,21 +25,24 @@ export class RegistrationUserByGoogleHandler implements ICommandHandler<Registra
     const confirmationCode = '';
     const passwordHash = hashSync(password, hashRounds);
 
-    const newUser = UserEntity.create({
+    const newUser = UserEntityNEW.createForDatabase({
       name: userName,
       email,
       passwordHash,
-      accountData: { confirmationCode /* , googleId */ },
     });
 
-    const creationResult = await this.userRepository.createUser(newUser);
-    const accountData = await this.userRepository.findAccountDataById({ id: creationResult.id });
+    const creationResult = await this.userRepository.createUserNew(newUser);
 
-    accountData!.confirmationRegistration();
+    const accountDataForDB = AccountDataEntityNEW.createForDatabase({
+      profileId: creationResult.id,
+      confirmationStatus: ConfirmationStatus.CONFIRM,
+      confirmationCode,
+      recoveryCode: null,
+      githubId: null,
+      googleId,
+    });
 
-    accountData!.addGoogleId({ googleId });
-
-    await this.userRepository.updateAccountData(accountData!);
+    await this.userRepository.createAccountData(accountDataForDB);
 
     if (newUser.email.length > 2) {
       const event = new UserOauthRegisreationEvent(newUser.name, newUser.email, 'google');

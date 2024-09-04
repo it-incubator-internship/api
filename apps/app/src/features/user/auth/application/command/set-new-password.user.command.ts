@@ -7,7 +7,6 @@ import { hashRounds } from '../../../../../common/constants/constants';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError, NotFoundError } from '../../../../../../../common/utils/result/custom-error';
-import { UserAccountData } from '../../../user/domain/accoun-data.fabric';
 
 import { DeletionSessionsCommand } from './deletion-sessions.command';
 
@@ -35,7 +34,7 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
     // верификация recoveryCode
     await this.jwtAdapter.verifyRecoveryCode({ recoveryCode: command.inputModel.code });
 
-    const accountData: UserAccountData | null = await this.userRepository.findAccountDataByRecoveryCode({
+    const accountData = await this.userRepository.findAccountDataByRecoveryCode({
       recoveryCode: command.inputModel.code,
     });
 

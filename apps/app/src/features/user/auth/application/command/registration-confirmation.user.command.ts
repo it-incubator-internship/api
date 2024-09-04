@@ -5,7 +5,9 @@ import { UserRepository } from '../../../user/repository/user.repository';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
-import { UserConfirmationStatusEnum } from '../../../user/domain/accoun-data.fabric';
+import { $Enums } from '../../../../../../prisma/client';
+
+import ConfirmationStatus = $Enums.ConfirmationStatus;
 
 export class RegistrationConfirmationCommand {
   constructor(public inputModel: CodeInputModel) {}
@@ -32,7 +34,7 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
       return this.createError('UserAccountData not found', 'UserAccountData not found', 'code');
     }
 
-    if (userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM) {
+    if (userAccountData.confirmationStatus === ConfirmationStatus.CONFIRM) {
       return this.createError('Email has already been confirmed', 'Email has already been confirmed', 'code');
     }
 
