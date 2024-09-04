@@ -13,11 +13,13 @@ export class RecaptchaAuthGuard implements CanActivate {
     const recaptchaToken = request.body!.recaptchaToken;
 
     if (!recaptchaToken) {
+      console.log('recaptcha token missing');
       throw new ForbiddenException('reCAPTCHA token missing');
     }
 
     // секретный ключ reCAPTCHA
-    const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz&response';
+    // const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz&response';
+    const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz';
 
     const response = await lastValueFrom(
       this.httpService.post(`https://www.google.com/recaptcha/api/siteverify`, null, {
@@ -27,6 +29,8 @@ export class RecaptchaAuthGuard implements CanActivate {
         },
       }),
     );
+
+    console.log('recaptcha response', response);
 
     const { score } = response.data;
 
