@@ -7,7 +7,8 @@ import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
 import { hashRounds } from '../../../../../common/constants/constants';
-import { UserEntity } from '../../../user/domain/user.fabric';
+import { AccountDataEntityNEW, UserEntityNEW } from '../../../user/domain/account-data.entity';
+import { UserRegistrationEvent } from '../../../user/domain/events/user-registration.event';
 
 export class RegistrationUserCommand {
   constructor(public inputModel: RegistrationUserInputModel) {}
@@ -36,16 +37,27 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
 
     const passwordHash = hashSync(password, hashRounds);
 
-    const newUser = UserEntity.create({
+    const newUser = UserEntityNEW.createForDatabase({
       name: userName,
       email,
       passwordHash,
-      accountData: { confirmationCode },
     });
 
-    await this.userRepository.createUser(newUser);
+    const userFromDB = await this.userRepository.createUserNew(newUser);
 
-    newUser.events.forEach((event) => this.eventBus.publish(event));
+    const newAccountData = AccountDataEntityNEW.createForDatabase({
+      profileId: userFromDB.id,
+      confirmationCode,
+      recoveryCode: null,
+      githubId: null,
+      googleId: null,
+    });
+
+    await this.userRepository.createAccountData(newAccountData);
+
+    const event = new UserRegistrationEvent(userFromDB.name, email, newAccountData.confirmationCode);
+
+    this.eventBus.publish(event);
 
     return ObjResult.Ok();
   }
@@ -64,8 +76,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
 
   private async checkAvailability(email: string, userName: string) {
     const userByEmail = await this.userRepository.findUserByEmailOrName({ email, name: userName });
-
-    if (userByEmail && userByEmail.email === email) {
+    if (userByEmail && userByEmail.email.toLowerCase() === email.toLowerCase()) {
       return this.createError(
         'User with this email is already registered',
         'User with this email is already registered',
@@ -73,7 +84,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
       );
     }
 
-    if (userByEmail && userByEmail.name === userName) {
+    if (userByEmail && userByEmail.name.toLowerCase() === userName.toLowerCase()) {
       return this.createError(
         'User with this user name is already registered',
         'User with this user name is already registered',
@@ -83,6 +94,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
   }
 
   private createError(title: string, message: string, field: string) {
+    console.log('123123');
     return ObjResult.Err(new BadRequestError(title, [{ message, field }]));
   }
 }

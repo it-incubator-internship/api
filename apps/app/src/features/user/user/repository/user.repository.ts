@@ -3,11 +3,17 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
 import { UserEntity } from '../domain/user.fabric';
 import { UserAccountData } from '../domain/accoun-data.fabric';
-import { User } from '../../../../../prisma/client';
+import { Prisma, User } from '../../../../../prisma/client';
+import { EntityFactory } from '../domain/account-data.entity';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
+
+  async createUserNew(user: Prisma.UserCreateInput) {
+    const newUser: User = await this.prismaService.user.create({ data: user });
+    return EntityFactory.createUser(newUser);
+  }
 
   async createUser(userProfile: Omit<UserEntity, 'id'>): Promise<User> {
     return this.prismaService.user.create({
@@ -26,6 +32,11 @@ export class UserRepository {
           : {}),
       },
     });
+  }
+
+  async createAccountData(userAccountData: Prisma.AccountDataCreateInput) {
+    const accountData = await this.prismaService.accountData.create({ data: userAccountData });
+    return EntityFactory.createAccountData(accountData);
   }
 
   async updateUser(userProfile: Omit<UserEntity, 'id'>) {

@@ -5,7 +5,7 @@ import { UserBanStatusEnum } from './user.fabric';
 import BanStatus = $Enums.BanStatus;
 import ConfirmationStatus = $Enums.ConfirmationStatus;
 
-export class UserEntity implements User {
+export class UserEntityNEW implements User {
   id: string;
   name: string;
   email: string;
@@ -15,8 +15,8 @@ export class UserEntity implements User {
   passwordHash: string;
   banStatus: BanStatus;
   banDate: Date | null;
-  accountData?: AccountDataEntity | null;
-  sessions?: SessionEntity[];
+  accountData?: AccountDataEntityNEW | null;
+  sessions?: SessionEntityNEW[];
 
   constructor(
     user: User & {
@@ -27,11 +27,11 @@ export class UserEntity implements User {
     Object.assign(this, user);
 
     if (user.accountData) {
-      this.accountData = new AccountDataEntity(user.accountData);
+      this.accountData = new AccountDataEntityNEW(user.accountData);
     }
 
     if (user.sessions) {
-      this.sessions = user.sessions.map((session) => new SessionEntity(session));
+      this.sessions = user.sessions.map((session) => new SessionEntityNEW(session));
     }
   }
 
@@ -74,20 +74,20 @@ export class UserEntity implements User {
   }
 }
 
-export class AccountDataEntity implements AccountData {
+export class AccountDataEntityNEW implements AccountData {
   profileId: string;
   confirmationStatus: ConfirmationStatus;
   confirmationCode: string;
   recoveryCode: string | null;
   githubId: string | null;
   googleId: string | null;
-  user?: UserEntity | null;
+  user?: UserEntityNEW | null;
 
   constructor(accountData: AccountData & { user?: User | null }) {
     Object.assign(this, accountData);
 
     if (accountData.user) {
-      this.user = new UserEntity(accountData.user);
+      this.user = new UserEntityNEW(accountData.user);
     }
   }
 
@@ -96,8 +96,8 @@ export class AccountDataEntity implements AccountData {
       user: { connect: { id: data.profileId } },
       confirmationCode: data.confirmationCode,
       recoveryCode: data.recoveryCode,
-      githubId: data.githubId,
-      googleId: data.googleId,
+      githubId: data.githubId || null,
+      googleId: data.googleId || null,
       confirmationStatus: 'NOT_CONFIRM',
     };
   }
@@ -119,20 +119,20 @@ export class AccountDataEntity implements AccountData {
   }
 }
 
-export class SessionEntity implements Session {
+export class SessionEntityNEW implements Session {
   id: string;
   profileId: string;
   deviceUuid: string;
   deviceName: string;
   ip: string;
   lastActiveDate: Date;
-  user?: UserEntity;
+  user?: UserEntityNEW;
 
   constructor(session: Session & { user?: User }) {
     Object.assign(this, session);
 
     if (session.user) {
-      this.user = new UserEntity(session.user);
+      this.user = new UserEntityNEW(session.user);
     }
   }
 
@@ -159,23 +159,23 @@ export class EntityFactory {
       accountData?: AccountData | null;
       sessions?: Session[];
     },
-  ): UserEntity {
-    return new UserEntity(data);
+  ): UserEntityNEW {
+    return new UserEntityNEW(data);
   }
 
   static createAccountData(
     data: AccountData & {
       user?: User | null;
     },
-  ): AccountDataEntity {
-    return new AccountDataEntity(data);
+  ): AccountDataEntityNEW {
+    return new AccountDataEntityNEW(data);
   }
 
   static createSession(
     data: Session & {
       user?: User;
     },
-  ): SessionEntity {
-    return new SessionEntity(data);
+  ): SessionEntityNEW {
+    return new SessionEntityNEW(data);
   }
 }
