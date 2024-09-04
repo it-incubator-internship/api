@@ -46,7 +46,7 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
       passwordHash,
     });
 
-    const userFromDB = await this.userRepository.createUserNew(newUser);
+    const userFromDB = await this.userRepository.createUser(newUser);
 
     const newAccountData = AccountDataEntityNEW.createForDatabase({
       profileId: userFromDB.id,

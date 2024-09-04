@@ -56,7 +56,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
       passwordHash: hashSync(password, 10),
     });
 
-    const userFromDb = await this.userRepository.createUserNew(newUser);
+    const userFromDb = await this.userRepository.createUser(newUser);
 
     const accountData = AccountDataEntityNEW.createForDatabase({
       profileId: userFromDb.id,
@@ -74,7 +74,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
       this.eventBus.publish(event);
     }
 
-    const createdUser = await this.userRepository.createUserNew(newUser);
+    const createdUser = await this.userRepository.createUser(newUser);
     return { userId: createdUser.id };
   }
 

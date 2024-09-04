@@ -31,7 +31,7 @@ export class RegistrationUserByGoogleHandler implements ICommandHandler<Registra
       passwordHash,
     });
 
-    const creationResult = await this.userRepository.createUserNew(newUser);
+    const creationResult = await this.userRepository.createUser(newUser);
 
     const accountDataForDB = AccountDataEntityNEW.createForDatabase({
       profileId: creationResult.id,

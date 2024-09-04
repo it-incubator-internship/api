@@ -8,7 +8,7 @@ import { AccountDataEntityNEW, EntityFactory, UserEntityNEW } from '../domain/ac
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createUserNew(user: Prisma.UserCreateInput) {
+  async createUser(user: Prisma.UserCreateInput) {
     const newUser: User = await this.prismaService.user.create({ data: user });
     return EntityFactory.createUser(newUser);
   }
