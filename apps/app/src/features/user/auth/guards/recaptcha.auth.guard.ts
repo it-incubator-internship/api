@@ -18,7 +18,8 @@ export class RecaptchaAuthGuard implements CanActivate {
     }
 
     // секретный ключ reCAPTCHA
-    const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz&response';
+    // const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz&response';
+    const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz';
 
     const response = await lastValueFrom(
       this.httpService.post(`https://www.google.com/recaptcha/api/siteverify`, null, {
