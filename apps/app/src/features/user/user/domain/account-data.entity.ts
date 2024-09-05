@@ -96,7 +96,7 @@ export class AccountDataEntityNEW implements AccountData {
       recoveryCode: data.recoveryCode,
       githubId: data.githubId || null,
       googleId: data.googleId || null,
-      confirmationStatus: 'NOT_CONFIRM',
+      confirmationStatus: data.confirmationStatus,
     };
   }
 
