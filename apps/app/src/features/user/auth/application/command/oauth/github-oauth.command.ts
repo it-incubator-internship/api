@@ -5,11 +5,13 @@ import { hashSync } from 'bcryptjs';
 
 import { GithubData } from '../../../controller/passport/github/github-oauth.strategy';
 import { UserRepository } from '../../../../user/repository/user.repository';
-import { UserEntity } from '../../../../user/domain/user.fabric';
-import { UserAccountData, UserConfirmationStatusEnum } from '../../../../user/domain/accoun-data.fabric';
 import { generatePassword } from '../../../../../../../../common/utils/password-generator';
 import { ObjResult } from '../../../../../../../../common/utils/result/object-result';
 import { UserOauthRegisreationEvent } from '../../events/user-oauth-regisreation.event';
+import { AccountDataEntityNEW, UserEntityNEW } from '../../../../user/domain/account-data.entity';
+import { $Enums } from '../../../../../../../prisma/client';
+
+import ConfirmationStatus = $Enums.ConfirmationStatus;
 
 export class GithubOauthCommand {
   constructor(public data: GithubData) {}
@@ -48,16 +50,24 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
     const password = generatePassword();
     const userName = await this.generateUserName(displayName);
 
-    const accountData = UserAccountData.create({ confirmationCode: randomUUID() });
-    accountData.confirmationStatus = UserConfirmationStatusEnum.CONFIRM;
-    accountData.githubId = id;
-
-    const newUser = UserEntity.create({
+    const newUser = UserEntityNEW.createForDatabase({
       name: userName,
       email: email ?? '',
       passwordHash: hashSync(password, 10),
     });
-    newUser.accountData = accountData as UserAccountData;
+
+    const userFromDb = await this.userRepository.createUser(newUser);
+
+    const accountData = AccountDataEntityNEW.createForDatabase({
+      profileId: userFromDb.id,
+      confirmationCode: randomUUID(),
+      confirmationStatus: ConfirmationStatus.CONFIRM,
+      recoveryCode: null,
+      githubId: id,
+      googleId: null,
+    });
+
+    await this.userRepository.createAccountData(accountData);
 
     if (newUser.email.length > 2) {
       const event = new UserOauthRegisreationEvent(newUser.name, newUser.email, 'github');
