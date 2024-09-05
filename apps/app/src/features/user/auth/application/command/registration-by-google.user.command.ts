@@ -5,9 +5,6 @@ import { UserRepository } from '../../../user/repository/user.repository';
 import { hashRounds } from '../../../../../common/constants/constants';
 import { UserOauthRegisreationEvent } from '../events/user-oauth-regisreation.event';
 import { AccountDataEntityNEW, UserEntityNEW } from '../../../user/domain/account-data.entity';
-import { $Enums } from '../../../../../../prisma/client';
-
-import ConfirmationStatus = $Enums.ConfirmationStatus;
 
 export class RegistrationUserByGoogleCommand {
   constructor(public inputModel: { googleId: string; password: string; email: string; userName: string }) {}
@@ -35,7 +32,7 @@ export class RegistrationUserByGoogleHandler implements ICommandHandler<Registra
 
     const accountDataForDB = AccountDataEntityNEW.createForDatabase({
       profileId: creationResult.id,
-      confirmationStatus: ConfirmationStatus.CONFIRM,
+      confirmationStatus: 'CONFIRM',
       confirmationCode,
       recoveryCode: null,
       githubId: null,
