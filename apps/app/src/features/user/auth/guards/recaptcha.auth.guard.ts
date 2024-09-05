@@ -19,9 +19,13 @@ export class RecaptchaAuthGuard implements CanActivate {
     const recaptchaToken = request.body!.recaptchaToken;
 
     if (!recaptchaToken) {
+      console.log('recaptcha token missing');
       throw new ForbiddenException('reCAPTCHA token missing');
     }
 
+    // секретный ключ reCAPTCHA
+    // const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz&response';
+    // const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz';
     const recaptchaSetting = this.configService.get('recaptchaSettings', { infer: true });
     const recaptchaSekret = recaptchaSetting.recaptchaSecret as string;
     const recaptchaURL = recaptchaSetting.recaptchaURL as string;
@@ -34,6 +38,8 @@ export class RecaptchaAuthGuard implements CanActivate {
         },
       }),
     );
+
+    console.log('recaptcha response', response);
 
     const { score } = response.data;
 

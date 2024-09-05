@@ -35,6 +35,7 @@ import { UserQueryRepository } from './user/repository/user.query.repository';
 import { JwtAuthStrategy } from './auth/strategies/jwt.auth.strategy';
 import { SendEmailAfterOauthRegistrationEventHandler } from './auth/application/events-handlers/oauth/send-email-afret-oauth-registration.event.handler';
 import { RecaptchaAuthGuard } from './auth/guards/recaptcha.auth.guard';
+import { SendNewPasswordRecoveryEmailWhenUserAskIt } from './auth/application/events-handlers/send-password-change-code-when-user-ask-it.event.handler';
 
 const userRepositories = [UserRepository, SessionRepository, UserQueryRepository];
 const userService = [OauthService];
@@ -42,6 +43,7 @@ const userCommands = [
   RegistrationUserHandler,
   RegistrationEmailResendingHandler,
   RegistrationConfirmationHandler,
+  SendNewPasswordRecoveryEmailWhenUserAskIt,
   PasswordRecoveryHandler,
   SetNewPasswordHandler,
   LoginUserHandler,

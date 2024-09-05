@@ -41,7 +41,7 @@ export class GithubOauthController {
 
     if (!result.isSuccess) throw result.error;
     //TODO указать в куки куда она должна приходить
-    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true, sameSite: 'none' });
 
     return { accessToken: result.value.accessToken };
   }
