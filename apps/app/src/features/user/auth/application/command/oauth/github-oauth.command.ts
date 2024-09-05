@@ -74,8 +74,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
       this.eventBus.publish(event);
     }
 
-    const createdUser = await this.userRepository.createUser(newUser);
-    return { userId: createdUser.id };
+    return { userId: userFromDb.id };
   }
 
   private async generateUserName(userName: string): Promise<string> {

@@ -51,7 +51,7 @@ export class MailService {
     recoveryCode: string;
   }): Promise<void> {
     //TODO добавить конфиг сервис
-    const url = `https://somesite.com/password-recovery?recoveryCode=${recoveryCode}`;
+    const url = `http://localhost:3000/create-new-password?recoveryCode=${recoveryCode}`;
 
     await this.mailerService.sendMail({
       to: email,
