@@ -10,10 +10,12 @@ import { CleaningController } from './features/cleaning/controller/cleaning.cont
 import { UserRepository } from './features/user/user/repository/user.repository';
 import { SessionRepository } from './features/user/auth/repository/session.repository';
 import { PrismaService } from './common/database_module/prisma-connection.service';
+import { BaseController } from '../../common/controller/base.controller';
+import { BaseRepository } from '../../../apps/common/repository/base.repository';
 
 const environment = process.env.NODE_ENV as Environments;
 
-const ybrat = [UserRepository, SessionRepository, PrismaService];
+const ybrat = [UserRepository, SessionRepository, PrismaService, BaseRepository];
 
 @Module({
   imports: [
@@ -25,7 +27,7 @@ const ybrat = [UserRepository, SessionRepository, PrismaService];
     }),
     UserModule,
   ],
-  controllers: [AppController, CleaningController],
+  controllers: [AppController, CleaningController, BaseController],
   providers: [...ybrat],
   exports: [],
 })
