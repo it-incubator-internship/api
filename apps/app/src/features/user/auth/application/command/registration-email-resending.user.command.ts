@@ -5,8 +5,10 @@ import { UserRepository } from '../../../user/repository/user.repository';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
-import { UserConfirmationStatusEnum } from '../../../user/domain/accoun-data.fabric';
 import { UserResendRegCodeEvent } from '../../../user/domain/events/user-resend-reg-code.event';
+import { $Enums } from '../../../../../../prisma/client';
+
+import ConfirmationStatus = $Enums.ConfirmationStatus;
 
 export class RegistrationEmailResendingCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -29,17 +31,19 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
     const userAccountData = await this.userRepository.findAccountDataById({ id: user.id });
     if (!userAccountData) return this.createError('Account data not found', 'email');
 
-    if (userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM) {
+    if (userAccountData.confirmationStatus === ConfirmationStatus.CONFIRM) {
       return this.createError('Email has already been confirmed', 'email');
     }
 
     const { confirmationCode } = await this.jwtAdapter.createConfirmationCode({ email });
     userAccountData.updateConfirmationCode({ confirmationCode });
 
-    user.events.push(new UserResendRegCodeEvent(user.name, user.email, confirmationCode));
     await this.userRepository.updateAccountData(userAccountData);
-    user.events.forEach((event) => this.eventBus.publish(event));
 
+    const event = new UserResendRegCodeEvent(user.name, user.email, confirmationCode);
+
+    this.eventBus.publish(event);
+    console.log(event);
     return ObjResult.Ok();
   }
 

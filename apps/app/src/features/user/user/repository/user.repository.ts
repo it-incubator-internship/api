@@ -1,34 +1,24 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
-import { UserEntity } from '../domain/user.fabric';
-import { UserAccountData } from '../domain/accoun-data.fabric';
-import { User } from '../../../../../prisma/client';
+import { Prisma, User } from '../../../../../prisma/client';
+import { AccountDataEntityNEW, EntityFactory, UserEntityNEW } from '../domain/account-data.entity';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createUser(userProfile: Omit<UserEntity, 'id'>): Promise<User> {
-    return this.prismaService.user.create({
-      data: {
-        name: userProfile.name,
-        email: userProfile.email,
-        passwordHash: userProfile.passwordHash,
-        ...(userProfile?.accountData
-          ? {
-              accountData: {
-                create: {
-                  ...userProfile.accountData!,
-                },
-              },
-            }
-          : {}),
-      },
-    });
+  async createUser(user: Prisma.UserCreateInput) {
+    const newUser: User = await this.prismaService.user.create({ data: user });
+    return EntityFactory.createUser(newUser);
   }
 
-  async updateUser(userProfile: Omit<UserEntity, 'id'>) {
+  async createAccountData(userAccountData: Prisma.AccountDataCreateInput) {
+    const accountData = await this.prismaService.accountData.create({ data: userAccountData });
+    return EntityFactory.createAccountData(accountData);
+  }
+
+  async updateUser(userProfile: UserEntityNEW) {
     return this.prismaService.user.update({
       where: {
         email: userProfile.email,
@@ -47,7 +37,7 @@ export class UserRepository {
     });
   }
 
-  async updateAccountData(userAccountData: UserAccountData) {
+  async updateAccountData(userAccountData: AccountDataEntityNEW) {
     try {
       return this.prismaService.accountData.update({
         where: {
@@ -70,7 +60,7 @@ export class UserRepository {
     return this.prismaService.user.findMany();
   }
 
-  async findUserById({ id }: { id: string }): Promise<UserEntity | null> {
+  async findUserById({ id }: { id: string }): Promise<UserEntityNEW | null> {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: id,
@@ -81,21 +71,21 @@ export class UserRepository {
       return null;
     }
 
-    return UserEntity.convert(user);
+    return EntityFactory.createUser(user);
   }
 
-  async findAccountDataByGoogleId({ googleId }: { googleId: string }): Promise<UserAccountData | null> {
-    const user = await this.prismaService.accountData.findUnique({
+  async findAccountDataByGoogleId({ googleId }: { googleId: string }): Promise<AccountDataEntityNEW | null> {
+    const accountData = await this.prismaService.accountData.findUnique({
       where: {
         googleId: googleId,
       },
     });
 
-    if (!user) {
+    if (!accountData) {
       return null;
     }
 
-    return UserAccountData.convert(user);
+    return EntityFactory.createAccountData(accountData);
   }
 
   async findUserByEmailOrName({ email, name }: { email: string; name: string }) {
@@ -120,10 +110,10 @@ export class UserRepository {
 
     if (!user) return null;
 
-    return UserEntity.convert(user);
+    return EntityFactory.createUser(user);
   }
 
-  async findUserByEmail({ email }: { email: string }): Promise<UserEntity | null> {
+  async findUserByEmail({ email }: { email: string }): Promise<UserEntityNEW | null> {
     const user = await this.prismaService.user.findFirst({
       where: {
         email: {
@@ -137,10 +127,10 @@ export class UserRepository {
       return null;
     }
 
-    return UserEntity.convert(user);
+    return EntityFactory.createUser(user);
   }
 
-  async findUserByUserName({ userName }: { userName: string }): Promise<UserEntity | null> {
+  async findUserByUserName({ userName }: { userName: string }): Promise<UserEntityNEW | null> {
     const user = await this.prismaService.user.findFirst({
       where: {
         name: {
@@ -154,10 +144,10 @@ export class UserRepository {
       return null;
     }
 
-    return UserEntity.convert(user);
+    return EntityFactory.createUser(user);
   }
 
-  async findAccountDataById({ id }: { id: string }): Promise<UserAccountData | null> {
+  async findAccountDataById({ id }: { id: string }): Promise<AccountDataEntityNEW | null> {
     const user = await this.prismaService.accountData.findUnique({
       where: {
         profileId: id,
@@ -168,7 +158,7 @@ export class UserRepository {
       return null;
     }
 
-    return UserAccountData.convert(user);
+    return EntityFactory.createAccountData(user);
   }
 
   async addAccountDataGitHubProvider({ userId, providerId }: { userId: string; providerId: string }) {
@@ -186,7 +176,7 @@ export class UserRepository {
     confirmationCode,
   }: {
     confirmationCode: string;
-  }): Promise<UserAccountData | null> {
+  }): Promise<AccountDataEntityNEW | null> {
     const user = await this.prismaService.accountData.findFirst({
       where: {
         confirmationCode: confirmationCode,
@@ -197,10 +187,14 @@ export class UserRepository {
       return null;
     }
 
-    return UserAccountData.convert(user);
+    return EntityFactory.createAccountData(user);
   }
 
-  async findAccountDataByRecoveryCode({ recoveryCode }: { recoveryCode: string }): Promise<UserAccountData | null> {
+  async findAccountDataByRecoveryCode({
+    recoveryCode,
+  }: {
+    recoveryCode: string;
+  }): Promise<AccountDataEntityNEW | null> {
     const user = await this.prismaService.accountData.findFirst({
       where: {
         recoveryCode: recoveryCode,
@@ -211,6 +205,6 @@ export class UserRepository {
       return null;
     }
 
-    return UserAccountData.convert(user);
+    return EntityFactory.createAccountData(user);
   }
 }

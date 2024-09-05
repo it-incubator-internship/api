@@ -1,25 +1,18 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
-import { UserSession } from '../../user/domain/session.fabric';
+import { Prisma } from '../../../../../prisma/client';
+import { EntityFactory, SessionEntityNEW } from '../../user/domain/account-data.entity';
 
 @Injectable()
 export class SessionRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createSession(session: Omit<UserSession, 'id'>) {
-    return this.prismaService.session.create({
-      data: {
-        profileId: session.profileId,
-        deviceUuid: session.deviceUuid,
-        deviceName: session.deviceName,
-        ip: session.ip,
-        lastActiveDate: session.lastActiveDate,
-      },
-    });
+  async createSession(session: Prisma.SessionCreateInput) {
+    return this.prismaService.session.create({ data: session });
   }
 
-  async updateLastActiveDataInSession(session: UserSession) {
+  async updateLastActiveDataInSession(session: SessionEntityNEW) {
     return this.prismaService.session.update({
       where: {
         id: session.id,
@@ -30,7 +23,7 @@ export class SessionRepository {
     });
   }
 
-  async findSessionByDeviceUuid({ deviceUuid }: { deviceUuid: string }): Promise<UserSession | null> {
+  async findSessionByDeviceUuid({ deviceUuid }: { deviceUuid: string }): Promise<SessionEntityNEW | null> {
     const session = await this.prismaService.session.findFirst({
       where: {
         deviceUuid: deviceUuid,
@@ -41,7 +34,7 @@ export class SessionRepository {
       return null;
     }
 
-    return UserSession.convert(session);
+    return EntityFactory.createSession(session);
   }
 
   async deleteSession({ id }: { id: string }) {
