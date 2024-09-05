@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { BaseController } from '../../common/controller/base.controller';
 import { BaseRepository } from '../../../apps/common/repository/base.repository';
 
+import { EntityHandler } from '../../common/repository/entity.handler';
 import { AppController } from './app.controller';
 import { UserModule } from './features/user/user.module';
 import { configuration } from './common/settings/configuration';
@@ -30,7 +31,7 @@ const ybrat = [UserRepository, SessionRepository, PrismaService, BaseRepository]
     CleaningModule,
   ],
   controllers: [AppController, BaseController],
-  providers: [...ybrat],
+  providers: [...ybrat, EntityHandler],
   exports: [],
 })
 export class AppModule {}

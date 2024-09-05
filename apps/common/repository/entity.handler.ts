@@ -1,8 +1,4 @@
-import {
-  AccountDataEntityNEW,
-  SessionEntityNEW,
-  UserEntityNEW,
-} from 'apps/app/src/features/user/user/domain/account-data.entity';
+import { EntityFactory } from '../../app/src/features/user/user/domain/account-data.entity';
 
 import { EntityEnum } from './base.repository';
 
@@ -14,14 +10,14 @@ export class EntityHandler {
   getEntityClass({ model }: { model: string }) {
     switch (model) {
       case EntityEnum.user:
-        console.log('UserEntityNEW');
-        return UserEntityNEW;
+        console.log('user');
+        return EntityFactory.createUser;
       case EntityEnum.accountData:
-        console.log('AccountDataEntityNEW');
-        return AccountDataEntityNEW;
+        console.log('accountData');
+        return EntityFactory.createAccountData;
       case EntityEnum.session:
-        console.log('SessionEntityNEW');
-        return SessionEntityNEW;
+        console.log('session');
+        return EntityFactory.createSession;
       default:
         console.log('I am teapot');
     }
