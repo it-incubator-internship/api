@@ -48,5 +48,7 @@ export class RegistrationUserByGoogleHandler implements ICommandHandler<Registra
       const event = new UserOauthRegisreationEvent(newUser.name, newUser.email, 'google');
       this.eventBus.publish(event);
     }
+
+    return { profileId: creationResult.id };
   }
 }
