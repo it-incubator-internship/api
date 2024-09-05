@@ -2,27 +2,55 @@ import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../app/src/common/database_module/prisma-connection.service';
 
+import { EntityHandler } from './entity.handler';
+// import { AccountDataEntityNEW, SessionEntityNEW, UserEntityNEW } from 'apps/app/src/features/user/user/domain/account-data.entity';
+
 export enum EntityEnum {
   user = 'user',
   accountData = 'accountData',
   session = 'session',
 }
 
+// export class EntityHandler {
+//   entity: EntityEnum;
+//   constructor(value: EntityEnum) {
+//     this.entity = value;
+//   }
+//   getEntityClass() {
+//     switch (this.entity) {
+//       case EntityEnum.user:
+//         console.log('UserEntityNEW');
+//         return UserEntityNEW;
+//       case EntityEnum.accountData:
+//         console.log('AccountDataEntityNEW');
+//         return AccountDataEntityNEW;
+//       case EntityEnum.session:
+//         console.log('SessionEntityNEW');
+//         return SessionEntityNEW;
+//       default:
+//         console.log('I am teapot');
+//     }
+//   }
+// }
+
 @Injectable()
 export class BaseRepository {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly entityHandler: EntityHandler
+  ) {}
 
   async findFirstOne({
     modelName,
     conditions,
   }: {
-    modelName: string;
+    modelName: EntityEnum;
     conditions: /* { value: string } */ Record<string, any>;
   }): Promise<any | null> {
     console.log('modelName in base repository (findFirstOne):', modelName);
     console.log('conditions in base repository (findFirstOne):', conditions);
 
-    const searchResult = await this.prismaService[modelName].findFirst({
+    const searchResult = await this.prismaService[modelName as string].findFirst({
       where: conditions /* .value */,
     });
     console.log('searchResult in base repository:', searchResult);
@@ -31,6 +59,8 @@ export class BaseRepository {
       console.log('!searchResult');
       return null;
     }
+
+    const entity = this.entityHandler.getEntityClass({ model: modelName as string });
 
     // return modelName.convert(user);
     // return UserEntity.convert(searchResult);
@@ -69,7 +99,7 @@ export class BaseRepository {
     conditions,
     data,
   }: {
-    modelName: string;
+    modelName: EntityEnum;
     conditions: /* { value: string } */ Record<string, any>;
     data: Record<string, any>;
   }): Promise<any> {
@@ -77,7 +107,7 @@ export class BaseRepository {
     console.log('conditions in base repository (updateOne):', conditions);
     console.log('data in base repository (updateOne):', data);
 
-    const updatedEntity = await this.prismaService[modelName].update({
+    const updatedEntity = await this.prismaService[modelName as string].update({
       where: conditions,
       data,
     });
