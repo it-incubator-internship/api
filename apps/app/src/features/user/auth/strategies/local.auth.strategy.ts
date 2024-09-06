@@ -3,11 +3,16 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { compare } from 'bcryptjs';
 
-import { UserRepository } from '../../user/repository/user.repository';
+// import { UserRepository } from '../../user/repository/user.repository';
+import { UserRepo } from '../../user/repository/user.repo';
+import { EntityEnum } from '../../../../../../common/repository/base.repository';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly userRepository: UserRepository) {
+  constructor(
+    // private readonly userRepository: UserRepository
+    private readonly userRepo: UserRepo,
+  ) {
     super({
       usernameField: 'email', // меняем ключ в body с 'username' на 'email'
     });
@@ -18,7 +23,11 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
       return null;
     }
 
-    const user = await this.userRepository.findUserByEmail({ email });
+    // const user = await this.userRepository.findUserByEmail({ email });
+    const user = await this.userRepo.findFirstOne({
+      modelName: EntityEnum.user,
+      conditions: { email },
+    });
 
     if (!user) {
       return null;

@@ -2,7 +2,7 @@ import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { hashSync } from 'bcryptjs';
 
 import { RegistrationUserInputModel } from '../../dto/input/registration.user.dto';
-import { UserRepository } from '../../../user/repository/user.repository';
+// import { UserRepository } from '../../../user/repository/user.repository';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
@@ -10,6 +10,7 @@ import { hashRounds } from '../../../../../common/constants/constants';
 import { AccountDataEntityNEW, UserEntityNEW } from '../../../user/domain/account-data.entity';
 import { UserRegistrationEvent } from '../../../user/domain/events/user-registration.event';
 import { $Enums } from '../../../../../../prisma/client';
+import { UserRepo } from '../../../user/repository/user.repo';
 
 import ConfirmationStatus = $Enums.ConfirmationStatus;
 
@@ -20,7 +21,8 @@ export class RegistrationUserCommand {
 @CommandHandler(RegistrationUserCommand)
 export class RegistrationUserHandler implements ICommandHandler<RegistrationUserCommand> {
   constructor(
-    private readonly userRepository: UserRepository,
+    // private readonly userRepository: UserRepository,
+    private readonly userRepo: UserRepo,
     private readonly eventBus: EventBus,
     private readonly jwtAdapter: JwtAdapter,
   ) {}
@@ -46,7 +48,8 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
       passwordHash,
     });
 
-    const userFromDB = await this.userRepository.createUser(newUser);
+    // const userFromDB = await this.userRepository.createUser(newUser);
+    const userFromDB = await this.userRepo.createUser(newUser);
 
     const newAccountData = AccountDataEntityNEW.createForDatabase({
       profileId: userFromDB.id,
@@ -57,7 +60,8 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
       googleId: null,
     });
 
-    await this.userRepository.createAccountData(newAccountData);
+    //await this.userRepository.createAccountData(newAccountData);
+    await this.userRepo.createAccountData(newAccountData);
 
     const event = new UserRegistrationEvent(userFromDB.name, email, newAccountData.confirmationCode);
 
@@ -79,7 +83,8 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
   }
 
   private async checkAvailability(email: string, userName: string) {
-    const userByEmail = await this.userRepository.findUserByEmailOrName({ email, name: userName });
+    // const userByEmail = await this.userRepository.findUserByEmailOrName({ email, name: userName });
+    const userByEmail = await this.userRepo.findUserByEmailOrName({ email, name: userName });
     if (userByEmail && userByEmail.email.toLowerCase() === email.toLowerCase()) {
       return this.createError(
         'User with this email is already registered',

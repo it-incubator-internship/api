@@ -4,14 +4,17 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 
-import { SessionRepository } from '../repository/session.repository';
+// import { SessionRepository } from '../repository/session.repository';
 import { secondToMillisecond } from '../../../../common/constants/constants';
 import { ConfigurationType } from '../../../../common/settings/configuration';
+import { SessionRepo } from '../repository/session.repo';
+import { EntityEnum } from '../../../../../../common/repository/base.repository';
 
 @Injectable()
 export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh-token') {
   constructor(
-    private readonly sessionRepository: SessionRepository,
+    // private readonly sessionRepository: SessionRepository,
+    private readonly sessionRepo: SessionRepo,
     private readonly configService: ConfigService<ConfigurationType, true>,
   ) {
     const jwtSetting = configService.get('jwtSetting', { infer: true });
@@ -29,7 +32,11 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh-tok
   }
 
   async validate(payload: any) {
-    const session = await this.sessionRepository.findSessionByDeviceUuid({ deviceUuid: payload.deviceUuid });
+    // const session = await this.sessionRepository.findSessionByDeviceUuid({ deviceUuid: payload.deviceUuid });
+    const session = await this.sessionRepo.findUniqueOne({
+      modelName: EntityEnum.session,
+      conditions: { deviceUuid: payload.deviceUuid },
+    });
 
     if (!session) {
       return null;

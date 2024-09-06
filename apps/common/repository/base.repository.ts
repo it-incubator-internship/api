@@ -13,8 +13,8 @@ export enum EntityEnum {
 @Injectable()
 export class BaseRepository {
   constructor(
-    private readonly prismaService: PrismaService,
-    private readonly entityHandler: EntityHandler,
+    protected readonly prismaService: PrismaService,
+    protected readonly entityHandler: EntityHandler,
   ) {}
 
   async findFirstOne({
