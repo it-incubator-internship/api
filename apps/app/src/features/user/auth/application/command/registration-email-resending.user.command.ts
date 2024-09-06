@@ -34,7 +34,7 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
 
     const userAccountData = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.accountData,
-      conditions: { googleId: user.id },
+      conditions: { profileId: user.id },
     });
     if (!userAccountData) return this.createError('Account data not found', 'email');
 
