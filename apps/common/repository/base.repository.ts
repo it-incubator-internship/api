@@ -68,7 +68,7 @@ export class BaseRepository {
   }): Promise<any> {
     const updatedResult = await this.prismaService[modelName as string].update({
       where: conditions,
-      data,
+      data: data,
     });
 
     if (!updatedResult) {

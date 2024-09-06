@@ -38,7 +38,7 @@ export class UserEntityNEW implements User {
   ): Prisma.UserCreateInput {
     return {
       name: data.name,
-      email: data.email,
+      email: data.email.toLowerCase(),
       passwordHash: data.passwordHash,
       banStatus: 'NOT_BANNED',
     };

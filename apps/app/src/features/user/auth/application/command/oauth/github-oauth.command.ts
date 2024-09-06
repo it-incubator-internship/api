@@ -50,6 +50,12 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
       conditions: { profileId: userId },
       data: { githubId: providerId },
     });
+
+    await this.userRepository.updateOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: userId },
+      data: { githubId: providerId },
+    });
   }
 
   private async createNewUser({ id, displayName, email }): Promise<{ userId: string }> {
@@ -100,7 +106,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   private async checkExistUser({ email }: { email: string }) {
     const user = await this.userRepository.findFirstOne({
       modelName: EntityEnum.user,
-      conditions: { email },
+      conditions: { email: email.toLowerCase() },
     });
     return user ? { userId: user.id } : null;
   }
