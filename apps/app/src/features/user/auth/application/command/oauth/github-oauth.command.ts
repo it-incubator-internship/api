@@ -48,7 +48,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
     await this.userRepository.updateOne({
       modelName: EntityEnum.accountData,
       conditions: { profileId: userId },
-      data: { githudId: providerId },
+      data: { githubId: providerId },
     });
   }
 
