@@ -117,11 +117,11 @@ spec:
                  secretKeyRef:
                    name: app-4-try-production-config-secret
                    key: GITHUB_CALLBACK_URL
-             - name: RECAPTCHA_SECRET_KEY
+             - name: RECAPTCHA_SECRET
                valueFrom:
                  secretKeyRef:
                    name: app-4-try-production-config-secret
-                   key: RECAPTCHA_SECRET_KEY
+                   key: RECAPTCHA_SECRET
              - name: DATABASE_APP_URL
                valueFrom:
                  secretKeyRef:
