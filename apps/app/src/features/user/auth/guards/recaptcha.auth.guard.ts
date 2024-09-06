@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { ConfigurationType } from '../../../../common/settings/configuration';
 import { UserRepository } from '../../user/repository/user.repository';
 import { BadRequestError, ForbiddenError } from '../../../../../../common/utils/result/custom-error';
+import { EntityEnum } from '../../../../../../common/repository/base.repository';
 
 type RecaptchaResponse = {
   success: true | false;
@@ -46,7 +47,11 @@ export class RecaptchaAuthGuard implements CanActivate {
       throw new ForbiddenError('user email missing');
     }
 
-    const user = await this.userRepository.findUserByEmail({ email });
+    // const user = await this.userRepository.findUserByEmail({ email });
+    const user = await this.userRepository.findFirstOne({
+      modelName: EntityEnum.user,
+      conditions: { email },
+    });
 
     if (!user) {
       throw new BadRequestError(`User with this email doesn't exist`, [
@@ -60,10 +65,11 @@ export class RecaptchaAuthGuard implements CanActivate {
 
   private async getScore({ recaptchaToken }: { recaptchaToken: string }): Promise<number> {
     // секретный ключ reCAPTCHA
-    const secretKey = this.configService.get('recaptchaSettings.secret', { infer: true });
+    const secretKey = this.configService.get('recaptchaSettings.recaptchaSecret', { infer: true });
+    const recaptchaURL = this.configService.get('recaptchaSettings.recaptchaURL', { infer: true });
 
     const response = await lastValueFrom(
-      this.httpService.post<RecaptchaResponse>(`https://www.google.com/recaptcha/api/siteverify`, null, {
+      this.httpService.post<RecaptchaResponse>(recaptchaURL, null, {
         params: {
           secret: secretKey,
           response: recaptchaToken,

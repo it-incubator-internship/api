@@ -6,6 +6,7 @@ import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
 import { $Enums } from '../../../../../../prisma/client';
+import { EntityEnum } from '../../../../../../../common/repository/base.repository';
 
 import ConfirmationStatus = $Enums.ConfirmationStatus;
 
@@ -28,7 +29,10 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
     if (verificationError) return verificationError;
 
     // Поиск данных аккаунта пользователя
-    const userAccountData = await this.userRepository.findAccountDataByConfirmationCode({ confirmationCode: code });
+    const userAccountData = await this.userRepository.findFirstOne({
+      modelName: EntityEnum.accountData,
+      conditions: { confirmationCode: code },
+    });
 
     if (!userAccountData) {
       return this.createError('UserAccountData not found', 'UserAccountData not found', 'code');
@@ -40,7 +44,11 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
 
     // Подтверждение регистрации и обновление данных аккаунта
     userAccountData.confirmationRegistration();
-    await this.userRepository.updateAccountData(userAccountData);
+    await this.userRepository.updateOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: userAccountData.profileId },
+      data: userAccountData,
+    });
 
     return ObjResult.Ok();
   }

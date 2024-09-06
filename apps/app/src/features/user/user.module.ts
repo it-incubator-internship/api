@@ -7,6 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
 import { PrismaModule } from '../../common/database_module/prisma.module';
+import { EntityHandler } from '../../../../common/repository/entity.handler';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
@@ -70,6 +71,14 @@ const adapters = [JwtAdapter];
 @Module({
   imports: [HttpModule, EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
   controllers: [AuthController, AuthGoogleController, GithubOauthController],
-  providers: [...userRepositories, ...userService, ...userCommands, ...strategies, ...events, ...adapters],
+  providers: [
+    ...userRepositories,
+    ...userService,
+    ...userCommands,
+    ...strategies,
+    ...events,
+    ...adapters,
+    EntityHandler,
+  ],
 })
 export class UserModule {}

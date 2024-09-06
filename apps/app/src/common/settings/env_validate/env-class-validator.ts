@@ -49,7 +49,7 @@ export class EnvironmentVariables {
   JWT_LIFE_TIME_RECOVERY_CODE: string;
 
   @IsString()
-  RECAPTCHA_SECRET_KEY: string;
+  RECAPTCHA_SECRET: string;
 }
 
 export function validate(config: Record<string, unknown>) {

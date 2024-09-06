@@ -10,6 +10,7 @@ import { UserRepository } from '../../../user/repository/user.repository';
 import { ForbiddenError } from '../../../../../../../common/utils/result/custom-error';
 import { $Enums } from '../../../../../../prisma/client';
 import { SessionEntityNEW } from '../../../user/domain/account-data.entity';
+import { EntityEnum } from '../../../../../../../common/repository/base.repository';
 
 import ConfirmationStatus = $Enums.ConfirmationStatus;
 
@@ -27,7 +28,10 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
   async execute(command: LoginUserCommand): Promise<ObjResult<{ accessToken: string; refreshToken: string }>> {
     const deviceUuid = randomUUID();
 
-    const user = await this.userRepository.findAccountDataById({ id: command.inputModel.userId });
+    const user = await this.userRepository.findUniqueOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: command.inputModel.userId },
+    });
 
     if (user!.confirmationStatus === ConfirmationStatus.NOT_CONFIRM) {
       return ObjResult.Err(new ForbiddenError(`User with this email doesn't exist`));

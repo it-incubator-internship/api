@@ -3,6 +3,7 @@ import { randomBytes, randomUUID } from 'crypto';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { hashSync } from 'bcryptjs';
 
+import { EntityEnum } from '../../../../../../../../common/repository/base.repository';
 import { GithubData } from '../../../controller/passport/github/github-oauth.strategy';
 import { UserRepository } from '../../../../user/repository/user.repository';
 import { generatePassword } from '../../../../../../../../common/utils/password-generator';
@@ -43,7 +44,12 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   }
 
   private async addProviderToUser({ userId, providerId }) {
-    await this.userRepository.addAccountDataGitHubProvider({ userId, providerId });
+    // await this.userRepository.addAccountDataGitHubProvider({ userId, providerId });
+    await this.userRepository.updateOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: userId },
+      data: { githudId: providerId },
+    });
   }
 
   private async createNewUser({ id, displayName, email }): Promise<{ userId: string }> {
@@ -78,7 +84,10 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   }
 
   private async generateUserName(userName: string): Promise<string> {
-    const existingUser = await this.userRepository.findUserByUserName({ userName });
+    const existingUser = await this.userRepository.findUniqueOne({
+      modelName: EntityEnum.user,
+      conditions: { name: userName },
+    });
 
     if (existingUser) {
       const randomSuffix = randomBytes(3).toString('hex');
@@ -89,7 +98,10 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   }
 
   private async checkExistUser({ email }: { email: string }) {
-    const user = await this.userRepository.findUserByEmail({ email });
+    const user = await this.userRepository.findFirstOne({
+      modelName: EntityEnum.user,
+      conditions: { email },
+    });
     return user ? { userId: user.id } : null;
   }
 }
