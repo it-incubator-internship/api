@@ -7,6 +7,7 @@ import { ObjResult } from '../../../../../../../common/utils/result/object-resul
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
 import { UserResendRegCodeEvent } from '../../../user/domain/events/user-resend-reg-code.event';
 import { $Enums } from '../../../../../../prisma/client';
+import { EntityEnum } from '../../../../../../../common/repository/base.repository';
 
 import ConfirmationStatus = $Enums.ConfirmationStatus;
 
@@ -25,10 +26,16 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
   async execute(command: RegistrationEmailResendingCommand): Promise<any> {
     const { email } = command.inputModel;
 
-    const user = await this.userRepository.findUserByEmail({ email });
+    const user = await this.userRepository.findFirstOne({
+      modelName: EntityEnum.user,
+      conditions: { email },
+    });
     if (!user) return this.createError('User not found', 'email');
 
-    const userAccountData = await this.userRepository.findAccountDataById({ id: user.id });
+    const userAccountData = await this.userRepository.findUniqueOne({
+      modelName: EntityEnum.accountData,
+      conditions: { googleId: user.id },
+    });
     if (!userAccountData) return this.createError('Account data not found', 'email');
 
     if (userAccountData.confirmationStatus === ConfirmationStatus.CONFIRM) {
@@ -38,7 +45,11 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
     const { confirmationCode } = await this.jwtAdapter.createConfirmationCode({ email });
     userAccountData.updateConfirmationCode({ confirmationCode });
 
-    await this.userRepository.updateAccountData(userAccountData);
+    await this.userRepository.updateOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: userAccountData.profileId },
+      data: userAccountData,
+    });
 
     const event = new UserResendRegCodeEvent(user.name, user.email, confirmationCode);
 

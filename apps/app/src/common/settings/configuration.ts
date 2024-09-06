@@ -49,12 +49,13 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       callbackURL: environmentVariables.GITHUB_CALLBACK_URL,
     },
 
-    getAllVariables: {
-      ...environmentVariables,
+    recaptchaSettings: {
+      recaptchaSecret: environmentVariables.RECAPTCHA_SECRET,
+      recaptchaURL: 'https://www.google.com/recaptcha/api/siteverify',
     },
 
-    recaptchaSettings: {
-      secret: environmentVariables.RECAPTCHA_SECRET_KEY,
+    getAllVariables: {
+      ...environmentVariables,
     },
   };
 };
@@ -77,18 +78,21 @@ export const configuration = () => {
   const allowedVariables = [
     'NODE_ENV',
     'PORT',
+    //DATABASE
     'DATABASE_APP_URL',
+    'SHADOW_DATABASE_URL',
+    //JWT
     'JWT_SECRET_ACCESS',
     'JWT_SECRET_REFRESH',
     'JWT_SECRET_CONFIRMATION_CODE',
     'JWT_SECRET_RECOVERY_CODE',
-    'GMAIL_USER',
-    'GMAIL_PASS',
-    'SHADOW_DATABASE_URL',
     'JWT_LIFE_TIME_ACCESS',
     'JWT_LIFE_TIME_REFRESH',
     'JWT_LIFE_TIME_CONFIRMATION_CODE',
     'JWT_LIFE_TIME_RECOVERY_CODE',
+    //MAIL
+    'GMAIL_USER',
+    'GMAIL_PASS',
     //OAUTH
     'GITHUB_CLIENT_ID',
     'GITHUB_CLIENT_SECRET',
@@ -96,7 +100,8 @@ export const configuration = () => {
     'GOOGLE_CLIENT_ID',
     'GOOGLE_CLIENT_SECRET',
     'GOOGLE_CALLBACK_URL',
-    'RECAPTCHA_SECRET_KEY',
+    //RECAPTCHA
+    'RECAPTCHA_SECRET',
   ];
 
   //Эти значения выводятся в сваггере
