@@ -1,10 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-// import { SessionRepository } from '../../repository/session.repository';
+import { SessionRepository } from '../../repository/session.repository';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { secondToMillisecond } from '../../../../../common/constants/constants';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
-import { SessionRepo } from '../../repository/session.repo';
 import { EntityEnum } from '../../../../../../../common/repository/base.repository';
 
 export class TokensPair {
@@ -19,13 +18,11 @@ export class RefreshTokenCommand {
 @CommandHandler(RefreshTokenCommand)
 export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand> {
   constructor(
-    // private readonly sessionRepository: SessionRepository,
-    private readonly sessionRepo: SessionRepo,
+    private readonly sessionRepository: SessionRepository,
     private readonly jwtAdapter: JwtAdapter,
   ) {}
   async execute(command: RefreshTokenCommand): Promise<ObjResult<TokensPair>> {
-    // const session = await this.sessionRepository.findSessionByDeviceUuid({ deviceUuid: command.inputModel.deviceUuid });
-    const session = await this.sessionRepo.findUniqueOne({
+    const session = await this.sessionRepository.findUniqueOne({
       modelName: EntityEnum.session,
       conditions: { deviceUuid: command.inputModel.deviceUuid },
     });
@@ -41,7 +38,11 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
     session!.updateLastActiveDate({ lastActiveDate });
 
     // await this.sessionRepository.updateLastActiveDataInSession(session!);
-    await this.sessionRepo.updateLastActiveDataInSession(session!);
+    await this.sessionRepository.updateOne({
+      modelName: EntityEnum.session,
+      conditions: { id: session.id },
+      data: session,
+    });
 
     return ObjResult.Ok({ accessToken, refreshToken });
   }

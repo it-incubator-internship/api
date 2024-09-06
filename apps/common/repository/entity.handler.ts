@@ -3,24 +3,14 @@ import { EntityFactory } from '../../app/src/features/user/user/domain/account-d
 import { EntityEnum } from './base.repository';
 
 export class EntityHandler {
-  //entity: EntityEnum;
-  constructor(/* value: EntityEnum */) {
-    //this.entity = value;
-  }
-  getEntityClass({ model }: { model: string }) {
-    console.log('model in entity handler:', model);
+  getEntityClass({ model, entity }: { model: string; entity: any }) {
     switch (model) {
       case EntityEnum.user:
-        console.log('user');
-        return EntityFactory.createUser;
+        return EntityFactory.createUser(entity);
       case EntityEnum.accountData:
-        console.log('accountData');
-        return EntityFactory.createAccountData;
+        return EntityFactory.createAccountData(entity);
       case EntityEnum.session:
-        console.log('session');
-        return EntityFactory.createSession;
-      default:
-        console.log('I am teapot');
+        return EntityFactory.createSession(entity);
     }
   }
 }

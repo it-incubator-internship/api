@@ -1,14 +1,13 @@
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { hashSync } from 'bcryptjs';
 
-// import { UserRepository } from '../../../user/repository/user.repository';
+import { UserRepository } from '../../../user/repository/user.repository';
 import { EntityEnum } from '../../../../../../../common/repository/base.repository';
 import { NewPasswordInputModel } from '../../dto/input/new-password.user.dto';
 import { hashRounds } from '../../../../../common/constants/constants';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError, NotFoundError } from '../../../../../../../common/utils/result/custom-error';
-import { UserRepo } from '../../../user/repository/user.repo';
 
 import { DeletionSessionsCommand } from './deletion-sessions.command';
 
@@ -19,8 +18,7 @@ export class SetNewPasswordCommand {
 @CommandHandler(SetNewPasswordCommand)
 export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordCommand> {
   constructor(
-    // private readonly userRepository: UserRepository,
-    private readonly userRepo: UserRepo,
+    private readonly userRepository: UserRepository,
     private readonly jwtAdapter: JwtAdapter,
     private commandBus: CommandBus,
   ) {}
@@ -37,10 +35,7 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
     // верификация recoveryCode
     await this.jwtAdapter.verifyRecoveryCode({ recoveryCode: command.inputModel.code });
 
-    // const accountData = await this.userRepository.findAccountDataByRecoveryCode({
-    //   recoveryCode: command.inputModel.code,
-    // });
-    const accountData = await this.userRepo.findFirstOne({
+    const accountData = await this.userRepository.findFirstOne({
       modelName: EntityEnum.accountData,
       conditions: { recoveryCode: command.inputModel.code },
     });
@@ -49,8 +44,7 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
       return ObjResult.Err(new NotFoundError('AccountData not found'));
     }
 
-    // const user = await this.userRepository.findUserById({ id: accountData.profileId });
-    const user = await this.userRepo.findUniqueOne({
+    const user = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.user,
       conditions: { id: accountData.profileId },
     });
@@ -63,8 +57,7 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
 
     user.updatePasswordHash({ passwordHash });
 
-    // await this.userRepository.updateUser(user);
-    await this.userRepo.updateOne({
+    await this.userRepository.updateOne({
       modelName: EntityEnum.user,
       conditions: { id: user.id },
       data: user,

@@ -5,12 +5,11 @@ import { hashSync } from 'bcryptjs';
 
 import { EntityEnum } from '../../../../../../../../common/repository/base.repository';
 import { GithubData } from '../../../controller/passport/github/github-oauth.strategy';
-// import { UserRepository } from '../../../../user/repository/user.repository';
+import { UserRepository } from '../../../../user/repository/user.repository';
 import { generatePassword } from '../../../../../../../../common/utils/password-generator';
 import { ObjResult } from '../../../../../../../../common/utils/result/object-result';
 import { UserOauthRegisreationEvent } from '../../events/user-oauth-regisreation.event';
 import { AccountDataEntityNEW, UserEntityNEW } from '../../../../user/domain/account-data.entity';
-import { UserRepo } from '../../../../user/repository/user.repo';
 import { $Enums } from '../../../../../../../prisma/client';
 
 import ConfirmationStatus = $Enums.ConfirmationStatus;
@@ -22,8 +21,7 @@ export class GithubOauthCommand {
 @CommandHandler(GithubOauthCommand)
 export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   constructor(
-    // private readonly userRepository: UserRepository,
-    private readonly userRepo: UserRepo,
+    private readonly userRepository: UserRepository,
     private readonly eventBus: EventBus,
   ) {}
 
@@ -45,9 +43,13 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
     return ObjResult.Ok({ userId });
   }
 
-  private async addProviderToUser({ userId, providerId }) {
+  private async addProviderToUser({ userId, providerId }: { userId; providerId }) {
     // await this.userRepository.addAccountDataGitHubProvider({ userId, providerId });
-    await this.userRepo.addAccountDataGitHubProvider({ userId, providerId });
+    await this.userRepository.updateOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: userId },
+      data: { githudId: providerId },
+    });
   }
 
   private async createNewUser({ id, displayName, email }): Promise<{ userId: string }> {
@@ -60,8 +62,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
       passwordHash: hashSync(password, 10),
     });
 
-    // const userFromDb = await this.userRepository.createUser(newUser);
-    const userFromDb = await this.userRepo.createUser(newUser);
+    const userFromDb = await this.userRepository.createUser(newUser);
 
     const accountData = AccountDataEntityNEW.createForDatabase({
       profileId: userFromDb.id,
@@ -72,8 +73,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
       googleId: null,
     });
 
-    // await this.userRepository.createAccountData(accountData);
-    await this.userRepo.createAccountData(accountData);
+    await this.userRepository.createAccountData(accountData);
 
     if (newUser.email.length > 2) {
       const event = new UserOauthRegisreationEvent(newUser.name, newUser.email, 'github');
@@ -84,8 +84,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   }
 
   private async generateUserName(userName: string): Promise<string> {
-    // const existingUser = await this.userRepository.findUserByUserName({ userName });
-    const existingUser = await this.userRepo.findUniqueOne({
+    const existingUser = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.user,
       conditions: { name: userName },
     });
@@ -99,8 +98,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   }
 
   private async checkExistUser({ email }: { email: string }) {
-    // const user = await this.userRepository.findUserByEmail({ email });
-    const user = await this.userRepo.findFirstOne({
+    const user = await this.userRepository.findFirstOne({
       modelName: EntityEnum.user,
       conditions: { email },
     });

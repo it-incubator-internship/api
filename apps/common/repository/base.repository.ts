@@ -24,24 +24,15 @@ export class BaseRepository {
     modelName: EntityEnum;
     conditions: Record<string, any>;
   }): Promise<any | null> {
-    console.log('modelName in base repository (findFirstOne):', modelName);
-    console.log('conditions in base repository (findFirstOne):', conditions);
-
     const searchResult = await this.prismaService[modelName as string].findFirst({
       where: conditions,
     });
-    console.log('searchResult in base repository:', searchResult);
 
     if (!searchResult) {
-      console.log('!searchResult');
       return null;
     }
 
-    const entityClass = this.entityHandler.getEntityClass({ model: modelName as string });
-    console.log('entityClass in base repository (findFirstOne):', entityClass);
-
-    const result = entityClass!(searchResult);
-    console.log('result in base repository (findFirstOne):', result);
+    const result = this.entityHandler.getEntityClass({ model: modelName as string, entity: searchResult });
 
     return result;
   }
@@ -53,24 +44,15 @@ export class BaseRepository {
     modelName: string;
     conditions: Record<string, any>;
   }): Promise<any | null> {
-    console.log('modelName in base repository (findUniqueOne):', modelName);
-    console.log('conditions in base repository (findUniqueOne):', conditions);
-
     const searchResult = await this.prismaService[modelName].findUnique({
       where: conditions,
     });
-    console.log('searchResult in base repository:', searchResult);
 
     if (!searchResult) {
-      console.log('!searchResult');
       return null;
     }
 
-    const entityClass = this.entityHandler.getEntityClass({ model: modelName as string });
-    console.log('entityClass in base repository (findFirstOne):', entityClass);
-
-    const result = entityClass!(searchResult);
-    console.log('result in base repository (findFirstOne):', result);
+    const result = this.entityHandler.getEntityClass({ model: modelName as string, entity: searchResult });
 
     return result;
   }
@@ -84,17 +66,17 @@ export class BaseRepository {
     conditions: Record<string, any>;
     data: Record<string, any>;
   }): Promise<any> {
-    console.log('modelName in base repository (updateOne):', modelName);
-    console.log('conditions in base repository (updateOne):', conditions);
-    console.log('data in base repository (updateOne):', data);
-
-    const updatedEntity = await this.prismaService[modelName as string].update({
+    const updatedResult = await this.prismaService[modelName as string].update({
       where: conditions,
       data,
     });
 
-    console.log('updatedEntity in base repository (updateOne):', updatedEntity);
+    if (!updatedResult) {
+      return null;
+    }
 
-    return updatedEntity;
+    const result = this.entityHandler.getEntityClass({ model: modelName as string, entity: updatedResult });
+
+    return result;
   }
 }

@@ -1,11 +1,10 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { hashSync } from 'bcryptjs';
 
-// import { UserRepository } from '../../../user/repository/user.repository';
+import { UserRepository } from '../../../user/repository/user.repository';
 import { hashRounds } from '../../../../../common/constants/constants';
 import { UserOauthRegisreationEvent } from '../events/user-oauth-regisreation.event';
 import { AccountDataEntityNEW, UserEntityNEW } from '../../../user/domain/account-data.entity';
-import { UserRepo } from '../../../user/repository/user.repo';
 
 export class RegistrationUserByGoogleCommand {
   constructor(public inputModel: { googleId: string; password: string; email: string; userName: string }) {}
@@ -14,8 +13,7 @@ export class RegistrationUserByGoogleCommand {
 @CommandHandler(RegistrationUserByGoogleCommand)
 export class RegistrationUserByGoogleHandler implements ICommandHandler<RegistrationUserByGoogleCommand> {
   constructor(
-    // private readonly userRepository: UserRepository,
-    private readonly userRepo: UserRepo,
+    private readonly userRepository: UserRepository,
     private readonly eventBus: EventBus,
   ) {}
 
@@ -30,8 +28,7 @@ export class RegistrationUserByGoogleHandler implements ICommandHandler<Registra
       passwordHash,
     });
 
-    // const creationResult = await this.userRepository.createUser(newUser);
-    const creationResult = await this.userRepo.createUser(newUser);
+    const creationResult = await this.userRepository.createUser(newUser);
 
     const accountDataForDB = AccountDataEntityNEW.createForDatabase({
       profileId: creationResult.id,
@@ -42,8 +39,7 @@ export class RegistrationUserByGoogleHandler implements ICommandHandler<Registra
       googleId,
     });
 
-    // await this.userRepository.createAccountData(accountDataForDB);
-    await this.userRepo.createAccountData(accountDataForDB);
+    await this.userRepository.createAccountData(accountDataForDB);
 
     if (newUser.email.length > 2) {
       const event = new UserOauthRegisreationEvent(newUser.name, newUser.email, 'google');

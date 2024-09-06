@@ -9,7 +9,7 @@ import { MailModule } from '../../providers/mailer/mail.module';
 import { PrismaModule } from '../../common/database_module/prisma.module';
 import { EntityHandler } from '../../../../common/repository/entity.handler';
 
-// import { UserRepository } from './user/repository/user.repository';
+import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
 import { RegistrationUserHandler } from './auth/application/command/registrarion.user.command';
 import { RegistrationEmailResendingHandler } from './auth/application/command/registration-email-resending.user.command';
@@ -38,10 +38,8 @@ import { SendEmailAfterOauthRegistrationEventHandler } from './auth/application/
 import { RecaptchaAuthGuard } from './auth/guards/recaptcha.auth.guard';
 import { SendNewPasswordRecoveryEmailWhenUserAskIt } from './auth/application/events-handlers/send-password-change-code-when-user-ask-it.event.handler';
 import { SendNewConfirmEmailWhenUserAskItEventHandler } from './auth/application/events-handlers/send-new-confirm-email-when-user-ask-it.event.handler';
-import { UserRepo } from './user/repository/user.repo';
-import { SessionRepo } from './auth/repository/session.repo';
 
-const userRepositories = [/* UserRepository, */ UserRepo, /* SessionRepository, */ SessionRepo, UserQueryRepository];
+const userRepositories = [UserRepository, SessionRepository, UserQueryRepository];
 const userService = [OauthService];
 const userCommands = [
   RegistrationUserHandler,

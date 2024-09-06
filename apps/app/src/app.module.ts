@@ -10,16 +10,14 @@ import { UserModule } from './features/user/user.module';
 import { configuration } from './common/settings/configuration';
 import { Environments } from './common/settings/env_validate/env-class-validator';
 import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-env-path';
-// import { UserRepository } from './features/user/user/repository/user.repository';
+import { UserRepository } from './features/user/user/repository/user.repository';
 import { SessionRepository } from './features/user/auth/repository/session.repository';
 import { PrismaService } from './common/database_module/prisma-connection.service';
 import { CleaningModule } from './features/cleaning/cleaning.module';
-import { UserRepo } from './features/user/user/repository/user.repo';
-import { SessionRepo } from './features/user/auth/repository/session.repo';
 
 const environment = process.env.NODE_ENV as Environments;
 
-const ybrat = [/* UserRepository, */ UserRepo, /* SessionRepository, */ SessionRepo, PrismaService, BaseRepository, EntityHandler];
+const ybrat = [UserRepository, SessionRepository, PrismaService, BaseRepository, EntityHandler];
 
 @Module({
   imports: [

@@ -1,12 +1,11 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 
 import { EmailInputModel } from '../../dto/input/email.user.dto';
-// import { UserRepository } from '../../../user/repository/user.repository';
+import { UserRepository } from '../../../user/repository/user.repository';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { UserNewPasswordRegCodeEvent } from '../../../user/domain/events/user-new-password-reg-code.event';
-import { UserRepo } from '../../../user/repository/user.repo';
 import { EntityEnum } from '../../../../../../../common/repository/base.repository';
 
 export class PasswordRecoveryCommand {
@@ -16,14 +15,12 @@ export class PasswordRecoveryCommand {
 @CommandHandler(PasswordRecoveryCommand)
 export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecoveryCommand> {
   constructor(
-    // private readonly userRepository: UserRepository,
-    private readonly userRepo: UserRepo,
+    private readonly userRepository: UserRepository,
     private readonly eventBus: EventBus,
     private readonly jwtAdapter: JwtAdapter,
   ) {}
   async execute(command: PasswordRecoveryCommand): Promise<any> {
-    //const user = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
-    const user = await this.userRepo.findFirstOne({
+    const user = await this.userRepository.findFirstOne({
       modelName: EntityEnum.user,
       conditions: { email: command.inputModel.email },
     });
@@ -39,8 +36,7 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
       );
     }
 
-    // const userAccountData = await this.userRepository.findAccountDataById({ id: user.id });
-    const userAccountData = await this.userRepo.findUniqueOne({
+    const userAccountData = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.accountData,
       conditions: { profileId: user.id },
     });
@@ -54,8 +50,7 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
 
     userAccountData.updateRecoveryCode({ recoveryCode });
 
-    // await this.userRepository.updateAccountData(userAccountData);
-    await this.userRepo.updateOne({
+    await this.userRepository.updateOne({
       modelName: EntityEnum.accountData,
       conditions: { profileId: userAccountData.profileId },
       data: userAccountData,
@@ -63,8 +58,7 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
 
     const event = new UserNewPasswordRegCodeEvent(user.name, user.email, recoveryCode);
 
-    // await this.userRepository.updateAccountData(userAccountData);
-    await this.userRepo.updateOne({
+    await this.userRepository.updateOne({
       modelName: EntityEnum.accountData,
       conditions: { profileId: userAccountData.profileId },
       data: userAccountData,
