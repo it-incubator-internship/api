@@ -36,6 +36,7 @@ import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { MeSwagger } from '../decorators/swagger/me/me.swagger.decorator';
 import { PasswordRecoveryInputModel } from '../dto/input/password-recovery.user.dto';
 import { RecaptchaAuthGuard } from '../guards/recaptcha.auth.guard';
+import { PasswordRecoveryResendingSwagger } from '../decorators/swagger/password-recovery-resend/password-recovery-resending.swagger.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -77,6 +78,16 @@ export class AuthController {
   @Post('password-recovery')
   @PasswordRecoverySwagger()
   async passwordRecovery(@Body() inputModel: PasswordRecoveryInputModel): Promise<UserRegistrationOutputDto> {
+    const result = await this.commandBus.execute(new PasswordRecoveryCommand(inputModel));
+
+    if (!result.isSuccess) throw result.error;
+
+    return { email: inputModel.email };
+  }
+
+  @Post('password-recovery-email-resending')
+  @PasswordRecoveryResendingSwagger()
+  async passwordRecoveryEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
     const result = await this.commandBus.execute(new PasswordRecoveryCommand(inputModel));
 
     if (!result.isSuccess) throw result.error;
