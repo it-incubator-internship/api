@@ -52,6 +52,10 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     getAllVariables: {
       ...environmentVariables,
     },
+
+    recaptchaSettings: {
+      secret: environmentVariables.RECAPTCHA_SECRET_KEY,
+    },
   };
 };
 
@@ -92,6 +96,7 @@ export const configuration = () => {
     'GOOGLE_CLIENT_ID',
     'GOOGLE_CLIENT_SECRET',
     'GOOGLE_CALLBACK_URL',
+    'RECAPTCHA_SECRET_KEY',
   ];
 
   //Эти значения выводятся в сваггере
