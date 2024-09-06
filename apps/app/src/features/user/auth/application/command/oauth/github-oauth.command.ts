@@ -43,7 +43,7 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
     return ObjResult.Ok({ userId });
   }
 
-  private async addProviderToUser({ userId, providerId }: { userId; providerId }) {
+  private async addProviderToUser({ userId, providerId }) {
     // await this.userRepository.addAccountDataGitHubProvider({ userId, providerId });
     await this.userRepository.updateOne({
       modelName: EntityEnum.accountData,

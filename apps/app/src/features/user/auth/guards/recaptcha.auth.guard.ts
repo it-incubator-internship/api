@@ -1,59 +1,13 @@
-import { Request } from 'express';
-import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { Request } from 'express';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 
-import { ConfigurationType } from '../../../../../../app/src/common/settings/configuration';
-
-@Injectable()
-export class RecaptchaAuthGuard implements CanActivate {
-  constructor(
-    private readonly httpService: HttpService,
-    private readonly configService: ConfigService<ConfigurationType, true>,
-  ) {}
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: Request = context.switchToHttp().getRequest();
-
-    // получение токена из запроса
-    const recaptchaToken = request.body!.recaptchaToken;
-
-    if (!recaptchaToken) {
-      console.log('recaptcha token missing');
-      throw new ForbiddenException('reCAPTCHA token missing');
-    }
-
-    // секретный ключ reCAPTCHA
-    // const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz&response';
-    // const secretKey = '6LcEBTQqAAAAACXQPvjFv5JaSqeUOVSk3I2AmCkz';
-    const recaptchaSetting = this.configService.get('recaptchaSettings', { infer: true });
-    const recaptchaSekret = recaptchaSetting.recaptchaSecret as string;
-    const recaptchaURL = recaptchaSetting.recaptchaURL as string;
-
-    const response = await lastValueFrom(
-      this.httpService.post(recaptchaURL, null, {
-        params: {
-          secret: recaptchaSekret,
-          response: recaptchaToken,
-        },
-      }),
-    );
-
-    console.log('recaptcha response', response);
-
-    const { score } = response.data;
-
-    if (!score) {
-      throw new ForbiddenException('reCAPTCHA verification failed');
-    }
-
-    if (score < 0.9) {
-      throw new ForbiddenException('probability that the request was made by a bot');
-    }
-
-    return true;
-  }
-}
+import { ConfigurationType } from '../../../../common/settings/configuration';
+import { UserRepository } from '../../user/repository/user.repository';
+import { BadRequestError, ForbiddenError } from '../../../../../../common/utils/result/custom-error';
+import { EntityEnum } from '../../../../../../common/repository/base.repository';
 
 type RecaptchaResponse = {
   success: true | false;
@@ -62,3 +16,79 @@ type RecaptchaResponse = {
   action: string;
   score: number;
 };
+
+@Injectable()
+export class RecaptchaAuthGuard implements CanActivate {
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService<ConfigurationType, true>,
+    private readonly userRepository: UserRepository,
+  ) {}
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request: Request = context.switchToHttp().getRequest();
+
+    const recaptchaToken = request.body.recaptchaToken;
+    const userEmail = request.body.email;
+
+    if (!recaptchaToken) {
+      throw new ForbiddenError('reCAPTCHA token missing');
+    }
+
+    await this.checkEmail({ email: userEmail });
+
+    const score = await this.getScore({ recaptchaToken });
+    this.checkScore({ score });
+
+    return true;
+  }
+
+  private async checkEmail({ email }: { email: string }) {
+    if (!email) {
+      throw new ForbiddenError('user email missing');
+    }
+
+    // const user = await this.userRepository.findUserByEmail({ email });
+    const user = await this.userRepository.findFirstOne({
+      modelName: EntityEnum.user,
+      conditions: { email },
+    });
+
+    if (!user) {
+      throw new BadRequestError(`User with this email doesn't exist`, [
+        {
+          message: `User with this email doesn't exist`,
+          field: 'email',
+        },
+      ]);
+    }
+  }
+
+  private async getScore({ recaptchaToken }: { recaptchaToken: string }): Promise<number> {
+    // секретный ключ reCAPTCHA
+    const secretKey = this.configService.get('recaptchaSettings.recaptchaSecret', { infer: true });
+    const recaptchaURL = this.configService.get('recaptchaSettings.recaptchaURL', { infer: true });
+
+    const response = await lastValueFrom(
+      this.httpService.post<RecaptchaResponse>(recaptchaURL, null, {
+        params: {
+          secret: secretKey,
+          response: recaptchaToken,
+        },
+      }),
+    );
+
+    const { score } = response.data;
+
+    return score;
+  }
+
+  private checkScore({ score }: { score: number }) {
+    if (!score) {
+      throw new ForbiddenError('reCAPTCHA verification failed');
+    }
+
+    if (score < 0.9) {
+      throw new ForbiddenError('probability that the request was made by a bot');
+    }
+  }
+}

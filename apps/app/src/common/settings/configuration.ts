@@ -51,7 +51,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
 
     recaptchaSettings: {
       recaptchaSecret: environmentVariables.RECAPTCHA_SECRET,
-      recaptchaURL: environmentVariables.RECAPTCHA_URL,
+      recaptchaURL: 'https://www.google.com/recaptcha/api/siteverify',
     },
 
     getAllVariables: {
@@ -102,7 +102,6 @@ export const configuration = () => {
     'GOOGLE_CALLBACK_URL',
     //RECAPTCHA
     'RECAPTCHA_SECRET',
-    'RECAPTCHA_URL',
   ];
 
   //Эти значения выводятся в сваггере

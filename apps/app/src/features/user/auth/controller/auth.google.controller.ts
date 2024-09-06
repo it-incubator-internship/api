@@ -44,8 +44,13 @@ export class AuthGoogleController {
 
     if (!result.isSuccess) throw result.error;
 
+    // Установка refreshToken куки
     res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true, sameSite: 'none' });
 
-    return { accessToken: result.value.accessToken };
+    // Формирование URL для редиректа
+    const redirectUrl = `https://navaibe.ru/authentication?accessToken=${result.value.accessToken}`;
+
+    // Редирект на фронт с accessToken
+    return res.redirect(redirectUrl);
   }
 }
