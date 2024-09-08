@@ -38,8 +38,11 @@ import { SendEmailAfterOauthRegistrationEventHandler } from './auth/application/
 import { RecaptchaAuthGuard } from './auth/guards/recaptcha.auth.guard';
 import { SendNewPasswordRecoveryEmailWhenUserAskIt } from './auth/application/events-handlers/send-password-change-code-when-user-ask-it.event.handler';
 import { SendNewConfirmEmailWhenUserAskItEventHandler } from './auth/application/events-handlers/send-new-confirm-email-when-user-ask-it.event.handler';
+import { SessionQueryRepository } from './auth/repository/session.query.repository';
+import { SessionController } from './auth/controller/session.controller';
 
-const userRepositories = [UserRepository, SessionRepository, UserQueryRepository];
+const userRepositories = [UserRepository, UserQueryRepository];
+const sessionRepositories = [SessionRepository, SessionQueryRepository];
 const userService = [OauthService];
 const userCommands = [
   RegistrationUserHandler,
@@ -70,9 +73,10 @@ const adapters = [JwtAdapter];
 
 @Module({
   imports: [HttpModule, EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
-  controllers: [AuthController, AuthGoogleController, GithubOauthController],
+  controllers: [AuthController, AuthGoogleController, GithubOauthController, SessionController],
   providers: [
     ...userRepositories,
+    ...sessionRepositories,
     ...userService,
     ...userCommands,
     ...strategies,
