@@ -12,7 +12,7 @@ import { MailServiceMock } from './mock/email-service.mock';
 import { UserE2EHelper } from './helpers/user.helper';
 
 dotenv.config({ path: '.test.env' }); // Загружаем тестовую конфигурацию
-describe('Auth e2e', () => {
+describe('Sessions e2e', () => {
   let app: INestApplication;
   let userHelper: UserE2EHelper;
   let prisma: PrismaService;
@@ -109,6 +109,28 @@ describe('Auth e2e', () => {
       });
     });
 
-    it('второй пользователь видит только свои сессии');
+    it('второй пользователь видит только свои сессии', async () => {
+      const user2 = userHelper.userByNumber(2);
+      const user1 = userHelper.userByNumber(1);
+      await userHelper.loginUserByNumber(2);
+      const tokens = userHelper.getTokensPairByNumber(2);
+
+      const response = await request(app.getHttpServer())
+        .get('/sessions')
+        .set('Cookie', `refreshToken=${tokens!.refreshToken}`)
+        .expect(200);
+
+      expect(response.body.length).toEqual(1);
+
+      expect(response.body[0]).toEqual({
+        sessionId: expect.any(String),
+        userId: user2.id,
+        deviceName: expect.any(String),
+        ip: expect.any(String),
+        lastActiveDate: expect.any(String),
+      });
+
+      expect(response.body[0].userId).not.toEqual(user1.id);
+    });
   });
 });
