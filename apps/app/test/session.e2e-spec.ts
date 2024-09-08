@@ -39,9 +39,6 @@ describe('Sessions e2e', () => {
 
     // очистка бд
     await request(app.getHttpServer()).delete('/testing/all-data').expect(200);
-
-    //Создаем 2 пользователей
-    await userHelper.addManyUsers({ count: 2 });
   });
 
   afterAll(async () => {
@@ -49,6 +46,17 @@ describe('Sessions e2e', () => {
   });
 
   describe('get all sessions', () => {
+    beforeAll(async () => {
+      await request(app.getHttpServer()).delete('/testing/all-data').expect(200);
+
+      //Создаем 2 пользователей
+      await userHelper.addManyUsers({ count: 2 });
+    });
+
+    afterAll(async () => {
+      await request(app.getHttpServer()).delete('/testing/all-data').expect(200);
+    });
+
     it('не можем получить сессии без рефреш токена в куках', async () => {
       await request(app.getHttpServer()).get('/sessions').expect(401);
     });
