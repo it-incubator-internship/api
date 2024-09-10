@@ -19,7 +19,7 @@ import { SetNewPasswordHandler } from './auth/application/command/set-new-passwo
 import { LoginUserHandler } from './auth/application/command/login.user.command';
 import { RefreshTokenHandler } from './auth/application/command/refresh-token.command';
 import { LogoutUserHandler } from './auth/application/command/logout.user.command';
-import { DeletionSessionsHandler } from './auth/application/command/deletion-sessions.command';
+import { DeletionSessionsHandler } from './auth/application/command/session/deletion-sessions.command';
 import { SendConfirmEmailWhenUserRegisteredEventHandler } from './auth/application/events-handlers/send-confirm-email-when-user-registered.event.handler';
 import { LocalStrategy } from './auth/strategies/local.auth.strategy';
 import { RefreshStrategy } from './auth/strategies/refresh-token.auth.strategy';
@@ -38,8 +38,12 @@ import { SendEmailAfterOauthRegistrationEventHandler } from './auth/application/
 import { RecaptchaAuthGuard } from './auth/guards/recaptcha.auth.guard';
 import { SendNewPasswordRecoveryEmailWhenUserAskIt } from './auth/application/events-handlers/send-password-change-code-when-user-ask-it.event.handler';
 import { SendNewConfirmEmailWhenUserAskItEventHandler } from './auth/application/events-handlers/send-new-confirm-email-when-user-ask-it.event.handler';
+import { SessionQueryRepository } from './auth/repository/session.query.repository';
+import { SessionController } from './auth/controller/session.controller';
+import { TerminateSessionByIdHandler } from './auth/application/command/session/terminate-session-by-id.command';
 
-const userRepositories = [UserRepository, SessionRepository, UserQueryRepository];
+const userRepositories = [UserRepository, UserQueryRepository];
+const sessionRepositories = [SessionRepository, SessionQueryRepository];
 const userService = [OauthService];
 const userCommands = [
   RegistrationUserHandler,
@@ -57,6 +61,7 @@ const userCommands = [
   GithubOauthHandler,
   RegistrationUserByGoogleHandler,
 ];
+const sessionComands = [TerminateSessionByIdHandler];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler, SendEmailAfterOauthRegistrationEventHandler];
 const strategies = [
   LocalStrategy,
@@ -70,9 +75,11 @@ const adapters = [JwtAdapter];
 
 @Module({
   imports: [HttpModule, EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
-  controllers: [AuthController, AuthGoogleController, GithubOauthController],
+  controllers: [AuthController, AuthGoogleController, GithubOauthController, SessionController],
   providers: [
     ...userRepositories,
+    ...sessionRepositories,
+    ...sessionComands,
     ...userService,
     ...userCommands,
     ...strategies,

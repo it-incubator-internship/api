@@ -72,7 +72,6 @@ export const getAllEnvironmentVariables = (allowedVariables: string[]): Environm
   allowedVariables.reduce((acc, key) => ({ ...acc, [key]: getEnvironmentVariable(key) }), {});
 
 export const configuration = () => {
-  console.log('Configuration function called. NODE_ENV:', process.env.NODE_ENV);
   console.log('PORT from process.env:', process.env.PORT);
 
   const allowedVariables = [
@@ -108,8 +107,8 @@ export const configuration = () => {
   const environmentVariables = getAllEnvironmentVariables(allowedVariables); //; process.env
 
   const currentEnvironment: Environments = environmentVariables.NODE_ENV as Environments;
-  //Валидация переменных с помощью class validator
 
+  //Валидация переменных с помощью class validator
   validate(environmentVariables);
 
   return getConfig(environmentVariables, currentEnvironment);

@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-import { SessionRepository } from '../../repository/session.repository';
-import { ObjResult } from '../../../../../../../common/utils/result/object-result';
+import { SessionRepository } from '../../../repository/session.repository';
+import { ObjResult } from '../../../../../../../../common/utils/result/object-result';
 
 export class DeletionSessionsCommand {
   constructor(public inputModel: { id: string }) {}
