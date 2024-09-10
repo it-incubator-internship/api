@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
 import { Session } from '../../../../../prisma/client';
+import { OutputSession } from '../dto/output/all-sessions.output.dto';
 
 @Injectable()
 export class SessionQueryRepository {
@@ -17,19 +18,11 @@ export class SessionQueryRepository {
 
   private sessionToOutput(session: Session): OutputSession {
     return {
-      sessionId: session.id,
+      sessionId: session.deviceUuid,
       userId: session.profileId,
       deviceName: session.deviceName,
       ip: session.ip,
       lastActiveDate: session.lastActiveDate,
     };
   }
-}
-
-export class OutputSession {
-  sessionId: string;
-  userId: string;
-  deviceName: string;
-  ip: string;
-  lastActiveDate: Date;
 }

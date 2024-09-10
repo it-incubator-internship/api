@@ -9,7 +9,7 @@ import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError, NotFoundError } from '../../../../../../../common/utils/result/custom-error';
 
-import { DeletionSessionsCommand } from './deletion-sessions.command';
+import { DeletionSessionsCommand } from './session/deletion-sessions.command';
 
 export class SetNewPasswordCommand {
   constructor(public inputModel: NewPasswordInputModel) {}

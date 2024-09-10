@@ -21,6 +21,15 @@ export class SessionRepository extends BaseRepository {
     });
   }
 
+  async deleteOtherSessions({ deviceUuid, profileId }: { deviceUuid: string; profileId: string }) {
+    await this.prismaService.session.deleteMany({
+      where: {
+        deviceUuid: { not: deviceUuid },
+        profileId: profileId,
+      },
+    });
+  }
+
   async deleteSessionByDeviceUuid({ deviceUuid }: { deviceUuid: string }) {
     await this.prismaService.session.delete({
       where: { deviceUuid },

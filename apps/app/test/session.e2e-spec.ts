@@ -41,20 +41,10 @@ describe('Sessions e2e', () => {
     await request(app.getHttpServer()).delete('/testing/all-data').expect(200);
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
-
   describe('get all sessions', () => {
     beforeAll(async () => {
       await request(app.getHttpServer()).delete('/testing/all-data').expect(200);
-
-      //Создаем 2 пользователей
       await userHelper.addManyUsers({ count: 2 });
-    });
-
-    afterAll(async () => {
-      await request(app.getHttpServer()).delete('/testing/all-data').expect(200);
     });
 
     it('не можем получить сессии без рефреш токена в куках', async () => {
@@ -139,6 +129,95 @@ describe('Sessions e2e', () => {
       });
 
       expect(response.body[0].userId).not.toEqual(user1.id);
+    });
+  });
+
+  describe('delete sessions', () => {
+    beforeAll(async () => {
+      await request(app.getHttpServer()).delete('/testing/all-data').expect(200);
+      await userHelper.addManyUsers({ count: 2 });
+    });
+
+    it('получаем 3 сессии после двух логинов', async () => {
+      await userHelper.loginUserByNumber(1);
+      await userHelper.loginUserByNumber(1);
+      await userHelper.loginUserByNumber(1);
+      const tokens = userHelper.getTokensPairByNumber(1);
+
+      const response = await request(app.getHttpServer())
+        .get('/sessions')
+        .set('Cookie', `refreshToken=${tokens!.refreshToken}`)
+        .expect(200);
+
+      expect(response.body.length).toEqual(3);
+    });
+
+    it('удаляем сессию по ID, затем все сессии кроме текущей', async () => {
+      const tokens = userHelper.getTokensPairByNumber(1);
+
+      //получаем список сессии
+      const sessionsResult = await request(app.getHttpServer())
+        .get('/sessions')
+        .set('Cookie', `refreshToken=${tokens!.refreshToken}`)
+        .expect(200);
+
+      const session2 = sessionsResult.body[1];
+
+      //удаляем одну из сессии
+      await request(app.getHttpServer())
+        .delete(`/sessions/${session2.sessionId}`)
+        .set('Cookie', `refreshToken=${tokens!.refreshToken}`)
+        .expect(204);
+
+      //в списке должно быть две сессии
+      const sessionsResultAfterDelete = await request(app.getHttpServer())
+        .get('/sessions')
+        .set('Cookie', `refreshToken=${tokens!.refreshToken}`)
+        .expect(200);
+
+      expect(sessionsResultAfterDelete.body.length).toEqual(2);
+
+      //удаляем все сессии кроме текущей
+      await request(app.getHttpServer())
+        .delete('/sessions/other')
+        .set('Cookie', `refreshToken=${tokens!.refreshToken}`)
+        .expect(204);
+
+      //в списке должна быть одна сессия
+      const oneSession = await request(app.getHttpServer())
+        .get('/sessions')
+        .set('Cookie', `refreshToken=${tokens!.refreshToken}`)
+        .expect(200);
+
+      expect(oneSession.body.length).toEqual(1);
+    });
+
+    it('юзер пытается удалить чужую сессию', async () => {
+      await userHelper.loginUserByNumber(2);
+      const tokens = userHelper.getTokensPairByNumber(1);
+      const tokensUser2 = userHelper.getTokensPairByNumber(2);
+
+      //получаем список сессии первого пользователя
+      const sessionsResult = await request(app.getHttpServer())
+        .get('/sessions')
+        .set('Cookie', `refreshToken=${tokens!.refreshToken}`)
+        .expect(200);
+
+      const firstUserSessionId = sessionsResult.body[0].sessionId;
+
+      //пробуем удалить чужую сессию
+      await request(app.getHttpServer())
+        .delete(`/sessions/${firstUserSessionId}`)
+        .set('Cookie', `refreshToken=${tokensUser2!.refreshToken}`)
+        .expect(403);
+
+      //сессия должна остаться в списке
+      const sessionsResultAfterDelete = await request(app.getHttpServer())
+        .get('/sessions')
+        .set('Cookie', `refreshToken=${tokens!.refreshToken}`)
+        .expect(200);
+
+      expect(sessionsResultAfterDelete.body[0].sessionId).toEqual(firstUserSessionId);
     });
   });
 });
