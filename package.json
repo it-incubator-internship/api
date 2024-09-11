@@ -44,6 +44,8 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.4.0",
     "@prisma/client": "5.18.0",
+    "amqp-connection-manager": "^4.1.14",
+    "amqplib": "^0.10.4",
     "axios": "^1.7.5",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",

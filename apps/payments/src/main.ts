@@ -1,19 +1,27 @@
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, TcpOptions, Transport } from '@nestjs/microservices';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 import { PaymentModule } from './payments.module';
 
 async function bootstrap() {
-  const tcpOptions: TcpOptions = {
-    transport: Transport.TCP,
+  // Создаем основное HTTP-приложение
+  const app = await NestFactory.create(PaymentModule);
+
+  // Подключаем RabbitMQ транспорт
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
     options: {
-      host: '0.0.0.0',
-      port: 3001,
+      urls: ['amqp://localhost:15671'],
+      queue: 'payments_queue',
+      queueOptions: {
+        durable: false,
+      },
     },
-  };
+  });
 
-  const app = await NestFactory.createMicroservice<MicroserviceOptions>(PaymentModule, tcpOptions);
-
-  await app.listen();
+  // Запускаем оба транспорта: HTTP и RMQ
+  await app.startAllMicroservices();
+  await app.listen(3001); // HTTP приложение будет доступно на порту 3000
 }
+
 bootstrap();

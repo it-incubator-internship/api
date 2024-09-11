@@ -7,11 +7,14 @@ import { MicroExampleController } from './micro-example.controller';
   imports: [
     ClientsModule.register([
       {
-        name: 'payments',
-        transport: Transport.TCP,
+        name: 'PAYMENTS_SERVICE',
+        transport: Transport.RMQ,
         options: {
-          host: '0.0.0.0',
-          port: 3001,
+          urls: ['amqp://localhost:15671'],
+          queue: 'payments_queue',
+          queueOptions: {
+            durable: false,
+          },
         },
       },
     ]),
