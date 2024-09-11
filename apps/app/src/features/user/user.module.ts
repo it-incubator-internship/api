@@ -38,6 +38,9 @@ import { SendEmailAfterOauthRegistrationEventHandler } from './auth/application/
 import { RecaptchaAuthGuard } from './auth/guards/recaptcha.auth.guard';
 import { SendNewPasswordRecoveryEmailWhenUserAskIt } from './auth/application/events-handlers/send-password-change-code-when-user-ask-it.event.handler';
 import { SendNewConfirmEmailWhenUserAskItEventHandler } from './auth/application/events-handlers/send-new-confirm-email-when-user-ask-it.event.handler';
+import { UserController } from './user/controller/user.controller';
+import { UpdateProfileUserCommandHandler } from './user/application/command/update.profile.user.command';
+import { ProfileOwnerGuard } from './user/guards/profile.owner.guard';
 
 const userRepositories = [UserRepository, SessionRepository, UserQueryRepository];
 const userService = [OauthService];
@@ -56,6 +59,7 @@ const userCommands = [
   GoogleAuthHandler,
   GithubOauthHandler,
   RegistrationUserByGoogleHandler,
+  UpdateProfileUserCommandHandler,
 ];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler, SendEmailAfterOauthRegistrationEventHandler];
 const strategies = [
@@ -65,12 +69,13 @@ const strategies = [
   GithubOauthStrategy,
   JwtAuthStrategy,
   RecaptchaAuthGuard,
+  ProfileOwnerGuard,
 ];
 const adapters = [JwtAdapter];
 
 @Module({
   imports: [HttpModule, EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
-  controllers: [AuthController, AuthGoogleController, GithubOauthController],
+  controllers: [AuthController, AuthGoogleController, GithubOauthController, UserController],
   providers: [
     ...userRepositories,
     ...userService,

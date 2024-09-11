@@ -27,4 +27,37 @@ export class UserQueryRepository {
       userName: user.name,
     };
   }
+
+  async findUserProfileById({ id }: { id: string }) /*: Promise<AuthMeOutput | null>*/ {
+    const profile = await this.prismaService.user.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        name: true,
+        profile: {
+          select: {
+            firstName: true,
+            lastName: true,
+            dateOfBirth: true,
+            country: true,
+            city: true,
+            aboutMe: true,
+          },
+        },
+      },
+    });
+
+    if (!profile) return null;
+
+    return {
+      userName: profile.name,
+      firstName: profile.profile?.firstName ? profile.profile.firstName : undefined,
+      lastName: profile.profile?.lastName ? profile.profile.lastName : undefined,
+      dateOfBirth: profile.profile?.dateOfBirth ? profile.profile.dateOfBirth : undefined,
+      country: profile.profile?.country ? profile.profile.country : undefined,
+      city: profile.profile?.city ? profile.profile.city : undefined,
+      aboutMe: profile.profile?.aboutMe ? profile.profile.aboutMe : undefined,
+    };
+  }
 }

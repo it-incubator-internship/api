@@ -22,6 +22,11 @@ export class UserRepository extends BaseRepository {
     return EntityFactory.createAccountData(accountData);
   }
 
+  async createProfile(userProfile: Prisma.ProfileCreateInput) {
+    const profile = await this.prismaService.profile.create({ data: userProfile });
+    return EntityFactory.createProfile(profile);
+  }
+
   async findAllUsers() {
     return this.prismaService.user.findMany();
   }
@@ -50,15 +55,4 @@ export class UserRepository extends BaseRepository {
 
     return EntityFactory.createUser(user);
   }
-
-  // async addAccountDataGitHubProvider({ userId, providerId }: { userId: string; providerId: string }) {
-  //   return this.prismaService.accountData.update({
-  //     where: {
-  //       profileId: userId,
-  //     },
-  //     data: {
-  //       githubId: providerId,
-  //     },
-  //   });
-  // }
 }

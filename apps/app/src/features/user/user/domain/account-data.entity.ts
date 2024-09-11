@@ -1,4 +1,4 @@
-import { $Enums, AccountData, Prisma, Session, User } from '../../../../../prisma/client';
+import { $Enums, AccountData, Prisma, Profile, Session, User } from '../../../../../prisma/client';
 
 import BanStatus = $Enums.BanStatus;
 import ConfirmationStatus = $Enums.ConfirmationStatus;
@@ -14,11 +14,13 @@ export class UserEntityNEW implements User {
   banStatus: BanStatus;
   banDate: Date | null;
   accountData?: AccountDataEntityNEW | null;
+  profile?: ProfileEntityNEW | null;
   sessions?: SessionEntityNEW[];
 
   constructor(
     user: User & {
       accountData?: AccountData | null;
+      profile?: ProfileEntityNEW | null;
       sessions?: Session[];
     },
   ) {
@@ -26,6 +28,10 @@ export class UserEntityNEW implements User {
 
     if (user.accountData) {
       this.accountData = new AccountDataEntityNEW(user.accountData);
+    }
+
+    if (user.profile) {
+      this.profile = new ProfileEntityNEW(user.profile);
     }
 
     if (user.sessions) {
@@ -52,9 +58,8 @@ export class UserEntityNEW implements User {
     this.deletedAt = null;
   }
 
-  updateUserProfile(name: string, email: string) {
+  updateUserName({ name }: { name: string }) {
     this.name = name;
-    this.email = email;
   }
 
   updatePasswordHash({ passwordHash }: { passwordHash: string }) {
@@ -151,6 +156,62 @@ export class SessionEntityNEW implements Session {
   }
 }
 
+export class ProfileEntityNEW implements Profile {
+  profileId: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date | null;
+  country: string | null;
+  city: string | null;
+  aboutMe: string | null;
+  user?: UserEntityNEW | null;
+
+  constructor(profile: Profile & { user?: User | null }) {
+    Object.assign(this, profile);
+
+    if (profile.user) {
+      this.user = new UserEntityNEW(profile.user);
+    }
+  }
+
+  static createForDatabase(
+    data: Omit<Prisma.ProfileCreateInput, 'user'> & { profileId: string },
+  ): Prisma.ProfileCreateInput {
+    return {
+      user: { connect: { id: data.profileId } },
+      firstName: data.firstName,
+      lastName: data.lastName,
+      dateOfBirth: data.dateOfBirth || null,
+      country: data.country || null,
+      city: data.city || null,
+      aboutMe: data.aboutMe || null,
+    };
+  }
+
+  updateUserProfile({
+    firstName,
+    lastName,
+    dateOfBirth,
+    country,
+    city,
+    aboutMe,
+  }: {
+    firstName: string;
+    lastName: string;
+    dateOfBirth: Date;
+    country: string;
+    city: string;
+    aboutMe: string;
+  }) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.dateOfBirth = dateOfBirth;
+    this.country = country;
+    this.city = city;
+    this.aboutMe = aboutMe;
+  }
+}
+
 export class EntityFactory {
   static createUser(
     data: User & {
@@ -175,5 +236,13 @@ export class EntityFactory {
     },
   ): SessionEntityNEW {
     return new SessionEntityNEW(data);
+  }
+
+  static createProfile(
+    data: Profile & {
+      user?: User;
+    },
+  ): ProfileEntityNEW {
+    return new ProfileEntityNEW(data);
   }
 }
