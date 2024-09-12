@@ -11,7 +11,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://localhost:15671'],
+      urls: ['amqp://guest:guest@localhost:5672'],
       queue: 'payments_queue',
       queueOptions: {
         durable: false,
@@ -21,7 +21,7 @@ async function bootstrap() {
 
   // Запускаем оба транспорта: HTTP и RMQ
   await app.startAllMicroservices();
-  await app.listen(3001); // HTTP приложение будет доступно на порту 3000
+  await app.listen(4001);
 }
 
 bootstrap();

@@ -7,11 +7,11 @@ import { MicroExampleController } from './micro-example.controller';
   imports: [
     ClientsModule.register([
       {
-        name: 'PAYMENTS_SERVICE',
+        name: 'MULTICAST_EXCHANGE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:15671'],
-          queue: 'payments_queue',
+          urls: ['amqp://guest:guest@localhost:5672'],
+          queue: 'multicast_queue',
           queueOptions: {
             durable: false,
           },
