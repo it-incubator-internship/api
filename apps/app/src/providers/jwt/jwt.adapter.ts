@@ -2,8 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
-import { BadRequestError } from '../../../../common/utils/result/custom-error';
-import { ObjResult } from '../../../../common/utils/result/object-result';
 import { ConfigurationType } from '../../common/settings/configuration';
 
 @Injectable()
@@ -24,7 +22,7 @@ export class JwtAdapter {
     return {
       confirmationCode: await this.createToken({
         payload: { email },
-        secret: this.jwtConfiguration.confirmationCodeSecret,
+        secret: this.jwtConfiguration.codeForEmailSecret,
         expiresIn: this.jwtConfiguration.confirmationCodeLifeTime,
       }),
     };
@@ -34,7 +32,7 @@ export class JwtAdapter {
     return {
       recoveryCode: await this.createToken({
         payload: { email },
-        secret: this.jwtConfiguration.recoveryCodeSecret,
+        secret: this.jwtConfiguration.codeForEmailSecret,
         expiresIn: this.jwtConfiguration.recoveryCodeLifeTime,
       }),
     };
@@ -62,7 +60,6 @@ export class JwtAdapter {
     return await this.verifyToken({
       token: confirmationCode,
       secret: this.jwtConfiguration.confirmationCodeSecret,
-      errorMessage: JwtAdapter.ERROR_CONFIRMATION_CODE_EXPIRED,
     });
   }
 
@@ -70,8 +67,25 @@ export class JwtAdapter {
     return await this.verifyToken({
       token: recoveryCode,
       secret: this.jwtConfiguration.recoveryCodeSecret,
-      errorMessage: JwtAdapter.ERROR_RECOVERY_CODE_EXPIRED,
     });
+  }
+
+  async verifyCodeFromEmail({ code }: { code: string }) {
+    return await this.verifyToken({
+      token: code,
+      secret: this.jwtConfiguration.codeForEmailSecret,
+    });
+  }
+
+  async decodeToken({ token }: { token: string }) {
+    try {
+      const result = await this.jwtService.decode(token);
+
+      return { email: result.email };
+    } catch (e) {
+      this.logger.error(`Token verification failed: ${e.message}`);
+      return null;
+    }
   }
 
   private async createToken({
@@ -86,15 +100,13 @@ export class JwtAdapter {
     return this.jwtService.signAsync(payload, { secret, expiresIn });
   }
 
-  private async verifyToken({ token, secret, errorMessage }: { token: string; secret: string; errorMessage: string }) {
+  private async verifyToken({ token, secret }: { token: string; secret: string }) {
     try {
       await this.jwtService.verifyAsync(token, { secret });
+      return true;
     } catch (e) {
       this.logger.error(`Token verification failed: ${e.message}`);
-      return ObjResult.Err(new BadRequestError(errorMessage, [{ message: errorMessage, field: 'code' }]));
+      return false;
     }
   }
-
-  private static readonly ERROR_CONFIRMATION_CODE_EXPIRED = 'Looks like the verification link has expired. Not to worry, we can send the link again';
-  private static readonly ERROR_RECOVERY_CODE_EXPIRED = 'Looks like the verification link has expired. Not to worry, we can send the link again';
 }

@@ -44,6 +44,7 @@ import { TerminateSessionByIdHandler } from './auth/application/command/session/
 import { UserController } from './user/controller/user.controller';
 import { UpdateProfileUserCommandHandler } from './user/application/command/update.profile.user.command';
 import { ProfileOwnerGuard } from './user/guards/profile.owner.guard';
+import { CodeValidationHandler } from './auth/application/command/code-validation.user.command';
 
 const userRepositories = [UserRepository, UserQueryRepository];
 const sessionRepositories = [SessionRepository, SessionQueryRepository];
@@ -64,6 +65,7 @@ const userCommands = [
   GithubOauthHandler,
   RegistrationUserByGoogleHandler,
   UpdateProfileUserCommandHandler,
+  CodeValidationHandler,
 ];
 const sessionComands = [TerminateSessionByIdHandler];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler, SendEmailAfterOauthRegistrationEventHandler];
