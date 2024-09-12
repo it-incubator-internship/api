@@ -7,7 +7,7 @@ export class MailService {
 
   async sendUserConfirmation({ email, login, token }: { email: string; login: string; token: string }): Promise<void> {
     //TODO добавить конфиг сервис
-    const url = `https://somesite.com/confirm-email?code=${token}`;
+    const url = `http://localhost:3000/en/email-confirmed?code=${token}`;
 
     await this.mailerService.sendMail({
       to: email,
