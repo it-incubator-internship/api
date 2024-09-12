@@ -1,6 +1,6 @@
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Put, UseGuards } from '@nestjs/common';
 
 import { UserQueryRepository } from '../repository/user.query.repository';
 import { NotFoundError } from '../../../../../../common/utils/result/custom-error';
@@ -22,7 +22,7 @@ export class UserController {
 
   @Get('profile/:id')
   @GetUserProfileSwagger()
-  async getUserProfileById(@Param('id') userId: string): Promise<UserProfileOutputDto> {
+  async getUserProfileById(@Param('id', ParseUUIDPipe) userId: string): Promise<UserProfileOutputDto> {
     const userProfile = await this.userRepository.findUserProfileById({ id: userId });
 
     if (!userProfile) {
@@ -35,8 +35,10 @@ export class UserController {
   @UseGuards(JwtAuthGuard, ProfileOwnerGuard)
   @Put('profile/:id')
   @UpdateUserProfileSwagger()
-  async updateProfile(@Param('id') userIdFromParam: string, @Body() inputModel: ProfileUserInputModel) {
-    const result = await this.commandBus.execute(new UpdateProfileUserCommand({ ...inputModel, userIdFromParam }));
+  async updateProfile(@Param('id', ParseUUIDPipe) userIdFromParam: string, @Body() inputModel: ProfileUserInputModel) {
+    const result = await this.commandBus.execute(
+      new UpdateProfileUserCommand({ ...inputModel, userId: userIdFromParam }),
+    );
 
     if (!result.isSuccess) throw result.error;
   }

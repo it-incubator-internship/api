@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
 import { Prisma, User } from '../../../../../prisma/client';
-import { EntityFactory } from '../domain/account-data.entity';
+import { AccountDataEntityNEW, EntityFactory, ProfileEntityNEW, UserEntityNEW } from '../domain/account-data.entity';
 import { BaseRepository } from '../../../../../../common/repository/base.repository';
 import { EntityHandler } from '../../../../../../common/repository/entity.handler';
 
@@ -12,17 +12,17 @@ export class UserRepository extends BaseRepository {
     super(prismaService, entityHandler);
   }
 
-  async createUser(user: Prisma.UserCreateInput) {
+  async createUser(user: Prisma.UserCreateInput): Promise<UserEntityNEW> {
     const newUser: User = await this.prismaService.user.create({ data: user });
     return EntityFactory.createUser(newUser);
   }
 
-  async createAccountData(userAccountData: Prisma.AccountDataCreateInput) {
+  async createAccountData(userAccountData: Prisma.AccountDataCreateInput): Promise<AccountDataEntityNEW> {
     const accountData = await this.prismaService.accountData.create({ data: userAccountData });
     return EntityFactory.createAccountData(accountData);
   }
 
-  async createProfile(userProfile: Prisma.ProfileCreateInput) {
+  async createProfile(userProfile: Prisma.ProfileCreateInput): Promise<ProfileEntityNEW> {
     const profile = await this.prismaService.profile.create({ data: userProfile });
     return EntityFactory.createProfile(profile);
   }

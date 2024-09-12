@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiBody,
   ApiForbiddenResponse,
   ApiOperation,
@@ -34,5 +35,6 @@ export function UpdateUserProfileSwagger() {
       status: 403,
       description: 'В случае попытки добавления/обновления информация в profile не принадлежащем текущему user.',
     }),
+    ApiBearerAuth(),
   );
 }

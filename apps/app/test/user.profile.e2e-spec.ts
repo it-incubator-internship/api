@@ -17,12 +17,7 @@ describe('User e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let user;
-  // let confirmationCode_1;
-  // let confirmationCode_2;
-  // let recoveryCode_1;
-  // let recoveryCode_2;
   let accessToken;
-  // let refreshToken;
   let httpServer;
 
   beforeAll(async () => {
@@ -89,7 +84,7 @@ describe('User e2e', () => {
       .set('User-Agent', 'e2e user-agent')
       .send({
         email: 'someemail@gmail.com',
-        password: 'Somepassword=1', // 'Somepassword=2' не актуалет, т.к. не было смены пароля
+        password: 'Somepassword=1',
       })
       .expect(201);
 
@@ -98,19 +93,13 @@ describe('User e2e', () => {
 
   it('GET user profile by non-existing id', async () => {
     await request(app.getHttpServer())
-      // .get('/user/' + user.id)
-      // 5c2cd3ca-2820-4dbd-b29c-dc14d085af93
       .get('/user/profile/5c2cd3ca-2820-4dbd-b29c-dc14d085af93')
-      // .set('Authorization', `Bearer ${accessToken}`)
       .expect(404);
   }); // 404
 
   it('GET user profile by correct id (without profile information)', async () => {
     await request(app.getHttpServer())
-      // .get('/user/' + user.id)
-      // 5c2cd3ca-2820-4dbd-b29c-dc14d085af93
       .get('/user/profile/' + user.id)
-      // .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
   }); // 200
 

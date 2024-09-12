@@ -7,21 +7,32 @@ import { EntityEnum } from '../../../../../../../common/repository/base.reposito
 import { ProfileEntityNEW, UserEntityNEW } from '../../domain/account-data.entity';
 import { DateHalper } from '../../../../../../../common/halpers/date.halper/date.halper';
 
+type UpdateProfileType = {
+  userId: string;
+  userName: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string | null;
+  country: string | null;
+  city: string | null;
+  aboutMe: string | null;
+};
+
 export class UpdateProfileUserCommand {
-  constructor(public inputModel /* : ProfileUserInputModel */) {}
+  constructor(public inputModel: UpdateProfileType) {}
 }
 
 @CommandHandler(UpdateProfileUserCommand)
 export class UpdateProfileUserCommandHandler implements ICommandHandler<UpdateProfileUserCommand> {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(command: UpdateProfileUserCommand): Promise<any> {
-    const { userIdFromParam, userName, firstName, lastName, dateOfBirth, country, city, aboutMe } = command.inputModel;
+  async execute(command: UpdateProfileUserCommand): Promise<ObjResult<void>> {
+    const { userId, userName, firstName, lastName, dateOfBirth, country, city, aboutMe } = command.inputModel;
 
     // поиск user по id
     const user: UserEntityNEW = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.user,
-      conditions: { id: userIdFromParam },
+      conditions: { id: userId },
     });
 
     // если user по id не найден
@@ -83,13 +94,13 @@ export class UpdateProfileUserCommandHandler implements ICommandHandler<UpdatePr
     // поиск userProfile
     const userProfile: ProfileEntityNEW = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.profile,
-      conditions: { profileId: userIdFromParam },
+      conditions: { profileId: userId },
     });
 
     // если userProfile не найден
     if (!userProfile) {
       const profile = ProfileEntityNEW.createForDatabase({
-        profileId: userIdFromParam,
+        profileId: userId,
         firstName,
         lastName,
         dateOfBirth: parsedDateOfBirth,
@@ -119,8 +130,6 @@ export class UpdateProfileUserCommandHandler implements ICommandHandler<UpdatePr
         conditions: { profileId: userProfile.profileId },
         data: userProfile,
       });
-
-      return ObjResult.Ok();
     }
 
     // если userProfile найден, но нет изменения в userProfile

@@ -198,10 +198,10 @@ export class ProfileEntityNEW implements Profile {
   }: {
     firstName: string;
     lastName: string;
-    dateOfBirth: Date;
-    country: string;
-    city: string;
-    aboutMe: string;
+    dateOfBirth: Date | null;
+    country: string | null;
+    city: string | null;
+    aboutMe: string | null;
   }) {
     this.firstName = firstName;
     this.lastName = lastName;

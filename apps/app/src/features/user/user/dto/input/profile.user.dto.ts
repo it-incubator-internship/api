@@ -37,26 +37,26 @@ export class ProfileUserInputModel {
   @IsString()
   @Trim()
   @Matches(/^(\d{2}\.\d{2}\.\d{4})?$/)
-  dateOfBirth?: string;
+  dateOfBirth: string | null = null;
 
   @countryApiProperty()
   @IsString()
   @Trim()
   @MaxLength(30)
   @Matches(/^[A-Za-zА-Яа-я\s]*$/)
-  country?: string;
+  country: string | null = null;
 
   @cityApiProperty()
   @IsString()
   @Trim()
   @MaxLength(30)
   @Matches(/^[A-Za-zА-Яа-я\s]*$/)
-  city?: string;
+  city: string | null = null;
 
   @aboutMeApiProperty()
   @IsString()
   @Trim()
   @MaxLength(200)
   @Matches(/^[0-9A-Za-zА-Яа-яёЁ\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/)
-  aboutMe?: string;
+  aboutMe: string | null = null;
 }
