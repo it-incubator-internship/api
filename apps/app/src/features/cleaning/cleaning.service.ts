@@ -8,6 +8,7 @@ export class CleaningService {
 
   async cleanDB() {
     await this.prismaService.session.deleteMany();
+    await this.prismaService.profile.deleteMany();
     await this.prismaService.accountData.deleteMany();
     await this.prismaService.user.deleteMany();
   }

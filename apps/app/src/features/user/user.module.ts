@@ -41,6 +41,9 @@ import { SendNewConfirmEmailWhenUserAskItEventHandler } from './auth/application
 import { SessionQueryRepository } from './auth/repository/session.query.repository';
 import { SessionController } from './auth/controller/session.controller';
 import { TerminateSessionByIdHandler } from './auth/application/command/session/terminate-session-by-id.command';
+import { UserController } from './user/controller/user.controller';
+import { UpdateProfileUserCommandHandler } from './user/application/command/update.profile.user.command';
+import { ProfileOwnerGuard } from './user/guards/profile.owner.guard';
 
 const userRepositories = [UserRepository, UserQueryRepository];
 const sessionRepositories = [SessionRepository, SessionQueryRepository];
@@ -60,6 +63,7 @@ const userCommands = [
   GoogleAuthHandler,
   GithubOauthHandler,
   RegistrationUserByGoogleHandler,
+  UpdateProfileUserCommandHandler,
 ];
 const sessionComands = [TerminateSessionByIdHandler];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler, SendEmailAfterOauthRegistrationEventHandler];
@@ -70,12 +74,13 @@ const strategies = [
   GithubOauthStrategy,
   JwtAuthStrategy,
   RecaptchaAuthGuard,
+  ProfileOwnerGuard,
 ];
 const adapters = [JwtAdapter];
 
 @Module({
   imports: [HttpModule, EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
-  controllers: [AuthController, AuthGoogleController, GithubOauthController, SessionController],
+  controllers: [AuthController, AuthGoogleController, GithubOauthController, SessionController, UserController],
   providers: [
     ...userRepositories,
     ...sessionRepositories,

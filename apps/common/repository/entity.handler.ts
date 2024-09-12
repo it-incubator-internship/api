@@ -11,6 +11,8 @@ export class EntityHandler {
         return EntityFactory.createAccountData(entity);
       case EntityEnum.session:
         return EntityFactory.createSession(entity);
+      case EntityEnum.profile:
+        return EntityFactory.createProfile(entity);
     }
   }
 }

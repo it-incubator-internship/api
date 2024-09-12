@@ -8,6 +8,7 @@ export enum EntityEnum {
   user = 'user',
   accountData = 'accountData',
   session = 'session',
+  profile = 'profile',
 }
 
 @Injectable()
