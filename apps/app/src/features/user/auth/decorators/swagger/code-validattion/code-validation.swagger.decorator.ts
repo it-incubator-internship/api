@@ -11,7 +11,7 @@ export function CodeValidationSwagger() {
     ApiForbiddenResponse({
       status: 403,
       description: 'Если код (jwt) экспарился. Email находится в возвращаемой ошибке в виде строки.',
-      // type: () => UserRegistrationOutputDto,
+      // type: () => UserRegistrationOutputDto,   // это пока под вопросом
     }),
   );
 }
