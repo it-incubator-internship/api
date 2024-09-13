@@ -122,6 +122,11 @@ spec:
                  secretKeyRef:
                    name: app-4-try-production-config-secret
                    key: RECAPTCHA_SECRET
+             - name: JWT_SECRET_CODE_FOR_EMAIL
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: JWT_SECRET_CODE_FOR_EMAIL
              - name: DATABASE_APP_URL
                valueFrom:
                  secretKeyRef:

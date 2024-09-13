@@ -37,6 +37,8 @@ import { MeSwagger } from '../decorators/swagger/me/me.swagger.decorator';
 import { PasswordRecoveryInputModel } from '../dto/input/password-recovery.user.dto';
 import { RecaptchaAuthGuard } from '../guards/recaptcha.auth.guard';
 import { PasswordRecoveryResendingSwagger } from '../decorators/swagger/password-recovery-resend/password-recovery-resending.swagger.decorator';
+import { CodeValidationCommand } from '../application/command/code-validation.user.command';
+import { CodeValidationSwagger } from '../decorators/swagger/code-validattion/code-validation.swagger.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -64,6 +66,14 @@ export class AuthController {
     if (!result.isSuccess) throw result.error;
 
     return { email: inputModel.email };
+  }
+
+  @Post('code-validation')
+  @CodeValidationSwagger()
+  async codeValidation(@Body() inputModel: CodeInputModel) {
+    const result = await this.commandBus.execute(new CodeValidationCommand(inputModel));
+
+    if (!result.isSuccess) throw result.error;
   }
 
   @Post('registration-confirmation')

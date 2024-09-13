@@ -39,6 +39,7 @@ model User {
   banStatus    BanStatus    @default(NOT_BANNED)
   banDate      DateTime?
   accountData  AccountData?
+  profile      Profile?
 
   sessions Session[]
 
@@ -55,6 +56,19 @@ model Session {
   user           User     @relation(fields: [profileId], references: [id])
 
   @@map("session")
+}
+
+model Profile {
+  profileId   String    @id @unique @db.Uuid
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime?
+  country     String?
+  city        String?
+  aboutMe     String?
+  user        User      @relation(fields: [profileId], references: [id])
+
+  @@map("profile")
 }
 
 enum ConfirmationStatus {
