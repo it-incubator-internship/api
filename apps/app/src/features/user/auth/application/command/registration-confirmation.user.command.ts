@@ -62,7 +62,7 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
     const payload = await this.jwtAdapter.decodeToken({ token: code });
 
     if (!result && payload?.email) return ObjResult.Err(new ForbiddenError(payload.email));
-    return ObjResult.Err(new UnauthorizedError(`The code ${code} is incorrect`));
+    if (!result) return ObjResult.Err(new UnauthorizedError(`The code ${code} is incorrect`));
   }
 
   private createError(title: string, message: string, field: string) {
