@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { FilesModule } from '../../files/src/files.module';
+
 import { AppController } from './app.controller';
 import { UserModule } from './features/user/user.module';
 import { configuration } from './common/settings/configuration';
@@ -20,6 +22,7 @@ const environment = process.env.NODE_ENV as Environments;
     }),
     UserModule,
     CleaningModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [],
