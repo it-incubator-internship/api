@@ -7,7 +7,7 @@ import { NewPasswordInputModel } from '../../dto/input/new-password.user.dto';
 import { hashRounds } from '../../../../../common/constants/constants';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
-import { BadRequestError, NotFoundError } from '../../../../../../../common/utils/result/custom-error';
+import { BadRequestError, ForbiddenError, NotFoundError } from '../../../../../../../common/utils/result/custom-error';
 
 import { DeletionSessionsCommand } from './session/deletion-sessions.command';
 
@@ -33,7 +33,11 @@ export class SetNewPasswordHandler implements ICommandHandler<SetNewPasswordComm
     }
 
     // верификация recoveryCode
-    await this.jwtAdapter.verifyRecoveryCode({ recoveryCode: command.inputModel.code });
+    const verificationResult = await this.jwtAdapter.verifyRecoveryCode({ recoveryCode: command.inputModel.code });
+
+    if (!verificationResult) {
+      return ObjResult.Err(new ForbiddenError('Invalid recovery code'));
+    }
 
     const accountData = await this.userRepository.findFirstOne({
       modelName: EntityEnum.accountData,
