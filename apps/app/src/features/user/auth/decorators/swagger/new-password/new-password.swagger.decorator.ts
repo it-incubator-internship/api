@@ -15,7 +15,7 @@ export function NewPasswordSwagger() {
     }),
     ApiForbiddenResponse({
       status: 403,
-      description: 'Если код (jwt) экспарился',
+      description: 'Если код (jwt) экспарился, email лежит в message',
       type: () => BasicForbidenErrorOutput,
     }),
   );
