@@ -76,7 +76,7 @@ export class JwtAdapter {
       secret: this.jwtConfiguration.codeForEmailSecret,
     });
   }
-
+  //TODO тут может быть любой пейлоад а не только email
   async decodeToken({ token }: { token: string }) {
     try {
       const result = await this.jwtService.decode(token);
