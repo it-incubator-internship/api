@@ -1,5 +1,6 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { ConfigService } from '@nestjs/config';
 
 import {
   CustomExceptionFilter,
@@ -8,7 +9,12 @@ import {
 } from '../../../../common/utils/result/exceprion-filter';
 import { BadRequestError } from '../../../../common/utils/result/custom-error';
 
+import { ConfigurationType } from './configuration';
+
 export const appSettings = (app: INestApplication) => {
+  const configService = app.get(ConfigService<ConfigurationType, true>);
+  const address = configService.get('addressSettings.address', { infer: true });
+
   app.use(cookieParser());
   /**
    * подключение class - validator для валидации входящих параметров
@@ -32,7 +38,7 @@ export const appSettings = (app: INestApplication) => {
 
   app.enableCors({
     credentials: true,
-    origin: ['http://localhost:3000', 'https://navaibe.ru/'],
+    origin: ['http://localhost:3000', address],
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
     allowedHeaders: ['Accept', 'Content-Type', 'Authorization'],
   });

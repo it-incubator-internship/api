@@ -19,6 +19,10 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       isTesting: currentEnvironment === Environments.TEST,
       isDevelopment: currentEnvironment === Environments.DEVELOPMENT,
     },
+
+    addressSettings: {
+      address: environmentVariables.ADDRESS_FOR_CORS as string,
+    },
   };
 };
 
@@ -36,7 +40,7 @@ export const getAllEnvironmentVariables = (allowedVariables: string[]): Environm
 export const configuration = () => {
   console.log('PORT from process.env:', process.env.PORT);
 
-  const allowedVariables = ['NODE_ENV', 'PORT'];
+  const allowedVariables = ['NODE_ENV', 'PORT', 'ADDRESS_FOR_CORS'];
 
   //Эти значения выводятся в сваггере
   const environmentVariables = getAllEnvironmentVariables(allowedVariables); //; process.env

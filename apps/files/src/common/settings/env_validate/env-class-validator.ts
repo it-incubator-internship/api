@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, Max, Min, validateSync } from 'class-validator';
+import { IsEnum, IsNumber, IsString, Max, Min, validateSync } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 
 export enum Environments {
@@ -17,6 +17,9 @@ export class EnvironmentVariables {
   @Min(0)
   @Max(65535)
   PORT: number;
+
+  @IsString()
+  ADDRESS_FOR_CORS: string;
 }
 
 export function validate(config: Record<string, unknown>) {

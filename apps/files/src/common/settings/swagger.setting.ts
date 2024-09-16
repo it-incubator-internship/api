@@ -3,7 +3,7 @@ import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export const swaggerSetting = (app: INestApplication) => {
-  const config = new DocumentBuilder().setTitle('API Documentation').setVersion('0.1').build();
+  const config = new DocumentBuilder().setTitle('files microservice').setVersion('0.1').build();
 
   const document = SwaggerModule.createDocument(app, config);
   console.log('swagger is enabled, /swagger ');
