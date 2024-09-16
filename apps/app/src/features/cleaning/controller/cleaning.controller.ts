@@ -1,4 +1,4 @@
-import { Controller, Delete } from '@nestjs/common';
+import { Controller, Delete, Param, ParseUUIDPipe } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 
 import { CleaningService } from '../cleaning.service';
@@ -11,5 +11,10 @@ export class CleaningController {
   @Delete('all-data')
   async deleteAllData() {
     await this.cleaningService.cleanDB();
+  }
+
+  @Delete(':id')
+  async deleteUserById(@Param('id', ParseUUIDPipe) userId: string) {
+    await this.cleaningService.deleteUserById({ id: userId });
   }
 }
