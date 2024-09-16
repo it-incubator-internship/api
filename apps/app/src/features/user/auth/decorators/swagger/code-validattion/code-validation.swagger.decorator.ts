@@ -1,6 +1,8 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiForbiddenResponse, ApiOperation, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
+import { BasicForbidenErrorOutput } from '../../../../../../common/models/basic-firbiden-error.output';
+
 // import { UserRegistrationOutputDto } from '../../../dto/output/registratio.output.dto';
 
 export function CodeValidationSwagger() {
@@ -10,8 +12,8 @@ export function CodeValidationSwagger() {
     ApiUnauthorizedResponse({ status: 401, description: 'В случае отправки некорректного кода (jwt).' }),
     ApiForbiddenResponse({
       status: 403,
-      description: 'Если код (jwt) экспарился. Email находится в возвращаемой ошибке в виде строки.',
-      // type: () => UserRegistrationOutputDto,   // это пока под вопросом
+      description: 'Если код (jwt) экспарился. Email находится в возвращаемой ошибке в виде строки в message.',
+      type: () => BasicForbidenErrorOutput,
     }),
   );
 }
