@@ -14,9 +14,25 @@ export class CleaningService {
   }
 
   async deleteUserById({ id }: { id: string }) {
-    await this.prismaService.session.deleteMany({ where: { profileId: id } });
-    await this.prismaService.profile.delete({ where: { profileId: id } });
-    await this.prismaService.accountData.delete({ where: { profileId: id } });
-    await this.prismaService.user.delete({ where: { id: id } });
+    try {
+      await this.prismaService.session.deleteMany({ where: { profileId: id } });
+    } catch (e) {
+      console.log(e);
+    }
+    try {
+      await this.prismaService.profile.delete({ where: { profileId: id } });
+    } catch (e) {
+      console.log(e);
+    }
+    try {
+      await this.prismaService.accountData.delete({ where: { profileId: id } });
+    } catch (e) {
+      console.log(e);
+    }
+    try {
+      await this.prismaService.user.delete({ where: { id: id } });
+    } catch (e) {
+      console.log(e);
+    }
   }
 }
