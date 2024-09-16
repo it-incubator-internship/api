@@ -9,6 +9,7 @@ export class MicroExampleController {
 
   @Get('/:text')
   async getHello(@Param('text') text: string) {
+    console.log('отправка началась');
     try {
       this.gatewayProxyClient.emit({ cmd: 'hello' }, text);
     } catch (e) {

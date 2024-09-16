@@ -14,7 +14,7 @@ async function bootstrap() {
       urls: ['amqp://guest:guest@localhost:56722'],
       queue: 'payments_queue',
       queueOptions: {
-        durable: false,
+        durable: true,
       },
     },
   });

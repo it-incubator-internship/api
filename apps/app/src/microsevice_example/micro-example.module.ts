@@ -10,10 +10,10 @@ import { MicroExampleController } from './micro-example.controller';
         name: 'MULTICAST_EXCHANGE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://guest:guest@localhost:5672'],
+          urls: ['amqp://guest:guest@localhost:56722'],
           queue: 'multicast_queue',
           queueOptions: {
-            durable: false,
+            durable: true,
           },
         },
       },
