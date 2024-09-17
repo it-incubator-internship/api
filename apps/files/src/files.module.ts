@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { FilesController } from './files.controller';
@@ -20,9 +20,13 @@ const environment = process.env.NODE_ENV as Environments;
     }),
 
     // TODO подключение к тестовой бд
-    MongooseModule.forRoot(
-      'mongodb+srv://aliakseiyarmolinforit:g1P7fYdgbUQCt4BW@cluster0.moag3kp.mongodb.net/intership-development?retryWrites=true&w=majority',
-    ),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get('databaseSettings.uri'),
+      }),
+      inject: [ConfigService],
+    }),
   ],
   controllers: [FilesController],
   providers: [FilesService],
