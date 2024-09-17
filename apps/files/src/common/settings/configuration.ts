@@ -21,7 +21,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     },
 
     addressSettings: {
-      address: environmentVariables.ADDRESS_FOR_CORS as string,
+      address: 'https://navaibe.ru/',
     },
   };
 };
@@ -40,7 +40,7 @@ export const getAllEnvironmentVariables = (allowedVariables: string[]): Environm
 export const configuration = () => {
   console.log('PORT from process.env:', process.env.PORT);
 
-  const allowedVariables = ['NODE_ENV', 'PORT', 'ADDRESS_FOR_CORS'];
+  const allowedVariables = ['NODE_ENV', 'PORT'];
 
   //Эти значения выводятся в сваггере
   const environmentVariables = getAllEnvironmentVariables(allowedVariables); //; process.env
