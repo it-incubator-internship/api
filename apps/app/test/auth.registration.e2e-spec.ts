@@ -3,6 +3,7 @@ import * as process from 'node:process';
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { AppModule } from '../src/app.module';
 import { appSettings } from '../src/common/settings/apply-app-setting';
@@ -27,7 +28,13 @@ describe('Auth e2e', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    })
+    }) //Мокаем ддос защиту для того что бы она не мешала
+      .overrideGuard(ThrottlerGuard)
+      .useValue({
+        canActivate: () => {
+          return true;
+        },
+      })
       .overrideProvider(MailService)
       .useClass(MailServiceMock)
       .compile();
@@ -116,6 +123,19 @@ describe('Auth e2e', () => {
       .expect(400);
   }); // 400
 
+  it.skip('REGISTRATION with correct data (throttler error)', async () => {
+    await request(app.getHttpServer())
+      .post('/auth/registration')
+      .send({
+        userName: 'someusername',
+        password: 'Somepassword=1',
+        passwordConfirmation: 'Somepassword=1',
+        email: 'someemail@gmail.com',
+        isAgreement: true,
+      })
+      .expect(429);
+  }); // 429   т.к. замокан throttler
+
   it('REGISTRATION with incorrect data (long length)', async () => {
     await request(app.getHttpServer())
       .post('/auth/registration')
@@ -127,7 +147,7 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('REGISTRATION with incorrect data (pattern violation)', async () => {
     await request(app.getHttpServer())
@@ -140,7 +160,7 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('REGISTRATION with incorrect data (mismatched passwords)', async () => {
     await request(app.getHttpServer())
@@ -153,7 +173,7 @@ describe('Auth e2e', () => {
         isAgreement: false,
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('REGISTRATION with incorrect data (isAgreement: false)', async () => {
     await request(app.getHttpServer())
@@ -166,7 +186,7 @@ describe('Auth e2e', () => {
         isAgreement: false,
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('REGISTRATION with correct data (whitespaces + correct data + whitespaces)', async () => {
     await request(app.getHttpServer())
@@ -190,7 +210,7 @@ describe('Auth e2e', () => {
     });
 
     confirmationCode_1 = user!.accountData!.confirmationCode;
-  }); // 201
+  }); // 201 *
 
   it.skip('REGISTRATION with correct data (swagger data)', async () => {
     await request(app.getHttpServer())
@@ -216,7 +236,7 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('REGISTRATION with incorrect data (re-registration with repeated email)', async () => {
     await request(app.getHttpServer())
@@ -229,7 +249,7 @@ describe('Auth e2e', () => {
         isAgreement: true,
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('LOGIN with incorrect data (login without registration confirmation)', async () => {
     await request(app.getHttpServer())
@@ -240,7 +260,7 @@ describe('Auth e2e', () => {
         password: 'Somepassword=1',
       })
       .expect(403);
-  }); // 403
+  }); // 403 *
 
   it.skip('REGISTRATION EMAIL RESENDING with incorrect data (empty fiels)', async () => {
     await request(app.getHttpServer())
@@ -258,7 +278,7 @@ describe('Auth e2e', () => {
         email: '     ',
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('REGISTRATION EMAIL RESENDING with incorrect data (wrong type)', async () => {
     await request(app.getHttpServer())
@@ -267,7 +287,7 @@ describe('Auth e2e', () => {
         email: 777,
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('REGISTRATION EMAIL RESENDING with incorrect data (pattern violation)', async () => {
     await request(app.getHttpServer())
@@ -276,7 +296,7 @@ describe('Auth e2e', () => {
         email: 'caramba',
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('REGISTRATION EMAIL RESENDING with incorrect data (non-existing value)', async () => {
     await request(app.getHttpServer())
@@ -285,7 +305,7 @@ describe('Auth e2e', () => {
         email: 'caramba@gmail.com',
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it.skip('REGISTRATION EMAIL RESENDING with correct data', async () => {
     await request(app.getHttpServer())
@@ -314,7 +334,7 @@ describe('Auth e2e', () => {
         code: '',
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('REGISTRATION CONFIRMATION with incorrect data (only whitespaces)', async () => {
     await request(app.getHttpServer())
@@ -323,7 +343,7 @@ describe('Auth e2e', () => {
         code: '     ',
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it('REGISTRATION CONFIRMATION with incorrect data (wrong type)', async () => {
     await request(app.getHttpServer())
@@ -332,7 +352,7 @@ describe('Auth e2e', () => {
         code: 777,
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   it.skip('REGISTRATION CONFIRMATION with incorrect data (non-existing value)', async () => {
     await request(app.getHttpServer())
@@ -351,6 +371,7 @@ describe('Auth e2e', () => {
       })
       .expect(400);
   }); // 400
+
   //TODO skip
   it.skip('REGISTRATION CONFIRMATION with correct data (for jenkins)', async () => {
     await request(app.getHttpServer())
@@ -377,7 +398,7 @@ describe('Auth e2e', () => {
         code: confirmationCode_2,
       })
       .expect(400);
-  }); // 400
+  }); // 400 *
 
   //TODO skip
   it.skip('REGISTRATION EMAIL RESENDING with incorrect data (email has already been confirmed)', async () => {
@@ -397,7 +418,7 @@ describe('Auth e2e', () => {
         password: '',
       })
       .expect(401);
-  }); // 401
+  }); // 401 *
 
   it('LOGIN with incorrect data (only whitespaces)', async () => {
     await request(app.getHttpServer())
@@ -407,7 +428,7 @@ describe('Auth e2e', () => {
         password: '     ',
       })
       .expect(401);
-  }); // 401
+  }); // 401 *
 
   it('LOGIN with incorrect data (wrong type)', async () => {
     await request(app.getHttpServer())
@@ -417,7 +438,7 @@ describe('Auth e2e', () => {
         password: 777,
       })
       .expect(401);
-  }); // 401
+  }); // 401 *
 
   it('LOGIN with incorrect data (pattern violation)', async () => {
     await request(app.getHttpServer())
@@ -427,7 +448,7 @@ describe('Auth e2e', () => {
         password: 'some password',
       })
       .expect(401);
-  }); // 401
+  }); // 401 *
 
   it('LOGIN with incorrect data (non-existing email)', async () => {
     await request(app.getHttpServer())
@@ -437,7 +458,7 @@ describe('Auth e2e', () => {
         password: 'Somepassword=1',
       })
       .expect(401);
-  }); // 401
+  }); // 401 *
 
   it('LOGIN with incorrect data (non-existing password)', async () => {
     await request(app.getHttpServer())
@@ -447,8 +468,9 @@ describe('Auth e2e', () => {
         password: 'Somepassword=0',
       })
       .expect(401);
-  }); // 401
-  //todo skip
+  }); // 401 *
+
+  //TODO skip
   it.skip('LOGIN with correct data', async () => {
     const response = await request(app.getHttpServer())
       .post('/auth/login')
@@ -464,13 +486,13 @@ describe('Auth e2e', () => {
 
   it('UPDATE tokens without refresh token', async () => {
     await request(app.getHttpServer()).post('/auth/refresh-token').expect(401);
-  }); // 401
+  }); // 401 *
 
   it('UPDATE tokens with incorrect refresh token', async () => {
     await request(app.getHttpServer()).post('/auth/refresh-token').set('Cookie', 'refreshToken=caramba').expect(401);
-  }); // 401
+  }); // 401 *
 
-  //todo skip
+  //TODO skip
   it.skip('UPDATE tokens with correct refresh token', async () => {
     await new Promise((resolve) => setTimeout(resolve, 5000));
 
@@ -484,16 +506,17 @@ describe('Auth e2e', () => {
 
   it('LOGOUT without refresh token', async () => {
     await request(app.getHttpServer()).post('/auth/logout').expect(401);
-  }); // 401
+  }); // 401 *
 
   it('LOGOUT with incorrect refresh token', async () => {
     await request(app.getHttpServer()).post('/auth/logout').set('Cookie', 'refreshToken=caramba').expect(401);
-  }); // 401
+  }); // 401 *
 
   //TODO skip
   it.skip('LOGOUT with correct refresh token', async () => {
     await request(app.getHttpServer()).post('/auth/logout').set('Cookie', refreshToken).expect(201);
   }); // 201
+
   //TODO skip
   it.skip('LOGIN with correct data', async () => {
     await request(app.getHttpServer())
@@ -564,7 +587,7 @@ describe('Auth e2e', () => {
         recaptchaToken: '777',
       })
       .expect(403);
-  }); // 403
+  }); // 403 *
 
   it.skip('PASSWORD RECOVERY with correct data', async () => {
     await request(app.getHttpServer())
@@ -704,6 +727,7 @@ describe('Auth e2e', () => {
       })
       .expect(201);
   }); // 201
+
   //TODO skip
   it.skip('LOGIN with correct data', async () => {
     const response = await request(app.getHttpServer())
@@ -720,11 +744,11 @@ describe('Auth e2e', () => {
 
   it('GET information about current user without authorisation', async () => {
     await request(app.getHttpServer()).get('/auth/me').expect(401);
-  }); // 401
+  }); // 401 *
 
   it('GET information about current user with wrong accesstoken', async () => {
     await request(app.getHttpServer()).get('/auth/me').set('Authorization', 'Bearer caramba').expect(401);
-  }); // 401
+  }); // 401 *
 
   it('GET information about current user with incorrect accesstoken', async () => {
     await request(app.getHttpServer())
@@ -734,7 +758,8 @@ describe('Auth e2e', () => {
         'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NjMxIiwiaWF0IjoxNzIyOTQ5OTg2LCJleHAiOjE3MjI5NTA0ODZ9.W54wVkjnhY5Oo4VzY_sBQUzIgrK1vTwAnsgGSvRL_e4',
       )
       .expect(401);
-  }); // 401
+  }); // 401 *
+
   //TODO skip
   it.skip('GET information about current user with correct accesstoken', async () => {
     const response = await request(app.getHttpServer())
