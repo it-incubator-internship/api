@@ -26,6 +26,7 @@ export class ImageStorageAdapter {
     });
   }
 
+  // если будет нужно
   // async saveImage(buffer: Buffer) {
   //   console.log('buffer in image storage adapter:', buffer);
 
