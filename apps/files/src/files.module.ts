@@ -7,6 +7,7 @@ import { FilesService } from './files.service';
 import { Environments } from './common/settings/env_validate/env-class-validator';
 import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-env-path';
 import { configuration } from './common/settings/configuration';
+import { ImageStorageAdapter } from './common/adapters/image.storage.adapter';
 
 const environment = process.env.NODE_ENV as Environments;
 
@@ -25,6 +26,6 @@ const environment = process.env.NODE_ENV as Environments;
     ),
   ],
   controllers: [FilesController],
-  providers: [FilesService],
+  providers: [FilesService, ImageStorageAdapter],
 })
 export class FilesModule {}

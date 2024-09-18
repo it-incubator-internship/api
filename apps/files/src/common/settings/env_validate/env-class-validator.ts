@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, Max, Min, validateSync } from 'class-validator';
+import { IsEnum, IsNumber, IsString, Max, Min, validateSync } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 
 export enum Environments {
@@ -17,6 +17,12 @@ export class EnvironmentVariables {
   @Min(0)
   @Max(65535)
   PORT: number;
+
+  @IsString()
+  CLOUD_SECRET_ACCESS_KEY: string;
+
+  @IsString()
+  CLOUD_ACCESS_KEY_ID: string;
 }
 
 export function validate(config: Record<string, unknown>) {

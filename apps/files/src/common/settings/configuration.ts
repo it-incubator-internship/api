@@ -23,6 +23,12 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     addressSettings: {
       address: 'https://navaibe.ru/',
     },
+
+    cloudSettings: {
+      address: 'https://storage.yandexcloud.net',
+      secretAccessKey: environmentVariables.CLOUD_SECRET_ACCESS_KEY as string,
+      accessKeyId: environmentVariables.CLOUD_ACCESS_KEY_ID as string,
+    },
   };
 };
 
@@ -40,7 +46,7 @@ export const getAllEnvironmentVariables = (allowedVariables: string[]): Environm
 export const configuration = () => {
   console.log('PORT from process.env:', process.env.PORT);
 
-  const allowedVariables = ['NODE_ENV', 'PORT'];
+  const allowedVariables = ['NODE_ENV', 'PORT', 'CLOUD_SECRET_ACCESS_KEY', 'CLOUD_ACCESS_KEY_ID'];
 
   //Эти значения выводятся в сваггере
   const environmentVariables = getAllEnvironmentVariables(allowedVariables); //; process.env
