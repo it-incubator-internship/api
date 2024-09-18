@@ -3,6 +3,7 @@ module.exports = {
     extensions: ['.ts', '.js'],
     fallback: {
       express: require.resolve('express'),
+      multer: require.resolve('multer'),
     },
   },
 };

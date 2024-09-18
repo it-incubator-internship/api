@@ -8,6 +8,7 @@ import { Environments } from './common/settings/env_validate/env-class-validator
 import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-env-path';
 import { configuration } from './common/settings/configuration';
 import { ImageStorageAdapter } from './common/adapters/image.storage.adapter';
+import { FileUploadService } from './common/adapters/file-upload.service';
 
 const environment = process.env.NODE_ENV as Environments;
 
@@ -20,7 +21,6 @@ const environment = process.env.NODE_ENV as Environments;
       load: [configuration],
     }),
 
-    // TODO подключение к тестовой бд
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -30,6 +30,6 @@ const environment = process.env.NODE_ENV as Environments;
     }),
   ],
   controllers: [FilesController],
-  providers: [FilesService, ImageStorageAdapter],
+  providers: [FilesService, FileUploadService, ImageStorageAdapter],
 })
 export class FilesModule {}
