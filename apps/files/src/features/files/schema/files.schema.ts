@@ -52,7 +52,17 @@ export class Files {
   @Prop({ type: Date, nullable: true, default: null })
   deletedAt: Date | null;
 
-  static create(format: FileFormat, type: FileType, url: ImageUrl, description?: string) {
+  static create({
+    format,
+    type,
+    url,
+    description,
+  }: {
+    format: FileFormat;
+    type: FileType;
+    url: ImageUrl;
+    description?: string;
+  }) {
     const file = new this();
 
     file.format = format;
@@ -63,10 +73,6 @@ export class Files {
     return file;
   }
 
-  // updateDescription(description: string) {
-  //   this.description = description;
-  // }
-
   delete() {
     this.deletedAt = new Date();
   }
@@ -74,7 +80,4 @@ export class Files {
 
 export const FileSchema = SchemaFactory.createForClass(Files);
 
-FileSchema.methods = {
-  // update: Files.prototype.updateDescription,
-  delete: Files.prototype.delete,
-};
+FileSchema.loadClass(Files);
