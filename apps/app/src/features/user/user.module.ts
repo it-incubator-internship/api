@@ -3,6 +3,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
@@ -81,7 +82,20 @@ const strategies = [
 const adapters = [JwtAdapter];
 
 @Module({
-  imports: [HttpModule, EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
+  imports: [
+    HttpModule,
+    EventEmitterModule.forRoot(),
+    MailModule,
+    PrismaModule,
+    CqrsModule,
+    JwtModule.register({}),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 10000, // время
+        limit: 5, // количество попыток
+      },
+    ]),
+  ],
   controllers: [AuthController, AuthGoogleController, GithubOauthController, SessionController, UserController],
   providers: [
     ...userRepositories,

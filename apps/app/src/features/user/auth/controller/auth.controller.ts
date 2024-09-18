@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Get, Ip, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
@@ -48,6 +49,7 @@ export class AuthController {
     private userRepository: UserQueryRepository,
   ) {}
 
+  @UseGuards(ThrottlerGuard)
   @Post('registration')
   @UserRegitsrationSwagger()
   async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
@@ -58,6 +60,7 @@ export class AuthController {
     return { email: inputModel.email };
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @RegistrationEmailResendingSwagger()
   async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
@@ -84,6 +87,7 @@ export class AuthController {
     if (!result.isSuccess) throw result.error;
   }
 
+  @UseGuards(ThrottlerGuard)
   @UseGuards(RecaptchaAuthGuard)
   @Post('password-recovery')
   @PasswordRecoverySwagger()
@@ -95,6 +99,7 @@ export class AuthController {
     return { email: inputModel.email };
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post('password-recovery-email-resending')
   @PasswordRecoveryResendingSwagger()
   async passwordRecoveryEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
