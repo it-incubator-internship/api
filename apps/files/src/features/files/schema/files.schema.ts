@@ -4,70 +4,68 @@ import { HydratedDocument } from 'mongoose';
 export type FileDocument = HydratedDocument<Files>;
 
 export enum FileFormat {
-  jpeg = 'jpeg',
-  png = 'png',
   webm = 'webm',
 }
 
 export enum FileType {
-  wallpaper = 'wallpaper',
-  main = 'main',
+  avatar = 'avatar',
 }
 
 type ImageUrl = {
   small?: string;
   medium?: string;
-  original: string;
+  original?: string;
 };
 
-@Schema()
+@Schema({ timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } })
 export class Files {
   @Prop({
+    type: String,
     required: true,
   })
   format: FileFormat;
 
   @Prop({
+    type: String,
     required: true,
   })
   type: FileType;
 
-  @Prop()
-  description: string;
+  @Prop({ type: String, nullable: true, default: null })
+  description: string | null;
 
   @Prop(
     raw({
       small: { type: String, required: false },
       medium: { type: String, required: false },
-      original: { type: String, required: true },
+      original: { type: String, required: false },
     }),
   )
   url: ImageUrl;
 
-  @Prop()
+  @Prop({ type: Date })
   createdAt: Date;
 
-  @Prop()
+  @Prop({ type: Date })
   updatedAt: Date;
 
-  @Prop()
-  deletedAt: Date;
+  @Prop({ type: Date, nullable: true, default: null })
+  deletedAt: Date | null;
 
-  static create(format: FileFormat, type: FileType, url: ImageUrl) {
+  static create(format: FileFormat, type: FileType, url: ImageUrl, description?: string) {
     const file = new this();
 
     file.format = format;
     file.type = type;
     file.url = url;
-    file.createdAt = new Date();
-    file.updatedAt = new Date();
+    file.description = description ? description : null;
 
     return file;
   }
 
-  updateDescription(description: string) {
-    this.description = description;
-  }
+  // updateDescription(description: string) {
+  //   this.description = description;
+  // }
 
   delete() {
     this.deletedAt = new Date();
@@ -77,6 +75,6 @@ export class Files {
 export const FileSchema = SchemaFactory.createForClass(Files);
 
 FileSchema.methods = {
-  update: Files.prototype.updateDescription,
+  // update: Files.prototype.updateDescription,
   delete: Files.prototype.delete,
 };
