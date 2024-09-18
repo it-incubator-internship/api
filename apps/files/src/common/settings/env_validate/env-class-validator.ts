@@ -21,6 +21,12 @@ export class EnvironmentVariables {
   @IsString()
   @MinLength(5)
   MONGO_URL: string;
+
+  @IsString()
+  CLOUD_SECRET_ACCESS_KEY: string;
+
+  @IsString()
+  CLOUD_ACCESS_KEY_ID: string;
 }
 
 export function validate(config: Record<string, unknown>) {
