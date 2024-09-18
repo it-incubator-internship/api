@@ -2,6 +2,7 @@ import { EntityFactory } from '../../app/src/features/user/user/domain/account-d
 
 import { EntityEnum } from './base.repository';
 
+//TODO вынести от сюда
 export class EntityHandler {
   getEntityClass({ model, entity }: { model: string; entity: any }) {
     switch (model) {
