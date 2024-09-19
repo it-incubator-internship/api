@@ -31,7 +31,7 @@ export class ImageStorageAdapter {
     const upload = new Upload({
       client: this.s3Client,
       params: {
-        Bucket: 'alex777',
+        Bucket: 'navaibe.1.0',
         Key: key,
         Body: stream,
         ContentType: 'image/jpeg',
