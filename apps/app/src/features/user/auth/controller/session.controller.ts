@@ -28,7 +28,7 @@ export class SessionController {
   async getAllUserSessions(
     @RefreshTokenInformation() data: { userId: string; deviceUuid: string },
   ): Promise<OutputSession[]> {
-    return this.sessionQueryRepository.findAllSessionsByProfileId({ id: data.userId });
+    return this.sessionQueryRepository.findAllSessionsByProfileId({ id: data.userId, deviceUuid: data.deviceUuid });
   }
 
   @UseGuards(RefreshTokenGuard)
