@@ -4,6 +4,12 @@ export class OutputSession {
   @ApiProperty({ example: '12345', description: 'id сессии ( DeviceUUid )' })
   sessionId: string;
 
+  @ApiProperty({
+    example: true,
+    description: 'флаг, отображающий текущую сессию (true для текущей сессии, false для остальных)',
+  })
+  current: boolean;
+
   @ApiProperty({ example: '67890', description: 'id юзера' })
   userId: string;
 
