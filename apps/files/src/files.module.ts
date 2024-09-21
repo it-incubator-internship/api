@@ -3,12 +3,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { FilesController } from './files.controller';
-import { FilesService } from './files.service';
 import { Environments } from './common/settings/env_validate/env-class-validator';
 import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-env-path';
 import { configuration } from './common/settings/configuration';
-import { ImageStorageAdapter } from './common/adapters/image.storage.adapter';
-import { FileUploadService } from './common/adapters/file-upload.service';
+import { FileUploadModule } from './features/files-upload.module';
 
 const environment = process.env.NODE_ENV as Environments;
 
@@ -28,8 +26,9 @@ const environment = process.env.NODE_ENV as Environments;
       }),
       inject: [ConfigService],
     }),
+    FileUploadModule,
   ],
   controllers: [FilesController],
-  providers: [FilesService, FileUploadService, ImageStorageAdapter],
+  providers: [],
 })
 export class FilesModule {}
