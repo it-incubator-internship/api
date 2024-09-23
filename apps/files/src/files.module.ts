@@ -6,7 +6,7 @@ import { FilesController } from './files.controller';
 import { Environments } from './common/settings/env_validate/env-class-validator';
 import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-env-path';
 import { configuration } from './common/settings/configuration';
-import { FileUploadModule } from './features/files-upload.module';
+import { FileUploadModule } from './features/files/files-upload.module';
 
 const environment = process.env.NODE_ENV as Environments;
 

@@ -1,10 +1,8 @@
-import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Controller, Param, ParseUUIDPipe, Post, UseInterceptors } from '@nestjs/common';
 
 import { FileUploadService } from '../applications/file-upload.service';
 import { ImageStorageAdapter } from '../../../common/adapters/image.storage.adapter';
-import { FileValidationPipe } from '../file-validation.pipe';
-import { diskStorage } from '../../multer-config';
+import { FileUploadInterceptor } from '../interceptors/fileUpload.interceptor';
 
 @Controller('upload')
 export class FileUploadController {
@@ -13,20 +11,16 @@ export class FileUploadController {
     private readonly s3StorageAdapter: ImageStorageAdapter,
   ) {}
 
-  @Post()
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage,
-    }),
-  )
-  async uploadFile(@UploadedFile(FileValidationPipe) file: Express.Multer.File) {
+  @Post('avatar/:id')
+  @UseInterceptors(FileUploadInterceptor)
+  async uploadFile(@Param('id', ParseUUIDPipe) userId: string, fileData: { filePath: string }) {
     try {
-      const fileStream = await this.fileUploadService.createFileStream(file.path);
+      const fileStream = await this.fileUploadService.createFileStream(fileData.filePath);
       const result = await this.s3StorageAdapter.saveImageFromStream(fileStream);
-      await this.fileUploadService.deleteFile(file.path);
+      await this.fileUploadService.deleteFile(fileData.filePath);
       return result;
     } catch (error) {
-      await this.fileUploadService.deleteFile(file.path);
+      await this.fileUploadService.deleteFile(fileData.filePath);
       throw error;
     }
   }
