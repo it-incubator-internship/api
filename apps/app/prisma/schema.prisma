@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider      = "prisma-client-js"
   output        = "../prisma/client"
@@ -39,9 +33,7 @@ model User {
   banStatus    BanStatus    @default(NOT_BANNED)
   banDate      DateTime?
   accountData  AccountData?
-  profile      Profile?
-
-  sessions Session[]
+  sessions     Session[]
 
   @@map("user")
 }
@@ -49,26 +41,105 @@ model User {
 model Session {
   id             String   @id @default(uuid()) @db.Uuid
   profileId      String   @db.Uuid
-  deviceUuid     String   @unique
   deviceName     String
   ip             String
   lastActiveDate DateTime
+  deviceUuid     String   @unique
   user           User     @relation(fields: [profileId], references: [id])
 
   @@map("session")
 }
 
-model Profile {
-  profileId   String    @id @unique @db.Uuid
-  firstName   String
-  lastName    String
-  dateOfBirth DateTime?
-  country     String?
-  city        String?
-  aboutMe     String?
-  user        User      @relation(fields: [profileId], references: [id])
+model cities {
+  city_id    Int     @id(map: "pk_city_cid")
+  country_id Int
+  important  Boolean
+  region_id  Int?
+  title_ru   String? @db.VarChar(150)
+  area_ru    String? @db.VarChar(150)
+  region_ru  String? @db.VarChar(150)
+  title_ua   String? @db.VarChar(150)
+  area_ua    String? @db.VarChar(150)
+  region_ua  String? @db.VarChar(150)
+  title_be   String? @db.VarChar(150)
+  area_be    String? @db.VarChar(150)
+  region_be  String? @db.VarChar(150)
+  title_en   String? @db.VarChar(150)
+  area_en    String? @db.VarChar(150)
+  region_en  String? @db.VarChar(150)
+  title_es   String? @db.VarChar(150)
+  area_es    String? @db.VarChar(150)
+  region_es  String? @db.VarChar(150)
+  title_pt   String? @db.VarChar(150)
+  area_pt    String? @db.VarChar(150)
+  region_pt  String? @db.VarChar(150)
+  title_de   String? @db.VarChar(150)
+  area_de    String? @db.VarChar(150)
+  region_de  String? @db.VarChar(150)
+  title_fr   String? @db.VarChar(150)
+  area_fr    String? @db.VarChar(150)
+  region_fr  String? @db.VarChar(150)
+  title_it   String? @db.VarChar(150)
+  area_it    String? @db.VarChar(150)
+  region_it  String? @db.VarChar(150)
+  title_pl   String? @db.VarChar(150)
+  area_pl    String? @db.VarChar(150)
+  region_pl  String? @db.VarChar(150)
+  title_ja   String? @db.VarChar(150)
+  area_ja    String? @db.VarChar(150)
+  region_ja  String? @db.VarChar(150)
+  title_lt   String? @db.VarChar(150)
+  area_lt    String? @db.VarChar(150)
+  region_lt  String? @db.VarChar(150)
+  title_lv   String? @db.VarChar(150)
+  area_lv    String? @db.VarChar(150)
+  region_lv  String? @db.VarChar(150)
+  title_cz   String? @db.VarChar(150)
+  area_cz    String? @db.VarChar(150)
+  region_cz  String? @db.VarChar(150)
 
-  @@map("profile")
+  @@map("_cities")
+}
+
+model countries {
+  country_id Int     @id(map: "pk_country_cid")
+  title_ru   String? @db.VarChar(60)
+  title_ua   String? @db.VarChar(60)
+  title_be   String? @db.VarChar(60)
+  title_en   String? @db.VarChar(60)
+  title_es   String? @db.VarChar(60)
+  title_pt   String? @db.VarChar(60)
+  title_de   String? @db.VarChar(60)
+  title_fr   String? @db.VarChar(60)
+  title_it   String? @db.VarChar(60)
+  title_pl   String? @db.VarChar(60)
+  title_ja   String? @db.VarChar(60)
+  title_lt   String? @db.VarChar(60)
+  title_lv   String? @db.VarChar(60)
+  title_cz   String? @db.VarChar(60)
+
+  @@map("_countries")
+}
+
+model regions {
+  region_id  Int     @id(map: "pk_region_rid")
+  country_id Int
+  title_ru   String? @db.VarChar(150)
+  title_ua   String? @db.VarChar(150)
+  title_be   String? @db.VarChar(150)
+  title_en   String? @db.VarChar(150)
+  title_es   String? @db.VarChar(150)
+  title_pt   String? @db.VarChar(150)
+  title_de   String? @db.VarChar(150)
+  title_fr   String? @db.VarChar(150)
+  title_it   String? @db.VarChar(150)
+  title_pl   String? @db.VarChar(150)
+  title_ja   String? @db.VarChar(150)
+  title_lt   String? @db.VarChar(150)
+  title_lv   String? @db.VarChar(150)
+  title_cz   String? @db.VarChar(150)
+
+  @@map("_regions")
 }
 
 enum ConfirmationStatus {
