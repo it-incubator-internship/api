@@ -10,12 +10,11 @@ async function bootstrap() {
   const app = await NestFactory.create(FilesModule);
 
   appSettings(app);
-  // enableCors пока отставляю как есть
   app.enableCors({
-    // credentials: true,
-    // origin: ['http://localhost:3000', 'https://navaibe.ru/'],
-    // methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
-    // allowedHeaders: ['Accept', 'Content-Type', 'Authorization'],
+    credentials: true,
+    origin: ['http://localhost:3000', 'https://navaibe.ru/'],
+    methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
+    allowedHeaders: ['Accept', 'Content-Type', 'Authorization'],
   });
 
   // достаем env

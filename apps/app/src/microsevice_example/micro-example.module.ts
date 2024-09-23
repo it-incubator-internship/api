@@ -8,7 +8,7 @@ import { MicroExampleController } from './micro-example.controller';
     ClientsModule.register([
       {
         name: 'MULTICAST_EXCHANGE',
-        transport: Transport.RMQ,
+        transport: Transport.TCP,
         options: {
           urls: ['amqp://guest:guest@localhost:56722'],
           queue: 'multicast_queue',
