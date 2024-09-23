@@ -1,21 +1,17 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { Controller, Post, Req, Res } from '@nestjs/common';
+import { Controller, Param, ParseUUIDPipe, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import busboy from 'busboy';
 
-@Controller(/* 'file' */)
+@Controller('file')
 export class FileController {
   constructor() {}
 
-  @Post(/* ':userId' */)
-  async handleUpload(@Req() req: Request, @Res() res: Response) {
-    console.log('console.log in file controller');
-    console.log('req.headers in file controller:', req.headers);
-
+  @Post('avatar/:userId')
+  async handleUpload(@Param('userId', ParseUUIDPipe) userId: string, @Req() req: Request, @Res() res: Response) {
     const bb = busboy({ headers: req.headers });
-    console.log('bb in file controller:', bb);
 
     let saveFilePath: string;
 
@@ -24,7 +20,6 @@ export class FileController {
       console.log('file', file);
       console.log('info', JSON.stringify(info));
       saveFilePath = path.join(__dirname, '..', info.filename);
-      console.log('saveFilePath in file controller:', saveFilePath);
       file.pipe(fs.createWriteStream(saveFilePath));
     });
 

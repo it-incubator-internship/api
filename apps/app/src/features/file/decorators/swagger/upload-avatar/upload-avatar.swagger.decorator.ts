@@ -35,7 +35,8 @@ export function UploadAvatarSwagger() {
     }),
     ApiBadRequestResponse({
       status: 400,
-      description: 'В случае попытки загрузки фото размером более 10Мб и/или не допустимого формата.',
+      description:
+        'В случае попытки загрузки фото размером более 10Мб и/или не допустимого формата и/или отсутствия фото в запросе.',
       type: () => BasicBadRequestOutputType,
     }),
     ApiUnauthorizedResponse({
