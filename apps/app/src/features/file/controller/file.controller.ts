@@ -14,15 +14,15 @@ import { ConfigurationType } from '../../../../../app/src/common/settings/config
 @ApiTags('file')
 @Controller('file')
 export class FileController {
-  private readonly avatarStreamConfiguration: ConfigurationType['avatarStreamSettings'];
+  private readonly avatarStreamConfiguration: ConfigurationType['fileMicroservise'];
 
   constructor(private readonly configService: ConfigService<ConfigurationType, true>) {
-    this.avatarStreamConfiguration = this.configService.get<ConfigurationType['avatarStreamSettings']>(
-      'avatarStreamSettings',
+    this.avatarStreamConfiguration = this.configService.get<ConfigurationType['fileMicroservise']>(
+      'fileMicroservise',
       {
         infer: true,
       },
-    ) as ConfigurationType['avatarStreamSettings'];
+    ) as ConfigurationType['fileMicroservise'];
   }
 
   // это первоначальный код. оставил его из-за примера валидации. в целом, он не нужен.
@@ -85,12 +85,13 @@ export class FileController {
     const options = {
       hostname: this.avatarStreamConfiguration.hostname,
       port: this.avatarStreamConfiguration.port,
-      path: `/file/avatar/${userId}` /* this.avatarStreamConfiguration.path */,
+      path: this.avatarStreamConfiguration.avatarPath + userId,
       method: 'POST',
       headers: {
         ...req.headers,
       },
     };
+    console.log('options in file controller:', options);
 
     const forwardRequest = http.request(options, (forwardResponse) => {
       console.log('Response from second server:', forwardResponse.statusCode);
@@ -109,6 +110,8 @@ export class FileController {
     forwardRequest.on('error', (err) => {
       console.error('Error forwarding request:', err);
       res.status(500).send('Error forwarding request');
+      return;
     });
+    return;
   }
 }

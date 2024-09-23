@@ -57,10 +57,10 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       recaptchaURL: 'https://www.google.com/recaptcha/api/siteverify',
     },
 
-    avatarStreamSettings: {
-      hostname: 'localhost',
-      port: 3002,
-      // path: `/file/avatar/${userId}`,
+    fileMicroservise: {
+      hostname: '29e6d4f00fc4acc71876d1a834bcda48.serveo.net',
+      port: 443,
+      avatarPath: '/file/avatar/',
     },
 
     getAllVariables: {
