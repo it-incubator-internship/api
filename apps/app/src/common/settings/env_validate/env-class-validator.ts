@@ -50,6 +50,14 @@ export class EnvironmentVariables {
 
   @IsString()
   RECAPTCHA_SECRET: string;
+
+  @IsString()
+  FILE_MICROSERVICE_HOSTNAME: string;
+
+  @IsNumber()
+  @Min(0)
+  @Max(65535)
+  FILE_MICROSERVICE_PORT: number;
 }
 
 export function validate(config: Record<string, unknown>) {

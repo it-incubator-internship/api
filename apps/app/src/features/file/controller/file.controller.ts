@@ -14,15 +14,12 @@ import { ConfigurationType } from '../../../../../app/src/common/settings/config
 @ApiTags('file')
 @Controller('file')
 export class FileController {
-  private readonly avatarStreamConfiguration: ConfigurationType['fileMicroservise'];
+  private readonly imageStreamConfiguration: ConfigurationType['fileMicroservice'];
 
   constructor(private readonly configService: ConfigService<ConfigurationType, true>) {
-    this.avatarStreamConfiguration = this.configService.get<ConfigurationType['fileMicroservise']>(
-      'fileMicroservise',
-      {
-        infer: true,
-      },
-    ) as ConfigurationType['fileMicroservise'];
+    this.imageStreamConfiguration = this.configService.get<ConfigurationType['fileMicroservice']>('fileMicroservice', {
+      infer: true,
+    }) as ConfigurationType['fileMicroservice'];
   }
 
   // это первоначальный код. оставил его из-за примера валидации. в целом, он не нужен.
@@ -71,9 +68,9 @@ export class FileController {
     const contentType = req.headers['content-type'];
 
     if (!contentType) {
-      throw new BadRequestError('Photo not included in request', [
+      throw new BadRequestError('Photo not included in request.', [
         {
-          message: 'Photo not included in request',
+          message: 'Photo not included in request. Form-data is missing.',
           field: '',
         },
       ]);
@@ -83,15 +80,14 @@ export class FileController {
     const userId = userInfo.userId;
 
     const options = {
-      hostname: this.avatarStreamConfiguration.hostname,
-      port: this.avatarStreamConfiguration.port,
-      path: this.avatarStreamConfiguration.avatarPath + userId,
+      hostname: this.imageStreamConfiguration.hostname,
+      port: this.imageStreamConfiguration.port,
+      path: this.imageStreamConfiguration.avatarPath + userId,
       method: 'POST',
       headers: {
         ...req.headers,
       },
     };
-    console.log('options in file controller:', options);
 
     const forwardRequest = http.request(options, (forwardResponse) => {
       console.log('Response from second server:', forwardResponse.statusCode);

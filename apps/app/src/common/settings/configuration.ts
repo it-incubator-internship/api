@@ -57,9 +57,9 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       recaptchaURL: 'https://www.google.com/recaptcha/api/siteverify',
     },
 
-    fileMicroservise: {
-      hostname: '29e6d4f00fc4acc71876d1a834bcda48.serveo.net',
-      port: 443,
+    fileMicroservice: {
+      hostname: environmentVariables.FILE_MICROSERVICE_HOSTNAME,
+      port: environmentVariables.FILE_MICROSERVICE_PORT,
       avatarPath: '/file/avatar/',
     },
 
@@ -111,6 +111,9 @@ export const configuration = () => {
     'GOOGLE_CALLBACK_URL',
     //RECAPTCHA
     'RECAPTCHA_SECRET',
+    //FILE_MICROSERVICE
+    'FILE_MICROSERVICE_HOSTNAME',
+    'FILE_MICROSERVICE_PORT',
   ];
 
   //Эти значения выводятся в сваггере
