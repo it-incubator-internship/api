@@ -3,17 +3,29 @@ import * as http from 'http';
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { BadRequestError } from '../../../../../common/utils/result/custom-error';
 import { JwtAuthGuard } from '../../user/auth/guards/jwt.auth.guard';
 import { UserIdFromRequest } from '../../user/auth/decorators/controller/userIdFromRequest';
 import { UploadAvatarSwagger } from '../decorators/swagger/upload-avatar/upload-avatar.swagger.decorator';
+import { ConfigurationType } from '../../../../../app/src/common/settings/configuration';
 
 @ApiTags('file')
 @Controller('file')
 export class FileController {
-  constructor() {}
+  private readonly avatarStreamConfiguration: ConfigurationType['avatarStreamSettings'];
 
+  constructor(private readonly configService: ConfigService<ConfigurationType, true>) {
+    this.avatarStreamConfiguration = this.configService.get<ConfigurationType['avatarStreamSettings']>(
+      'avatarStreamSettings',
+      {
+        infer: true,
+      },
+    ) as ConfigurationType['avatarStreamSettings'];
+  }
+
+  // это первоначальный код. оставил его из-за примера валидации. в целом, он не нужен.
   // @UseGuards(JwtAuthGuard)
   // @Post(':id/avatar')
   // @UseInterceptors(FileInterceptor('file'))
@@ -22,7 +34,7 @@ export class FileController {
   //   @UploadedFile(
   //     new ParseFilePipeBuilder()
   //       .addFileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })
-  //       .addMaxSizeValidator({ maxSize: 10485760 })
+  //       .addMaxSizeValidator({ maxSize: maxAvatarSize })
   //       .build({
   //         exceptionFactory: () => {
   //           throw new BadRequestError('The photo size is more than 10 MB or the format is not JPEG or PNG', [
@@ -71,9 +83,9 @@ export class FileController {
     const userId = userInfo.userId;
 
     const options = {
-      hostname: 'localhost',
-      port: 3002,
-      path: `/file/avatar/${userId}`,
+      hostname: this.avatarStreamConfiguration.hostname,
+      port: this.avatarStreamConfiguration.port,
+      path: `/file/avatar/${userId}` /* this.avatarStreamConfiguration.path */,
       method: 'POST',
       headers: {
         ...req.headers,

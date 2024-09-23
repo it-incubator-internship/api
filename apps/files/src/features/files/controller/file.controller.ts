@@ -9,8 +9,8 @@ import busboy from 'busboy';
 export class FileController {
   constructor() {}
 
-  @Post('avatar/:userId')
-  async handleUpload(@Param('userId', ParseUUIDPipe) userId: string, @Req() req: Request, @Res() res: Response) {
+  @Post('avatar/:id')
+  async handleUpload(@Param('id', ParseUUIDPipe) userId: string, @Req() req: Request, @Res() res: Response) {
     console.log('userId in file controller:', userId);
 
     const bb = busboy({ headers: req.headers });

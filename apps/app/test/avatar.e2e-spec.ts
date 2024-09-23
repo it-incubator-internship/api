@@ -108,7 +108,7 @@ describe('Auth e2e', () => {
       .expect(401);
   }); // 401
 
-  it('UPLOAD avatar without authorisation', async () => {
+  it('UPLOAD avatar without image', async () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
     console.log('imageBuffer in avatar tests:', imageBuffer);
 
@@ -116,29 +116,38 @@ describe('Auth e2e', () => {
   }); // 400
 
   it.skip('UPLOAD avatar with incorrect data (wrong format)', async () => {
+    const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_false_format.jpeg').toBuffer();
+    console.log('imageBuffer in avatar tests:', imageBuffer);
+
     await request(app.getHttpServer())
       .post('/file/avatar')
       .set('Authorization', `Bearer ${accessToken}`)
       .set('Content-Type', 'multipart/form-data')
-      .attach('file', 'apps/app/test/images/avatar/avatar_false_format.gif')
+      .attach('file', imageBuffer)
       .expect(400);
   }); // 400
 
   it.skip('UPLOAD avatar with incorrect data (wrong size)', async () => {
+    const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_false_size.jpeg').toBuffer();
+    console.log('imageBuffer in avatar tests:', imageBuffer);
+
     await request(app.getHttpServer())
       .post('/file/avatar')
       .set('Authorization', `Bearer ${accessToken}`)
       .set('Content-Type', 'multipart/form-data')
-      .attach('file', 'apps/app/test/images/avatar/avatar_false_size.jpeg')
+      .attach('file', imageBuffer)
       .expect(400);
   }); // 400
 
   it.skip('UPLOAD avatar with correct data', async () => {
+    const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
+    console.log('imageBuffer in avatar tests:', imageBuffer);
+
     await request(app.getHttpServer())
       .post('/file/avatar')
       .set('Authorization', `Bearer ${accessToken}`)
       .set('Content-Type', 'multipart/form-data')
-      .attach('file', 'apps/app/test/images/avatar/avatar_true.jpeg')
+      .attach('file', imageBuffer)
       .expect(201);
   }); // 201
 });

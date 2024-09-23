@@ -6,6 +6,8 @@ export type EnvironmentVariable = { [key: string]: string | undefined };
 export type ConfigurationType = ReturnType<typeof getConfig>;
 
 const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment: Environments) => {
+  // const userId = 'randomUserId';
+
   return {
     apiSettings: {
       PORT: Number.parseInt(environmentVariables.PORT || '6666'),
@@ -53,6 +55,12 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     recaptchaSettings: {
       recaptchaSecret: environmentVariables.RECAPTCHA_SECRET,
       recaptchaURL: 'https://www.google.com/recaptcha/api/siteverify',
+    },
+
+    avatarStreamSettings: {
+      hostname: 'localhost',
+      port: 3002,
+      // path: `/file/avatar/${userId}`,
     },
 
     getAllVariables: {
