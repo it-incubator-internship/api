@@ -1,40 +1,37 @@
 import * as http from 'http';
 
-import { /* Express, */ Request, Response } from 'express';
-// import { ApiTags } from '@nestjs/swagger';
-import {
-  Controller,
-  // Param,
-  // ParseFilePipeBuilder,
-  // ParseUUIDPipe,
-  Post,
-  Req,
-  Res,
-  // UploadedFile,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-// import sharp from 'sharp';
+import { Request, Response } from 'express';
+import { ApiTags } from '@nestjs/swagger';
+import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
-// import { BadRequestError } from '../../../../../common/utils/result/custom-error';
+import { BadRequestError } from '../../../../../common/utils/result/custom-error';
 import { JwtAuthGuard } from '../../user/auth/guards/jwt.auth.guard';
 import { UserIdFromRequest } from '../../user/auth/decorators/controller/userIdFromRequest';
+import { UploadAvatarSwagger } from '../decorators/swagger/upload-avatar/upload-avatar.swagger.decorator';
+import { ConfigurationType } from '../../../../../app/src/common/settings/configuration';
 
-// @ApiTags('file')
+@ApiTags('file')
 @Controller('file')
 export class FileController {
-  constructor() {} // private userRepository: UserQueryRepository, // private commandBus: CommandBus,
+  private readonly imageStreamConfiguration: ConfigurationType['fileMicroservice'];
 
+  constructor(private readonly configService: ConfigService<ConfigurationType, true>) {
+    this.imageStreamConfiguration = this.configService.get<ConfigurationType['fileMicroservice']>('fileMicroservice', {
+      infer: true,
+    }) as ConfigurationType['fileMicroservice'];
+  }
+
+  // это первоначальный код. оставил его из-за примера валидации. в целом, он не нужен.
   // @UseGuards(JwtAuthGuard)
-  // @Post(':id/avatar') // id берём из payload
+  // @Post(':id/avatar')
   // @UseInterceptors(FileInterceptor('file'))
   // // @UpdateUserProfileSwagger()
   // async uploadAvatar(
   //   @UploadedFile(
   //     new ParseFilePipeBuilder()
   //       .addFileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })
-  //       .addMaxSizeValidator({ maxSize: /* 10485760 */ 100000 })
+  //       .addMaxSizeValidator({ maxSize: maxAvatarSize })
   //       .build({
   //         exceptionFactory: () => {
   //           throw new BadRequestError('The photo size is more than 10 MB or the format is not JPEG or PNG', [
@@ -64,102 +61,53 @@ export class FileController {
   // }
 
   @UseGuards(JwtAuthGuard)
-  @Post('avatar') // id из payload
-  @UseInterceptors(FileInterceptor('file'))
+  @Post('/avatar')
+  @UploadAvatarSwagger()
+  async uploadAvatar(@UserIdFromRequest() userInfo: { userId: string }, @Req() req: Request, @Res() res: Response) {
+    // проверка запроса на наличие изображения
+    const contentType = req.headers['content-type'];
 
-  // @UpdateUserProfileSwagger()
-  async uploadAvatar(
-    @Req() req: Request,
-    @Res() res: Response,
-    @UserIdFromRequest() userInfo: { userId: string },
-    // @UploadedFile(
-    //   new ParseFilePipeBuilder()
-    //     .addFileTypeValidator({ fileType: /(jpg|jpeg|png)$/ })
-    //     .addMaxSizeValidator({ maxSize: /* 10485760 */ 100000 })
-    //     .build({
-    //       exceptionFactory: () => {
-    //         throw new BadRequestError('The photo size is more than 10 MB or the format is not JPEG or PNG', [
-    //           {
-    //             message: 'The photo must be less than 10 Mb and have JPEG or PNG format',
-    //             field: '',
-    //           },
-    //         ]);
-    //       },
-    //     }),
-    // )
-    // file: Express.Multer.File,
-  ) {
-    console.log('console.log in file controller');
-    console.log('userInfo in file controller:', userInfo);
+    if (!contentType) {
+      throw new BadRequestError('Photo not included in request.', [
+        {
+          message: 'Photo not included in request. Form-data is missing.',
+          field: '',
+        },
+      ]);
+    }
 
-    let isValid = false;
-    let headerChecked = false;
+    // получение userId для использования в options
+    const userId = userInfo.userId;
 
     const options = {
-      hostname: 'другой-микросервис',
-      port: 3000,
-      path: '/upload',
+      hostname: this.imageStreamConfiguration.hostname,
+      port: this.imageStreamConfiguration.port,
+      path: this.imageStreamConfiguration.avatarPath + userId,
       method: 'POST',
       headers: {
         ...req.headers,
-        'Transfer-Encoding': 'chunked',
       },
     };
-    console.log('options in file controller:', options);
 
-    // const forwardRequest = http.request(options, (forwardResponse) => {
-    //   res.writeHead(forwardResponse.statusCode ?? 500, forwardResponse.headers);
-    //   forwardResponse.pipe(res);
-    // });
-    // console.log('forwardRequest in file controller:', forwardRequest);
-
-    req.on('data', (chunk) => {
-      console.log('console.log 1.0');
-      if (!headerChecked) {
-        console.log('!headerChecked');
-        isValid = this.validateImageHeader(chunk);
-        console.log('isValid in file controller:', isValid);
-        headerChecked = true;
-      }
-
-      if (isValid) {
-        // forwardRequest.write(chunk);
-        console.log('isValid');
-      } else {
-        // req.unpipe();
-        // forwardRequest.end();
-        // res.status(400).send('Invalid image format. Only JPEG, JPG, and PNG are allowed.');
-        console.log('!isValid');
-      }
+    const forwardRequest = http.request(options, (forwardResponse) => {
+      console.log('Response from second server:', forwardResponse.statusCode);
+      forwardResponse.pipe(res);
     });
 
-    // req.on('end', () => {
-    //   if (isValid) {
-    //     forwardRequest.end();
-    //   }
-    // });
-  }
+    req.on('data', (chunk) => {
+      console.log(chunk.length, 'bytes received');
+      forwardRequest.write(chunk);
+    });
 
-  private validateImageHeader(chunk: Buffer): boolean {
-    // Проверка JPEG/JPG
-    if (chunk[0] === 0xff && chunk[1] === 0xd8 && chunk[2] === 0xff) {
-      return true;
-    }
+    req.on('end', () => {
+      forwardRequest.end();
+    });
 
-    // Проверка PNG
-    if (
-      chunk[0] === 0x89 &&
-      chunk[1] === 0x50 &&
-      chunk[2] === 0x4e &&
-      chunk[3] === 0x47 &&
-      chunk[4] === 0x0d &&
-      chunk[5] === 0x0a &&
-      chunk[6] === 0x1a &&
-      chunk[7] === 0x0a
-    ) {
-      return true;
-    }
-
-    return false;
+    forwardRequest.on('error', (err) => {
+      console.error('Error forwarding request:', err);
+      res.status(500).send('Error forwarding request');
+      return;
+    });
+    return;
   }
 }
