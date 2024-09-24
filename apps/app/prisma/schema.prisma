@@ -33,7 +33,9 @@ model User {
   banStatus    BanStatus    @default(NOT_BANNED)
   banDate      DateTime?
   accountData  AccountData?
-  sessions     Session[]
+  profile      Profile?
+
+  sessions Session[]
 
   @@map("user")
 }
@@ -41,13 +43,26 @@ model User {
 model Session {
   id             String   @id @default(uuid()) @db.Uuid
   profileId      String   @db.Uuid
+  deviceUuid     String   @unique
   deviceName     String
   ip             String
   lastActiveDate DateTime
-  deviceUuid     String   @unique
   user           User     @relation(fields: [profileId], references: [id])
 
   @@map("session")
+}
+
+model Profile {
+  profileId   String    @id @unique @db.Uuid
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime?
+  country     String?
+  city        String?
+  aboutMe     String?
+  user        User      @relation(fields: [profileId], references: [id])
+
+  @@map("profile")
 }
 
 model cities {
