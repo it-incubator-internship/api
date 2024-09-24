@@ -1,15 +1,15 @@
 import { Controller, Get, Param } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { LocalizationQueryRepository } from '../repository/localization.repository';
-// import { ApiTags } from '@nestjs/swagger';
 
-// @ApiTags('user')
+@ApiTags('localization')
 @Controller('localization')
 export class LocalizationController {
   constructor(private localizationRepository: LocalizationQueryRepository) {}
 
   @Get('countries')
-  // @GetUserProfileSwagger()
+  // @GetAllCountriesSwagger()
   async getAllCounties() /* : Promise<UserProfileOutputDto> */ {
     const countries = await this.localizationRepository.findAllCountries();
     console.log('countries in localization controller:', countries);
@@ -18,7 +18,7 @@ export class LocalizationController {
   }
 
   @Get('cities/:id')
-  // @GetUserProfileSwagger()
+  // @GetAllCitiesSwagger()
   async getAllCitiesByCountryId(@Param('id') countryId: number) /* : Promise<UserProfileOutputDto> */ {
     const cities = await this.localizationRepository.findAllCitiesByCountryId({ id: countryId });
     console.log('cities in localization controller:', cities);
