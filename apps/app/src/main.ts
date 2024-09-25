@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import compression from 'compression';
 
 import { AppModule } from './app.module';
 import { appSettings } from './common/settings/apply-app-setting';
@@ -20,7 +21,7 @@ async function bootstrap() {
   if (!isTestingENV) {
     swaggerSetting(app, apiPrefix);
   }
-
+  app.use(compression());
   app.setGlobalPrefix(apiPrefix);
   console.log(port);
   console.log('prefix', apiPrefix);
