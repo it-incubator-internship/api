@@ -70,6 +70,7 @@ model cities {
   country_id Int
   title_ru   String? @db.VarChar(150)
 
+  @@index([country_id])
   @@map("_cities")
 }
 
