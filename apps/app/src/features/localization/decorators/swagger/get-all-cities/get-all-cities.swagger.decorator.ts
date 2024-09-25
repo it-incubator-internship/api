@@ -1,48 +1,24 @@
 import { applyDecorators } from '@nestjs/common';
 import {
-  // ApiBadRequestResponse,
-  // ApiBearerAuth,
-  // ApiBody,
-  // ApiConsumes,
+  ApiNotFoundResponse,
   ApiOperation,
+  ApiParam,
   ApiResponse,
-  // ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-
-// import { BasicBadRequestOutputType } from '../../../../../../../app/src/common/models/basic-badquest.output.type';
+import { AllCitiesOutput } from '../../../dto/output/all-cities.output.dto';
 
 export function GetAllCitiesSwagger() {
   return applyDecorators(
-    ApiOperation({ summary: 'Получение списка городов, соответствующих конкретной стрене' }),
-    // ApiConsumes('multipart/form-data'), // Указываем, что ожидается multipart/form-data
-    // ApiBody({
-    //   description: 'Загружаемое фото профиля',
-    //   type: 'multipart/form-data', // Указываем, что это multipart
-    //   required: true,
-    //   schema: {
-    //     type: 'object',
-    //     properties: {
-    //       file: {
-    //         type: 'string',
-    //         format: 'binary', // Указываем, что это файл
-    //       },
-    //     },
-    //   },
-    // }),
+    ApiOperation({ summary: 'Получение списка городов, соответствующих конкретной стране' }),
+    ApiParam({ name: 'id', description: 'id страны, для которой запрашиваются города', required: true, type: String }),
     ApiResponse({
       status: 200,
       description: 'Список городов получен.',
+      type: [AllCitiesOutput],
     }),
-    // ApiBadRequestResponse({
-    //   status: 400,
-    //   description:
-    //     'В случае попытки загрузки фото размером более 10Мб и/или не допустимого формата и/или отсутствия фото в запросе.',
-    //   type: () => BasicBadRequestOutputType,
-    // }),
-    // ApiUnauthorizedResponse({
-    //   status: 401,
-    //   description: 'В случае отправки некорректного или просроченного accessToken.',
-    // }),
-    // ApiBearerAuth(),
+    ApiNotFoundResponse({
+      status: 404,
+      description: 'Города не найдены.',
+    }),
   );
 }

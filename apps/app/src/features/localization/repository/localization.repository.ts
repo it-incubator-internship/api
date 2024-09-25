@@ -1,25 +1,24 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../common/database_module/prisma-connection.service';
+import { AllCountriesOutput } from '../dto/output/all-countries.output.dto';
+import { AllCitiesOutput } from '../dto/output/all-cities.output.dto';
 
 @Injectable()
 export class LocalizationQueryRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAllCountries() /* : Promise<AuthMeOutput | null> */ {
+  async findAllCountries(): Promise<AllCountriesOutput[]> {
     const countries = await this.prismaService.countries.findMany({
       orderBy: {
         country_id: 'asc',
       },
     });
-    console.log('countries in city repository:', countries);
-
-    // if (!countries) return null;
 
     return countries;
   }
 
-  async findAllCitiesByCountryId({ id }: { id: number }) /* : Promise<UserProfileOutputDto | null> */ {
+  async findAllCitiesByCountryId({ id }: { id: number }): Promise<AllCitiesOutput[] | null> {
     const cities = await this.prismaService.cities.findMany({
       where: {
         country_id: id,
@@ -28,9 +27,8 @@ export class LocalizationQueryRepository {
         city_id: 'asc',
       },
     });
-    console.log('cities in city repository:', cities);
 
-    // if (!cities) return null;
+    if (cities.length === 0) return null;
 
     return cities;
   }
