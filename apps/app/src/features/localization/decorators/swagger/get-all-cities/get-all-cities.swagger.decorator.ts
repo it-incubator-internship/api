@@ -1,10 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
-import {
-  ApiNotFoundResponse,
-  ApiOperation,
-  ApiParam,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiNotFoundResponse, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+
 import { AllCitiesOutput } from '../../../dto/output/all-cities.output.dto';
 
 export function GetAllCitiesSwagger() {

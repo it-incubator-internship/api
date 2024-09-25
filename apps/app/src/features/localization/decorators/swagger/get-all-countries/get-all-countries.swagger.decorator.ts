@@ -1,8 +1,6 @@
 import { applyDecorators } from '@nestjs/common';
-import {
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+
 import { AllCountriesOutput } from '../../../dto/output/all-countries.output.dto';
 
 export function GetAllCountriesSwagger() {

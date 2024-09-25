@@ -11,7 +11,7 @@ ALTER TABLE "profile" DROP CONSTRAINT "profile_profileId_fkey";
 DROP TABLE "profile";
 
 -- CreateTable
-CREATE TABLE "_cities" (
+CREATE TABLE IF NOT EXISTS "_cities" (
     "city_id" INTEGER NOT NULL,
     "country_id" INTEGER NOT NULL,
     "important" BOOLEAN NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE "_cities" (
 );
 
 -- CreateTable
-CREATE TABLE "_countries" (
+CREATE TABLE IF NOT EXISTS "_countries" (
     "country_id" INTEGER NOT NULL,
     "title_ru" VARCHAR(60),
     "title_ua" VARCHAR(60),

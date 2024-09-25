@@ -15,7 +15,7 @@ export class LocalizationController {
 
   @Get('countries')
   @GetAllCountriesSwagger()
-  async getAllCounties() : Promise<AllCountriesOutput[]> {
+  async getAllCounties(): Promise<AllCountriesOutput[]> {
     const countries = await this.localizationRepository.findAllCountries();
 
     return countries;
@@ -23,7 +23,7 @@ export class LocalizationController {
 
   @Get('cities/:id')
   @GetAllCitiesSwagger()
-  async getAllCitiesByCountryId(@Param('id') countryId: number) : Promise<AllCitiesOutput[] | null> {
+  async getAllCitiesByCountryId(@Param('id') countryId: number): Promise<AllCitiesOutput[] | null> {
     const cities = await this.localizationRepository.findAllCitiesByCountryId({ id: countryId });
 
     if (!cities) {
