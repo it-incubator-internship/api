@@ -81,27 +81,6 @@ model countries {
   @@map("_countries")
 }
 
-model regions {
-  region_id  Int     @id(map: "pk_region_rid")
-  country_id Int
-  title_ru   String? @db.VarChar(150)
-  title_ua   String? @db.VarChar(150)
-  title_be   String? @db.VarChar(150)
-  title_en   String? @db.VarChar(150)
-  title_es   String? @db.VarChar(150)
-  title_pt   String? @db.VarChar(150)
-  title_de   String? @db.VarChar(150)
-  title_fr   String? @db.VarChar(150)
-  title_it   String? @db.VarChar(150)
-  title_pl   String? @db.VarChar(150)
-  title_ja   String? @db.VarChar(150)
-  title_lt   String? @db.VarChar(150)
-  title_lv   String? @db.VarChar(150)
-  title_cz   String? @db.VarChar(150)
-
-  @@map("_regions")
-}
-
 enum ConfirmationStatus {
   CONFIRM
   NOT_CONFIRM
