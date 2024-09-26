@@ -65,6 +65,7 @@ describe('Sessions e2e', () => {
 
       expect(response.body[0]).toEqual({
         sessionId: expect.any(String),
+        current: true,
         userId: user.id,
         deviceName: expect.any(String),
         ip: expect.any(String),
@@ -90,6 +91,7 @@ describe('Sessions e2e', () => {
 
       expect(session).toEqual({
         sessionId: expect.any(String),
+        current: false,
         userId: user.id,
         deviceName: expect.any(String),
         ip: expect.any(String),
@@ -100,6 +102,7 @@ describe('Sessions e2e', () => {
 
       expect(session2).toEqual({
         sessionId: expect.any(String),
+        current: true,
         userId: user.id,
         deviceName: expect.any(String),
         ip: expect.any(String),
@@ -122,6 +125,7 @@ describe('Sessions e2e', () => {
 
       expect(response.body[0]).toEqual({
         sessionId: expect.any(String),
+        current: true,
         userId: user2.id,
         deviceName: expect.any(String),
         ip: expect.any(String),

@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
 
 import { PaymentService } from './payments.service';
 
@@ -6,8 +7,10 @@ import { PaymentService } from './payments.service';
 export class PaymentController {
   constructor(private readonly paymentsService: PaymentService) {}
 
-  @Get()
-  getHello(): string {
-    return this.paymentsService.getHello();
+  @MessagePattern({ cmd: 'hello' })
+  getHello(data: string): string {
+    console.log('приняли');
+    console.log(data);
+    return data + 'PaymentController works!';
   }
 }

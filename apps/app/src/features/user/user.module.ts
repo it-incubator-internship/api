@@ -9,6 +9,8 @@ import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
 import { PrismaModule } from '../../common/database_module/prisma.module';
 import { EntityHandler } from '../../../../common/repository/entity.handler';
+import { FileController } from '../file/controller/file.controller';
+import { LocalizationModule } from '../localization/localization.module';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
@@ -87,6 +89,7 @@ const adapters = [JwtAdapter];
     EventEmitterModule.forRoot(),
     MailModule,
     PrismaModule,
+    LocalizationModule,
     CqrsModule,
     JwtModule.register({}),
     ThrottlerModule.forRoot([
@@ -96,7 +99,14 @@ const adapters = [JwtAdapter];
       },
     ]),
   ],
-  controllers: [AuthController, AuthGoogleController, GithubOauthController, SessionController, UserController],
+  controllers: [
+    AuthController,
+    AuthGoogleController,
+    GithubOauthController,
+    SessionController,
+    UserController,
+    FileController,
+  ],
   providers: [
     ...userRepositories,
     ...sessionRepositories,

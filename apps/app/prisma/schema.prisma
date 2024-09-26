@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider      = "prisma-client-js"
   output        = "../prisma/client"
@@ -69,6 +63,23 @@ model Profile {
   user        User      @relation(fields: [profileId], references: [id])
 
   @@map("profile")
+}
+
+model cities {
+  city_id    Int     @id(map: "pk_city_cid")
+  country_id Int
+  title_ru   String? @db.VarChar(150)
+
+  @@index([country_id])
+  @@map("_cities")
+}
+
+model countries {
+  country_id Int     @id(map: "pk_country_cid")
+  title_ru   String? @db.VarChar(60)
+  title_en   String? @db.VarChar(60)
+
+  @@map("_countries")
 }
 
 enum ConfirmationStatus {

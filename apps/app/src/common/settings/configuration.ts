@@ -6,6 +6,8 @@ export type EnvironmentVariable = { [key: string]: string | undefined };
 export type ConfigurationType = ReturnType<typeof getConfig>;
 
 const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment: Environments) => {
+  // const userId = 'randomUserId';
+
   return {
     apiSettings: {
       PORT: Number.parseInt(environmentVariables.PORT || '6666'),
@@ -53,6 +55,12 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     recaptchaSettings: {
       recaptchaSecret: environmentVariables.RECAPTCHA_SECRET,
       recaptchaURL: 'https://www.google.com/recaptcha/api/siteverify',
+    },
+
+    fileMicroservice: {
+      hostname: environmentVariables.FILE_MICROSERVICE_HOSTNAME,
+      port: environmentVariables.FILE_MICROSERVICE_PORT,
+      avatarPath: '/file/avatar/',
     },
 
     getAllVariables: {
@@ -103,6 +111,9 @@ export const configuration = () => {
     'GOOGLE_CALLBACK_URL',
     //RECAPTCHA
     'RECAPTCHA_SECRET',
+    //FILE_MICROSERVICE
+    'FILE_MICROSERVICE_HOSTNAME',
+    'FILE_MICROSERVICE_PORT',
   ];
 
   //Эти значения выводятся в сваггере
