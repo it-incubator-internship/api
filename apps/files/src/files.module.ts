@@ -30,8 +30,9 @@ const environment = process.env.NODE_ENV as Environments;
       }),
       inject: [ConfigService],
     }),
+    FileUploadModule,
   ],
-  controllers: [FilesController,FileController],
+  controllers: [FilesController, FileController],
   providers: [FilesService, ImageStorageAdapter],
 })
 export class FilesModule {}

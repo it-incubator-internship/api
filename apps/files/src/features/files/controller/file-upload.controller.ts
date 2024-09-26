@@ -1,4 +1,4 @@
-import { Controller, Param, ParseUUIDPipe, Post, UseInterceptors } from '@nestjs/common';
+import { Controller, Param, ParseUUIDPipe, Post, Req, UseInterceptors } from '@nestjs/common';
 
 import { FileUploadService } from '../applications/file-upload.service';
 import { ImageStorageAdapter } from '../../../common/adapters/image.storage.adapter';
@@ -13,7 +13,7 @@ export class FileUploadController {
 
   @Post('avatar/:id')
   @UseInterceptors(FileUploadInterceptor)
-  async uploadFile(@Param('id', ParseUUIDPipe) userId: string, fileData: { filePath: string }) {
+  async uploadFile(@Param('id', ParseUUIDPipe) userId: string, @Req() fileData: any) {
     try {
       const fileStream = await this.fileUploadService.createFileStream(fileData.filePath);
       const result = await this.s3StorageAdapter.saveImageFromStream(fileStream);

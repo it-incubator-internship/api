@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import busboy from 'busboy';
 import { Request } from 'express';
 
@@ -20,10 +20,16 @@ export class FileUploadInterceptor implements NestInterceptor {
         const { filename } = info;
 
         // Генерируем путь для сохранения файла
-        saveFilePath = path.join(__dirname, '..', 'uploads', filename);
+        const uploadDir = path.join(__dirname, '..', 'uploads');
+        saveFilePath = path.join(uploadDir, filename);
+
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
 
         // Создаем поток для записи файла
         const writeStream = fs.createWriteStream(saveFilePath);
+
         file.pipe(writeStream);
 
         // Обрабатываем ошибки при записи файла
@@ -40,18 +46,14 @@ export class FileUploadInterceptor implements NestInterceptor {
 
       bb.on('finish', () => {
         console.log('Upload finished');
-        observer.next({ filePath: saveFilePath }); // Передаем путь к файлу
-        observer.complete();
+        // Добавляем filePath к объекту request
+        req['filePath'] = saveFilePath;
+        // Передаем управление дальше
+        next.handle().subscribe(observer);
       });
 
       // Передаем поток запроса в busboy
       req.pipe(bb);
-    }).pipe(
-      map((data: { filePath: string }) => {
-        // Указываем явный тип данных
-        // Возвращаем путь к файлу дальше по потоку
-        return { filePath: data.filePath };
-      }),
-    );
+    });
   }
 }

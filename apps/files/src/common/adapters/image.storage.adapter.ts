@@ -37,7 +37,7 @@ export class ImageStorageAdapter {
         ContentType: 'image/jpeg',
       },
     });
-
+    console.log('123');
     try {
       const result = await upload.done();
       console.log('Upload result:', result);
