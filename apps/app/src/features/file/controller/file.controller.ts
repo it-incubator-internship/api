@@ -2,7 +2,7 @@ import * as http from 'http';
 
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { BadRequestError } from '../../../../../common/utils/result/custom-error';
@@ -10,6 +10,7 @@ import { JwtAuthGuard } from '../../user/auth/guards/jwt.auth.guard';
 import { UserIdFromRequest } from '../../user/auth/decorators/controller/userIdFromRequest';
 import { UploadAvatarSwagger } from '../decorators/swagger/upload-avatar/upload-avatar.swagger.decorator';
 import { ConfigurationType } from '../../../../../app/src/common/settings/configuration';
+import { DeleteAvatarSwagger } from '../decorators/swagger/delete-avatar/delete-avatar.swagger.decorator';
 
 @ApiTags('file')
 @Controller('file')
@@ -108,6 +109,17 @@ export class FileController {
       res.status(500).send('Error forwarding request');
       return;
     });
+    return;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/avatar')
+  @DeleteAvatarSwagger()
+  async deleteAvatar(@UserIdFromRequest() userInfo: { userId: string }) {
+    console.log('userInfo.userId in file controller v1:', userInfo.userId);
+
+    //TODO вызов file microservice
+
     return;
   }
 }
