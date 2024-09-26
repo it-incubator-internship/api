@@ -1,13 +1,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { Controller, Param, ParseUUIDPipe, Post, Req, Res } from '@nestjs/common';
+import { Controller, Delete, Param, ParseUUIDPipe, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import busboy from 'busboy';
+import { CommandBus } from '@nestjs/cqrs';
+
+import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
 
 @Controller('file')
 export class FileController {
-  constructor() {}
+  constructor(private commandBus: CommandBus) {}
 
   @Post('avatar/:id')
   async handleUpload(@Param('id', ParseUUIDPipe) userId: string, @Req() req: Request, @Res() res: Response) {
@@ -32,5 +35,15 @@ export class FileController {
     });
 
     req.pipe(bb);
+  }
+
+  @Delete('avatar/:url')
+  async handleDelete(@Param('id', ParseUUIDPipe) userId: string /* , @Req() req: Request, @Res() res: Response */) {
+    console.log('userId in file controller v2(handleDelete):', userId);
+
+    const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId }));
+    console.log('result in file controller v2 (deleteAvatar):', result);
+
+    // return /* blog */;
   }
 }

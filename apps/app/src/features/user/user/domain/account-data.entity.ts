@@ -164,6 +164,7 @@ export class ProfileEntityNEW implements Profile {
   country: string | null;
   city: string | null;
   aboutMe: string | null;
+  avatarUrl: string | null;
   user?: UserEntityNEW | null;
 
   constructor(profile: Profile & { user?: User | null }) {
@@ -185,6 +186,7 @@ export class ProfileEntityNEW implements Profile {
       country: data.country || null,
       city: data.city || null,
       aboutMe: data.aboutMe || null,
+      // avatarUrl: data.avatarUrl || null,
     };
   }
 
@@ -209,6 +211,15 @@ export class ProfileEntityNEW implements Profile {
     this.country = country;
     this.city = city;
     this.aboutMe = aboutMe;
+  }
+
+  addAvatarUrl({ avatarUrl }: { avatarUrl: string }) {
+    console.log('avatarUrl in account data entity:', avatarUrl);
+    this.avatarUrl = avatarUrl;
+  }
+
+  deleteAvatarUrl() {
+    this.avatarUrl = null;
   }
 }
 

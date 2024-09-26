@@ -11,6 +11,8 @@ import { PrismaModule } from '../../common/database_module/prisma.module';
 import { EntityHandler } from '../../../../common/repository/entity.handler';
 import { FileController } from '../file/controller/file.controller';
 import { LocalizationModule } from '../localization/localization.module';
+import { DeleteAvatarUserHandler } from '../file/application/command/delete.avatar.user.command';
+import { AddAvatarUserHandler } from '../file/application/command/add.avatar.user.command';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
@@ -69,6 +71,8 @@ const userCommands = [
   RegistrationUserByGoogleHandler,
   UpdateProfileUserCommandHandler,
   CodeValidationHandler,
+  AddAvatarUserHandler,
+  DeleteAvatarUserHandler,
 ];
 const sessionComands = [TerminateSessionByIdHandler];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler, SendEmailAfterOauthRegistrationEventHandler];

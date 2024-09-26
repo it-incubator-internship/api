@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { Controller, Delete, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { CommandBus } from '@nestjs/cqrs';
 
 import { BadRequestError } from '../../../../../common/utils/result/custom-error';
 import { JwtAuthGuard } from '../../user/auth/guards/jwt.auth.guard';
@@ -11,13 +12,17 @@ import { UserIdFromRequest } from '../../user/auth/decorators/controller/userIdF
 import { UploadAvatarSwagger } from '../decorators/swagger/upload-avatar/upload-avatar.swagger.decorator';
 import { ConfigurationType } from '../../../../../app/src/common/settings/configuration';
 import { DeleteAvatarSwagger } from '../decorators/swagger/delete-avatar/delete-avatar.swagger.decorator';
+import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
 
 @ApiTags('file')
 @Controller('file')
 export class FileController {
   private readonly imageStreamConfiguration: ConfigurationType['fileMicroservice'];
 
-  constructor(private readonly configService: ConfigService<ConfigurationType, true>) {
+  constructor(
+    private readonly configService: ConfigService<ConfigurationType, true>,
+    private commandBus: CommandBus,
+  ) {
     this.imageStreamConfiguration = this.configService.get<ConfigurationType['fileMicroservice']>('fileMicroservice', {
       infer: true,
     }) as ConfigurationType['fileMicroservice'];
@@ -109,6 +114,10 @@ export class FileController {
       res.status(500).send('Error forwarding request');
       return;
     });
+
+    // const result = await this.commandBus.execute(new AddAvatarUserCommand({ userId: userInfo.userId, avatarUrl }));
+    // console.log('result in file controller v1 (uploadAvatar):', result);
+
     return;
   }
 
@@ -116,9 +125,12 @@ export class FileController {
   @Delete('/avatar')
   @DeleteAvatarSwagger()
   async deleteAvatar(@UserIdFromRequest() userInfo: { userId: string }) {
-    console.log('userInfo.userId in file controller v1:', userInfo.userId);
+    console.log('userInfo.userId in file controller v1 (deleteAvatar):', userInfo.userId);
 
-    //TODO вызов file microservice
+    const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
+    console.log('result in file controller v1 (deleteAvatar):', result);
+
+    if (!result.isSuccess) throw result.error;
 
     return;
   }
