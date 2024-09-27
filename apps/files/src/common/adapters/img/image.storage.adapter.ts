@@ -26,7 +26,7 @@ export class ImageStorageAdapter {
 
   async saveImageFromStream(stream: Readable) {
     const imageName = randomUUID();
-    const key = `content/images/${imageName}.jpg`;
+    const key = `content/images/${imageName}.webp`;
 
     const upload = new Upload({
       client: this.s3Client,
@@ -34,15 +34,14 @@ export class ImageStorageAdapter {
         Bucket: 'navaibe.1.0',
         Key: key,
         Body: stream,
-        ContentType: 'image/jpeg',
+        ContentType: 'image/webp',
       },
     });
-    console.log('123');
     try {
       const result = await upload.done();
       console.log('Upload result:', result);
       return {
-        name: `${imageName}.jpg`,
+        url: result.Location,
       };
     } catch (error) {
       console.error('Error uploading to S3:', error);

@@ -6,7 +6,7 @@ import { Request, Response } from 'express';
 import busboy from 'busboy';
 import { CommandBus } from '@nestjs/cqrs';
 
-import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
+// import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
 
 @Controller('file')
 export class FileController {
@@ -41,8 +41,8 @@ export class FileController {
   async handleDelete(@Param('id', ParseUUIDPipe) userId: string /* , @Req() req: Request, @Res() res: Response */) {
     console.log('userId in file controller v2(handleDelete):', userId);
 
-    const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId }));
-    console.log('result in file controller v2 (deleteAvatar):', result);
+    // const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId }));
+    // console.log('result in file controller v2 (deleteAvatar):', result);
 
     // return /* blog */;
   }
