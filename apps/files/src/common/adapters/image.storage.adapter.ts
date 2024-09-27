@@ -1,20 +1,18 @@
-// import { randomUUID } from 'crypto';
+import { Readable } from 'stream';
+import { randomUUID } from 'crypto';
 
-import { /* PutObjectCommand, PutObjectCommandOutput, */ S3Client } from '@aws-sdk/client-s3';
+import { S3Client } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
-import { ConfigurationType } from '../settings/configuration';
+import { Upload } from '@aws-sdk/lib-storage';
 
 @Injectable()
 export class ImageStorageAdapter {
-  s3Client: S3Client;
-  constructor(private readonly configService: ConfigService<ConfigurationType, true>) {
-    const REGION = 'us-east-1';
+  private readonly s3Client: S3Client;
 
-    const cloudSetting = configService.get('cloudSettings', {
-      infer: true,
-    });
+  constructor(private readonly configService: ConfigService) {
+    const REGION = 'ru-central1';
+    const cloudSetting = this.configService.get('cloudSettings');
 
     this.s3Client = new S3Client({
       region: REGION,
@@ -26,38 +24,29 @@ export class ImageStorageAdapter {
     });
   }
 
-  // если будет нужно
-  // async saveImage(buffer: Buffer) {
-  //   console.log('buffer in image storage adapter:', buffer);
+  async saveImageFromStream(stream: Readable) {
+    const imageName = randomUUID();
+    const key = `content/images/${imageName}.jpg`;
 
-  //   const imageName = randomUUID();
-  //   console.log('imageName in image storage adapter:', imageName);
-
-  //   const key = `content/images/${imageName}.jpg`;
-  //   console.log('key in image storage adapter:', key);
-
-  //   const bucketParams = {
-  //     Bucket: 'alex777',
-  //     Key: key,
-  //     Body: buffer,
-  //     ContentType: 'image/jpg',
-  //   };
-
-  //   const command = new PutObjectCommand(bucketParams);
-  //   console.log('command in image storage adapter:', command);
-
-  //   try {
-  //     const uploadResult: PutObjectCommandOutput = await this.s3Client.send(command);
-  //     console.log('uploadResult in image storage adapter:', uploadResult);
-
-  //     return {
-  //       ame: `${imageName}.jpg`,
-  //       // field: uploadResult.ETag
-  //     };
-  //   } catch (exception) {
-  //     console.log('exception in image storage adapter:', exception);
-
-  //     throw exception;
-  //   }
-  // }
+    const upload = new Upload({
+      client: this.s3Client,
+      params: {
+        Bucket: 'navaibe.1.0',
+        Key: key,
+        Body: stream,
+        ContentType: 'image/jpeg',
+      },
+    });
+    console.log('123');
+    try {
+      const result = await upload.done();
+      console.log('Upload result:', result);
+      return {
+        name: `${imageName}.jpg`,
+      };
+    } catch (error) {
+      console.error('Error uploading to S3:', error);
+      throw error;
+    }
+  }
 }

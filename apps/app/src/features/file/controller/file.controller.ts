@@ -69,7 +69,22 @@ export class FileController {
   @UseGuards(JwtAuthGuard)
   @Post('/avatar')
   @UploadAvatarSwagger()
-  async uploadAvatar(@UserIdFromRequest() userInfo: { userId: string }, @Req() req: Request, @Res() res: Response) {
+  async uploadAvatar(
+    @UserIdFromRequest() userInfo: { userId: string },
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    // получение userId для использования в options
+    const userId = userInfo.userId;
+
+    const { statusCode, body } = await this.test(req, res, userId);
+    //user case для добалвения url
+
+    return body;
+  }
+
+  //возвращает ответ с того бэкэнда
+  private async test(req: Request, res: Response, userId: string) {
     // проверка запроса на наличие изображения
     const contentType = req.headers['content-type'];
 
@@ -82,9 +97,6 @@ export class FileController {
       ]);
     }
 
-    // получение userId для использования в options
-    const userId = userInfo.userId;
-
     const options = {
       hostname: this.imageStreamConfiguration.hostname,
       port: this.imageStreamConfiguration.port,
@@ -95,9 +107,33 @@ export class FileController {
       },
     };
 
+    const data = {
+      statusCode: 0,
+      body: '',
+    };
+
     const forwardRequest = http.request(options, (forwardResponse) => {
       console.log('Response from second server:', forwardResponse.statusCode);
-      forwardResponse.pipe(res);
+
+      // переменная для хранения данных ответа
+      let responseData = '';
+      // собираем данные из ответа
+      forwardResponse.on('data', (chunk) => {
+        responseData += chunk;
+      });
+
+      // обрабатываем полный ответ
+      forwardResponse.on('end', () => {
+        try {
+          const parsedResponse = JSON.parse(responseData);
+          console.log('Parsed response from second server:', parsedResponse);
+          data.statusCode = forwardResponse.statusCode as number;
+          data.body = parsedResponse;
+        } catch (error) {
+          console.error('Error parsing response from second server:', error);
+          res.status(500).send('Error parsing response from second server');
+        }
+      });
     });
 
     req.on('data', (chunk) => {
@@ -118,7 +154,7 @@ export class FileController {
     // const result = await this.commandBus.execute(new AddAvatarUserCommand({ userId: userInfo.userId, avatarUrl }));
     // console.log('result in file controller v1 (uploadAvatar):', result);
 
-    return;
+    return data;
   }
 
   @UseGuards(JwtAuthGuard)

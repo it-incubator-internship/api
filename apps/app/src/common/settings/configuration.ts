@@ -60,7 +60,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     fileMicroservice: {
       hostname: environmentVariables.FILE_MICROSERVICE_HOSTNAME,
       port: environmentVariables.FILE_MICROSERVICE_PORT,
-      avatarPath: '/file/avatar/',
+      avatarPath: '/upload/avatar/',
     },
 
     getAllVariables: {
