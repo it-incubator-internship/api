@@ -4,6 +4,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiNotFoundResponse,
   ApiOperation,
   ApiResponse,
   ApiUnauthorizedResponse,
@@ -31,17 +32,23 @@ export function UploadAvatarSwagger() {
     }),
     ApiResponse({
       status: 201,
-      description: 'Фото профиля загружено.',
+      // description: 'Фото профиля загружено.',
+      description: 'Фото профиля загружено или фото отсутствовало в запросе.',
     }),
     ApiBadRequestResponse({
       status: 400,
       description:
-        'В случае попытки загрузки фото размером более 10Мб и/или не допустимого формата и/или отсутствия фото в запросе.',
+        //'В случае попытки загрузки фото размером более 10Мб и/или не допустимого формата и/или отсутствия фото в запросе.',
+        'В случае попытки загрузки фото размером более 10Мб и/или не допустимого формата.',
       type: () => BasicBadRequestOutputType,
     }),
     ApiUnauthorizedResponse({
       status: 401,
       description: 'В случае отправки некорректного или просроченного accessToken.',
+    }),
+    ApiNotFoundResponse({
+      status: 404,
+      description: 'Profile не найден.',
     }),
     ApiBearerAuth(),
   );

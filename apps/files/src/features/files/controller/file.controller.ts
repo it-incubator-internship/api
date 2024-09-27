@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { Controller, Delete, Param, ParseUUIDPipe, Post, Req, Res } from '@nestjs/common';
+import { Controller, /* Delete, */ Param, ParseUUIDPipe, Post, Req, Res } from '@nestjs/common';
 import { Request, Response } from 'express';
 import busboy from 'busboy';
 import { CommandBus } from '@nestjs/cqrs';
@@ -37,13 +37,13 @@ export class FileController {
     req.pipe(bb);
   }
 
-  @Delete('avatar/:url')
-  async handleDelete(@Param('id', ParseUUIDPipe) userId: string /* , @Req() req: Request, @Res() res: Response */) {
-    console.log('userId in file controller v2(handleDelete):', userId);
+  // @Delete('avatar/:url')
+  // async handleDelete(@Param('id', ParseUUIDPipe) userId: string /* , @Req() req: Request, @Res() res: Response */) {
+  //   console.log('userId in file controller v2(handleDelete):', userId);
 
-    // const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId }));
-    // console.log('result in file controller v2 (deleteAvatar):', result);
+  //   // const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId }));
+  //   // console.log('result in file controller v2 (deleteAvatar):', result);
 
-    // return /* blog */;
-  }
+  //   // return /* blog */;
+  // }
 }

@@ -27,6 +27,7 @@ export class FileUploadController {
   @UseInterceptors(FileUploadInterceptor)
   async uploadFile(@Param('id', ParseUUIDPipe) userId: string, @Req() fileData: any) {
     console.log('console.log in file upload controller (uploadFile)');
+
     const result = await this.commandBus.execute(new AddAvatarUserCommand({ userId, fileData }));
     console.log('result in file upload controller (uploadFile):', result);
 

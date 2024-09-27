@@ -11,12 +11,14 @@ import { PrismaService } from '../src/common/database_module/prisma-connection.s
 import { MailService } from '../src/providers/mailer/mail.service';
 
 import { MailServiceMock } from './mock/email-service.mock';
+import { FileController } from '../src/features/file/controller/file.controller';
 
 jest.setTimeout(15000); // увеличение времени ожидания
 
 describe('Auth e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let controller;
   let confirmationCode;
   let userId;
   let accessToken;
@@ -35,6 +37,8 @@ describe('Auth e2e', () => {
     appSettings(app);
 
     await app.init();
+
+    controller = moduleFixture.get<FileController>(FileController);
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
     console.log(process.env.DATABASE_APP_URL);
@@ -109,11 +113,59 @@ describe('Auth e2e', () => {
   }); // 401
 
   it('UPLOAD avatar without image', async () => {
+    // const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
+    // console.log('imageBuffer in avatar tests:', imageBuffer);
+
+    await request(app.getHttpServer()).post('/file/avatar').set('Authorization', `Bearer ${accessToken}`).expect(201);
+  }); // 201
+
+  it('UPLOAD avatar with correct data (profile not found)', async () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
     console.log('imageBuffer in avatar tests:', imageBuffer);
 
-    await request(app.getHttpServer()).post('/file/avatar').set('Authorization', `Bearer ${accessToken}`).expect(400);
-  }); // 400
+    jest.spyOn(controller, 'test').mockImplementation(async () => {
+      return { statusCode: 201, body: { url: 'https://example.com/avatar.webp' } };
+    });
+
+    await request(app.getHttpServer())
+      .post('/file/avatar')
+      .set('Content-Type', 'multipart/form-data')
+      .attach('file', imageBuffer)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(404);
+  }); // 404
+
+  it('ADD profile information with correct data (without update userName and mandatory value)', async () => {
+    await request(app.getHttpServer())
+      .put('/user/profile/' + userId)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        userName: 'someusername',
+        firstName: 'somefirstname',
+        lastName: 'somelastname',
+        dateOfBirth: '',
+        country: '',
+        city: '',
+        aboutMe: '',
+      })
+      .expect(200);
+  }); // 200
+
+  it('UPLOAD avatar with correct data', async () => {
+    const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
+    console.log('imageBuffer in avatar tests:', imageBuffer);
+
+    jest.spyOn(controller, 'test').mockImplementation(async () => {
+      return { statusCode: 201, body: { url: 'https://example.com/avatar.webp' } };
+    });
+
+    await request(app.getHttpServer())
+      .post('/file/avatar')
+      .set('Content-Type', 'multipart/form-data')
+      .attach('file', imageBuffer)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .expect(201);
+  }); // 201
 
   it.skip('UPLOAD avatar with incorrect data (wrong format)', async () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_false_format.jpeg').toBuffer();

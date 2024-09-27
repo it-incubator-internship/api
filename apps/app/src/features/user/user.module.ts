@@ -12,7 +12,7 @@ import { EntityHandler } from '../../../../common/repository/entity.handler';
 import { FileController } from '../file/controller/file.controller';
 import { LocalizationModule } from '../localization/localization.module';
 // import { DeleteAvatarUserHandler } from '../file/application/command/delete.avatar.user.command';
-import { AddAvatarUserHandler } from '../file/application/command/add.avatar.user.command';
+import { UploadAvatarUserHandler } from '../file/application/command/upload.avatar.user.command';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
@@ -71,7 +71,7 @@ const userCommands = [
   RegistrationUserByGoogleHandler,
   UpdateProfileUserCommandHandler,
   CodeValidationHandler,
-  AddAvatarUserHandler,
+  UploadAvatarUserHandler,
   // DeleteAvatarUserHandler,
 ];
 const sessionComands = [TerminateSessionByIdHandler];

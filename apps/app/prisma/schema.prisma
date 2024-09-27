@@ -60,6 +60,7 @@ model Profile {
   country     String?
   city        String?
   aboutMe     String?
+  avatarUrl   String?
   user        User      @relation(fields: [profileId], references: [id])
 
   @@map("profile")

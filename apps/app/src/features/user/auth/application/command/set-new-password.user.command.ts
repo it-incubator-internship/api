@@ -4,10 +4,10 @@ import { hashSync } from 'bcryptjs';
 import { UserRepository } from '../../../user/repository/user.repository';
 import { EntityEnum } from '../../../../../../../common/repository/base.repository';
 import { NewPasswordInputModel } from '../../dto/input/new-password.user.dto';
-import { hashRounds } from '../../../../../common/constants/constants';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../../../../../../common/utils/result/custom-error';
+import { hashRounds } from '../../../../../../../common/constants/constants';
 
 import { DeletionSessionsCommand } from './session/deletion-sessions.command';
 

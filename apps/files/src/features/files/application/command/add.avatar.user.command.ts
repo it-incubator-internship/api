@@ -9,6 +9,7 @@ import {
 import { FileUploadService } from '../../applications/file-upload.service';
 import { FileRepository } from '../../repository/file.repository';
 import { FileEntity, FileFormat, FileType } from '../../schema/files.schema';
+import { maxAvatarSize } from '../../../../../../common/constants/constants';
 
 type AddAvatarType = {
   userId: string;
@@ -35,7 +36,7 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
     try {
       console.log('console.log(try) in add avatar user command');
       //TODO вынести в константы
-      const TEN_MB = 10 * 1024 * 1024; // 10 МБ;
+      const TEN_MB = /* 10 * 1024 * 1024 */ maxAvatarSize; // 10 МБ;
       console.log('TEN_MB in add avatar user command:', TEN_MB);
 
       // Используем метод адаптера для конвертации изображения
@@ -44,15 +45,15 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
 
       // Создаем поток для сохранения изображения
       const fileStream = await this.fileUploadService.createFileStream(webpFilePath);
-      console.log('fileStream in add avatar user command:', fileStream);
+      // console.log('fileStream in add avatar user command:', fileStream);
 
       // Сохранение изображения на S3
       const result = await this.s3StorageAdapter.saveImageFromStream(fileStream);
       console.log('result in add avatar user command:', result);
 
       // Удаление локального файла после загрузки
-      await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
-      await this.fileUploadService.deleteFile(webpFilePath);
+      // await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
+      // await this.fileUploadService.deleteFile(webpFilePath);
 
       const newFileEntity = FileEntity.create({
         format: FileFormat.webp,

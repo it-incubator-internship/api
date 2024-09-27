@@ -5,7 +5,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 
 import { SessionRepository } from '../repository/session.repository';
-import { secondToMillisecond } from '../../../../common/constants/constants';
+import { secondToMillisecond } from '../../../../../../common/constants/constants';
 import { ConfigurationType } from '../../../../common/settings/configuration';
 import { EntityEnum } from '../../../../../../common/repository/base.repository';
 

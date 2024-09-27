@@ -186,7 +186,7 @@ export class ProfileEntityNEW implements Profile {
       country: data.country || null,
       city: data.city || null,
       aboutMe: data.aboutMe || null,
-      // avatarUrl: data.avatarUrl || null,
+      avatarUrl: data.avatarUrl || null,
     };
   }
 
