@@ -1,10 +1,11 @@
 import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type FileDocument = HydratedDocument<Files>;
+export type FileDocument = HydratedDocument<FileEntity>;
 
 export enum FileFormat {
   webm = 'webm',
+  webp = 'webp',
 }
 
 export enum FileType {
@@ -18,7 +19,7 @@ type ImageUrl = {
 };
 
 @Schema({ timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } })
-export class Files {
+export class FileEntity {
   @Prop({
     type: String,
     required: true,
@@ -78,6 +79,6 @@ export class Files {
   }
 }
 
-export const FileSchema = SchemaFactory.createForClass(Files);
+export const FileSchema = SchemaFactory.createForClass(FileEntity);
 
-FileSchema.loadClass(Files);
+FileSchema.loadClass(FileEntity);
