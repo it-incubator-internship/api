@@ -22,7 +22,6 @@ const environment = process.env.NODE_ENV as Environments;
       load: [configuration],
     }),
 
-    // TODO подключение к тестовой бд
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
