@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Get, Ip, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
@@ -122,12 +122,14 @@ export class AuthController {
   @Post('login')
   @LoginSwagger()
   async login(
-    @Ip() ipAddress: string,
     @UserIdFromRequest() userInfo: { userId: string },
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AccessTokenOutput> {
     const userAgent = req.headers['user-agent'] || 'unknown';
+    const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || (req.socket.remoteAddress as string);
+    console.log(ipAddress);
+    console.log(req.headers);
 
     const result = await this.commandBus.execute(
       new LoginUserCommand({ ipAddress, userAgent, userId: userInfo.userId }),
