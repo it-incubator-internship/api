@@ -9,9 +9,9 @@ import { AppModule } from '../src/app.module';
 import { appSettings } from '../src/common/settings/apply-app-setting';
 import { PrismaService } from '../src/common/database_module/prisma-connection.service';
 import { MailService } from '../src/providers/mailer/mail.service';
+import { FileController } from '../src/features/file/controller/file.controller';
 
 import { MailServiceMock } from './mock/email-service.mock';
-import { FileController } from '../src/features/file/controller/file.controller';
 
 jest.setTimeout(15000); // увеличение времени ожидания
 
@@ -113,9 +113,6 @@ describe('Auth e2e', () => {
   }); // 401
 
   it('UPLOAD avatar without image', async () => {
-    // const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
-    // console.log('imageBuffer in avatar tests:', imageBuffer);
-
     await request(app.getHttpServer()).post('/file/avatar').set('Authorization', `Bearer ${accessToken}`).expect(201);
   }); // 201
 
@@ -123,7 +120,7 @@ describe('Auth e2e', () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
     console.log('imageBuffer in avatar tests:', imageBuffer);
 
-    jest.spyOn(controller, 'test').mockImplementation(async () => {
+    jest.spyOn(controller, 'resensAvatar').mockImplementation(async () => {
       return { statusCode: 201, body: { url: 'https://example.com/avatar.webp' } };
     });
 
@@ -155,7 +152,7 @@ describe('Auth e2e', () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
     console.log('imageBuffer in avatar tests:', imageBuffer);
 
-    jest.spyOn(controller, 'test').mockImplementation(async () => {
+    jest.spyOn(controller, 'resensAvatar').mockImplementation(async () => {
       return { statusCode: 201, body: { url: 'https://example.com/avatar.webp' } };
     });
 

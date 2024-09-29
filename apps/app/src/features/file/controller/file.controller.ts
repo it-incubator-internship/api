@@ -77,12 +77,28 @@ export class FileController {
   ) {
     console.log('console.log in app.file.controller (uploadAvatar)');
 
+    // проверка запроса на наличие изображения
+    const contentType = req.headers['content-type'];
+    console.log('contentType in app.file.controller (test):', contentType);
+
+    // если в запросе нет изображения
+    if (!contentType) {
+      console.log('!contentType');
+      // throw new BadRequestError('Photo not included in request.', [
+      //   {
+      //     message: 'Photo not included in request. Form-data is missing.',
+      //     field: '',
+      //   },
+      // ]);
+      return;
+    }
+
     // получение userId для использования в options
     const userId = userInfo.userId;
     console.log('userId in app.file.controller (uploadAvatar):', userId);
 
     // получение данных от второго микросервиса
-    const { statusCode, body } = await this.test(req, res, userId);
+    const { statusCode, body } = await this.resensAvatar(req, res, userId);
     console.log('statusCode in app.file.controller (uploadAvatar):', statusCode);
     console.log('body in app.file.controller (uploadAvatar):', body);
 
@@ -103,27 +119,28 @@ export class FileController {
   }
 
   // возвращает ответ с того бэкэнда
-  private async test(
+  private async resensAvatar(
     req: Request,
     res: Response,
     userId: string,
   ): Promise<{ statusCode: number | undefined; body: any }> {
     console.log('console.log in app.file.controller (test)');
-    // проверка запроса на наличие изображения
-    const contentType = req.headers['content-type'];
-    console.log('contentType in app.file.controller (test):', contentType);
+    // логику по проверке наличия изображения я перенёс выше
+    // // проверка запроса на наличие изображения
+    // const contentType = req.headers['content-type'];
+    // console.log('contentType in app.file.controller (test):', contentType);
 
-    // если в запросе нет изображения
-    if (!contentType) {
-      console.log('!contentType');
-      // throw new BadRequestError('Photo not included in request.', [
-      //   {
-      //     message: 'Photo not included in request. Form-data is missing.',
-      //     field: '',
-      //   },
-      // ]);
-      return { statusCode: 0, body: null };
-    }
+    // // если в запросе нет изображения
+    // if (!contentType) {
+    //   console.log('!contentType');
+    //   // throw new BadRequestError('Photo not included in request.', [
+    //   //   {
+    //   //     message: 'Photo not included in request. Form-data is missing.',
+    //   //     field: '',
+    //   //   },
+    //   // ]);
+    //   return { statusCode: 0, body: null };
+    // }
 
     // если изображение в запросе есть
     const options = {
