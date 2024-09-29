@@ -7,7 +7,7 @@ import { configuration } from './common/settings/configuration';
 import { Environments } from './common/settings/env_validate/env-class-validator';
 import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-env-path';
 import { CleaningModule } from './features/cleaning/cleaning.module';
-import { MicroExampleModule } from './microsevice_example/micro-example.module';
+import { AppExchangeModule } from './features/app_exchange/app-exchange.module';
 
 const environment = process.env.NODE_ENV as Environments;
 
@@ -20,7 +20,7 @@ const environment = process.env.NODE_ENV as Environments;
       load: [configuration],
     }),
     UserModule,
-    MicroExampleModule,
+    AppExchangeModule,
     CleaningModule,
   ],
   controllers: [AppController],

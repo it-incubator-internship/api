@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { FilesController } from './files.controller';
 import { FilesService } from './files.service';
 import { Environments } from './common/settings/env_validate/env-class-validator';
 import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-env-path';
@@ -28,7 +27,7 @@ const environment = process.env.NODE_ENV as Environments;
     }),
     FileUploadModule,
   ],
-  controllers: [FilesController],
+  controllers: [],
   providers: [FilesService],
 })
 export class FilesModule {}

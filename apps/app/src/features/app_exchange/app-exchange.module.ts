@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
-import { MicroExampleController } from './micro-example.controller';
+import { AppExchangeController } from './app-exchange.controller';
 
 @Module({
   imports: [
@@ -10,7 +10,7 @@ import { MicroExampleController } from './micro-example.controller';
         name: 'MULTICAST_EXCHANGE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://guest:guest@localhost:56722'],
+          urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169/:56722'],
           queue: 'multicast_queue',
           queueOptions: {
             durable: true,
@@ -19,8 +19,8 @@ import { MicroExampleController } from './micro-example.controller';
       },
     ]),
   ],
-  controllers: [MicroExampleController],
+  controllers: [AppExchangeController],
   providers: [],
   exports: [],
 })
-export class MicroExampleModule {}
+export class AppExchangeModule {}

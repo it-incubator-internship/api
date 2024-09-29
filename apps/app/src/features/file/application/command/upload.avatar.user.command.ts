@@ -20,24 +20,19 @@ export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUser
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(command: UploadAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
-    console.log('command in add avatar user command:', command);
-
     // поиск profile по id
     const profile: ProfileEntityNEW = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.profile,
       conditions: { profileId: command.inputModel.userId },
     });
-    console.log('profile in add avatar user command:', profile);
 
     // если profile не найден
     if (!profile) {
-      console.log('!profile');
       return ObjResult.Err(new NotFoundError('profile not found'));
     }
 
     // если profile найден
     profile.addAvatarUrl({ avatarUrl: command.inputModel.avatarUrl });
-    console.log('profile in add avatar user command:', profile);
 
     await this.userRepository.updateOne({
       modelName: EntityEnum.profile,

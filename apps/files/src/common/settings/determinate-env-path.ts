@@ -5,7 +5,6 @@ export function isEnvFileIgnored(env: Environments): boolean {
 }
 
 export function getEnvFilePath(env: Environments): string[] {
-  console.log(env);
   const defaultEnvFilePath = ['.development.files.env', '.local.env', '.env'];
   return env === Environments.TEST ? ['.test.files.env', ...defaultEnvFilePath] : defaultEnvFilePath;
 }
