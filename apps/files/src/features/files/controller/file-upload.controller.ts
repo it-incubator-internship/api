@@ -31,6 +31,6 @@ export class FileUploadController {
 
     this.gatewayProxyClient.emit({ cmd: 'avatar-saved' }, result);
 
-    return result;
+    return;
   }
 }

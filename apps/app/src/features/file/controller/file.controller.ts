@@ -52,7 +52,7 @@ export class FileController {
     const userId = userInfo.userId;
 
     // получение данных от второго микросервиса
-    const { statusCode, body } = await this.streamAvatarToFileMicroservice(req, res, userId);
+    const { statusCode } = await this.streamAvatarToFileMicroservice(req, res, userId);
 
     //TODO разобраться с этим
     if (statusCode === 0) {
