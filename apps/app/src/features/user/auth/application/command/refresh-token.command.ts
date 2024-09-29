@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { SessionRepository } from '../../repository/session.repository';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
-import { secondToMillisecond } from '../../../../../common/constants/constants';
+import { secondToMillisecond } from '../../../../../../../common/constants/constants';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { EntityEnum } from '../../../../../../../common/repository/base.repository';
 

@@ -2,9 +2,9 @@ import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { hashSync } from 'bcryptjs';
 
 import { UserRepository } from '../../../user/repository/user.repository';
-import { hashRounds } from '../../../../../common/constants/constants';
 import { UserOauthRegisreationEvent } from '../events/user-oauth-regisreation.event';
 import { AccountDataEntityNEW, UserEntityNEW } from '../../../user/domain/account-data.entity';
+import { hashRounds } from '../../../../../../../common/constants/constants';
 
 export class RegistrationUserByGoogleCommand {
   constructor(public inputModel: { googleId: string; password: string; email: string; userName: string }) {}

@@ -92,9 +92,7 @@ describe('User e2e', () => {
   }); // 201
 
   it('GET user profile by non-existing id', async () => {
-    await request(app.getHttpServer())
-      .get('/user/profile/5c2cd3ca-2820-4dbd-b29c-dc14d085af93')
-      .expect(404);
+    await request(app.getHttpServer()).get('/user/profile/5c2cd3ca-2820-4dbd-b29c-dc14d085af93').expect(404);
   }); // 404
 
   it('GET user profile by correct id (without profile information)', async () => {

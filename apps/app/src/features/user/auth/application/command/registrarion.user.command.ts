@@ -6,7 +6,7 @@ import { UserRepository } from '../../../user/repository/user.repository';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
-import { hashRounds } from '../../../../../common/constants/constants';
+import { hashRounds } from '../../../../../../../common/constants/constants';
 import { AccountDataEntityNEW, UserEntityNEW } from '../../../user/domain/account-data.entity';
 import { UserRegistrationEvent } from '../../../user/domain/events/user-registration.event';
 import { $Enums } from '../../../../../../prisma/client';

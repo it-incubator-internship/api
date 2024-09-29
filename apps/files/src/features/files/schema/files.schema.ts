@@ -24,6 +24,12 @@ export class FileEntity {
     type: String,
     required: true,
   })
+  userId: number;
+
+  @Prop({
+    type: String,
+    required: true,
+  })
   format: FileFormat;
 
   @Prop({

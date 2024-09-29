@@ -6,8 +6,6 @@ export type EnvironmentVariable = { [key: string]: string | undefined };
 export type ConfigurationType = ReturnType<typeof getConfig>;
 
 const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment: Environments) => {
-  // const userId = 'randomUserId';
-
   return {
     apiSettings: {
       PORT: Number.parseInt(environmentVariables.PORT || '6666'),

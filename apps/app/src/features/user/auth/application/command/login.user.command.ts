@@ -4,13 +4,13 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { SessionRepository } from '../../repository/session.repository';
-import { secondToMillisecond } from '../../../../../common/constants/constants';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
 import { UserRepository } from '../../../user/repository/user.repository';
 import { ForbiddenError } from '../../../../../../../common/utils/result/custom-error';
 import { $Enums } from '../../../../../../prisma/client';
 import { SessionEntityNEW } from '../../../user/domain/account-data.entity';
 import { EntityEnum } from '../../../../../../../common/repository/base.repository';
+import { secondToMillisecond } from '../../../../../../../common/constants/constants';
 
 import ConfirmationStatus = $Enums.ConfirmationStatus;
 
