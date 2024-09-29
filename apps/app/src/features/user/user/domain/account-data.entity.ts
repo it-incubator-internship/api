@@ -214,7 +214,6 @@ export class ProfileEntityNEW implements Profile {
   }
 
   addAvatarUrl({ avatarUrl }: { avatarUrl: string }) {
-    console.log('avatarUrl in account data entity:', avatarUrl);
     this.avatarUrl = avatarUrl;
   }
 

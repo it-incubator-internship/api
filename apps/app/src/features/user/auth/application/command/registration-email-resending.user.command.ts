@@ -54,7 +54,6 @@ export class RegistrationEmailResendingHandler implements ICommandHandler<Regist
     const event = new UserResendRegCodeEvent(user.name, user.email, confirmationCode);
 
     this.eventBus.publish(event);
-    console.log(event);
     return ObjResult.Ok();
   }
 

@@ -98,7 +98,6 @@ export class RegistrationUserHandler implements ICommandHandler<RegistrationUser
   }
 
   private createError(title: string, message: string, field: string) {
-    console.log('123123');
     return ObjResult.Err(new BadRequestError(title, [{ message, field }]));
   }
 }

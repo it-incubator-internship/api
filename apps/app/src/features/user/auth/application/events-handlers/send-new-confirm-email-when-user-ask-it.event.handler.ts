@@ -8,7 +8,6 @@ export class SendNewConfirmEmailWhenUserAskItEventHandler implements IEventHandl
   constructor(private readonly mailService: MailService) {}
 
   handle(event: UserResendRegCodeEvent): any {
-    console.log('registration code', event.confirmationCode);
     this.mailService.sendUserConfirmation({
       email: event.email,
       login: event.login,

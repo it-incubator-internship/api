@@ -31,17 +31,12 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
   ) {}
 
   async execute(command: AddAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
-    console.log('command in add avatar user command:', command);
-
     try {
-      console.log('console.log(try) in add avatar user command');
       //TODO вынести в константы
       const TEN_MB = /* 10 * 1024 * 1024 */ maxAvatarSize; // 10 МБ;
-      console.log('TEN_MB in add avatar user command:', TEN_MB);
 
       // Используем метод адаптера для конвертации изображения
       const webpFilePath = await this.imgProcessingAdapter.convertToWebp(command.inputModel.fileData.filePath, TEN_MB);
-      console.log('webpFilePath in add avatar user command:', webpFilePath);
 
       // Создаем поток для сохранения изображения
       const fileStream = await this.fileUploadService.createFileStream(webpFilePath);
@@ -49,26 +44,31 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
 
       // Сохранение изображения на S3
       const result = await this.s3StorageAdapter.saveImageFromStream(fileStream);
-      console.log('result in add avatar user command:', result);
 
       // Удаление локального файла после загрузки
-      // await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
-      // await this.fileUploadService.deleteFile(webpFilePath);
+      await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
+      await this.fileUploadService.deleteFile(webpFilePath);
 
+      //TODO пока что картинка одного размера
       const newFileEntity = FileEntity.create({
         format: FileFormat.webp,
         type: FileType.avatar,
         url: {
           original: result.url,
+          small: result.url,
         },
       });
-      console.log('newFileEntity in add avatar user command:', newFileEntity);
 
       await this.fileRepository.create(newFileEntity);
 
-      return result;
+      //TODO добавить тип
+      return {
+        success: true,
+        smallUrl: result.url,
+        originalUrl: result.url,
+        profileId: command.inputModel.userId,
+      };
     } catch (error) {
-      console.log('console.log(catch) in add avatar user command');
       // Удаление локального файла в случае ошибки
       await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
       throw error;

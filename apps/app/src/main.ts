@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import compression from 'compression';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 import { AppModule } from './app.module';
 import { appSettings } from './common/settings/apply-app-setting';
@@ -11,6 +12,18 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   appSettings(app);
+  // Подключаем RabbitMQ транспорт
+  //TODO конфиг
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
+      queue: 'app_queue',
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
 
   //достаем env
   const configService = app.get(ConfigService<ConfigurationType, true>);
@@ -26,7 +39,7 @@ async function bootstrap() {
   console.log(port);
   console.log('prefix', apiPrefix);
 
-  await app.init();
+  await app.startAllMicroservices();
   await app.listen(port);
 }
 bootstrap();

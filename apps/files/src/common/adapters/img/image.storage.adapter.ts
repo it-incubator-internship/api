@@ -39,7 +39,6 @@ export class ImageStorageAdapter {
     });
     try {
       const result = await upload.done();
-      console.log('Upload result:', result);
       return {
         url: result.Location,
       };

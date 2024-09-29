@@ -31,9 +31,9 @@ export function UploadAvatarSwagger() {
       },
     }),
     ApiResponse({
-      status: 201,
+      status: 204,
       // description: 'Фото профиля загружено.',
-      description: 'Фото профиля загружено или фото отсутствовало в запросе.',
+      description: 'Фото в обработке.',
     }),
     ApiBadRequestResponse({
       status: 400,
