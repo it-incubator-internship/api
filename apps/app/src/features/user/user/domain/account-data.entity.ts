@@ -2,6 +2,7 @@ import { $Enums, AccountData, Prisma, Profile, Session, User } from '../../../..
 
 import BanStatus = $Enums.BanStatus;
 import ConfirmationStatus = $Enums.ConfirmationStatus;
+import ProfileStatus = $Enums.ProfileStatus;
 
 export class UserEntityNEW implements User {
   id: string;
@@ -164,7 +165,9 @@ export class ProfileEntityNEW implements Profile {
   country: string | null;
   city: string | null;
   aboutMe: string | null;
-  avatarUrl: string | null;
+  originalAvatarUrl: string | null;
+  smallAvatarUrl: string | null;
+  profileStatus: ProfileStatus;
   user?: UserEntityNEW | null;
 
   constructor(profile: Profile & { user?: User | null }) {
@@ -186,7 +189,8 @@ export class ProfileEntityNEW implements Profile {
       country: data.country || null,
       city: data.city || null,
       aboutMe: data.aboutMe || null,
-      avatarUrl: data.avatarUrl || null,
+      originalAvatarUrl: data.originalAvatarUrl || null,
+      smallAvatarUrl: data.smallAvatarUrl || null,
     };
   }
 
@@ -213,12 +217,14 @@ export class ProfileEntityNEW implements Profile {
     this.aboutMe = aboutMe;
   }
 
-  addAvatarUrl({ avatarUrl }: { avatarUrl: string }) {
-    this.avatarUrl = avatarUrl;
+  addAvatarUrl({ originalAvatarUrl, smallAvatarUrl }: { originalAvatarUrl: string; smallAvatarUrl: string }) {
+    this.originalAvatarUrl = originalAvatarUrl;
+    this.smallAvatarUrl = smallAvatarUrl;
   }
 
   deleteAvatarUrl() {
-    this.avatarUrl = null;
+    this.originalAvatarUrl = null;
+    this.smallAvatarUrl = null;
   }
 }
 

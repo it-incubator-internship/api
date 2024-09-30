@@ -6,12 +6,10 @@ import { Controller, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config';
 import { CommandBus } from '@nestjs/cqrs';
 
-// import { BadRequestError } from '../../../../../common/utils/result/custom-error';
 import { JwtAuthGuard } from '../../user/auth/guards/jwt.auth.guard';
 import { UserIdFromRequest } from '../../user/auth/decorators/controller/userIdFromRequest';
 import { UploadAvatarSwagger } from '../decorators/swagger/upload-avatar/upload-avatar.swagger.decorator';
 import { ConfigurationType } from '../../../../../app/src/common/settings/configuration';
-import { UploadAvatarUserCommand } from '../application/command/upload.avatar.user.command';
 import { BadRequestError } from '../../../../../common/utils/result/custom-error';
 // import { DeleteAvatarSwagger } from '../decorators/swagger/delete-avatar/delete-avatar.swagger.decorator';
 // import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
@@ -54,16 +52,15 @@ export class FileController {
     // получение данных от второго микросервиса
     const { statusCode } = await this.streamAvatarToFileMicroservice(req, res, userId);
 
-    //TODO разобраться с этим
-    if (statusCode === 0) {
-      return;
-    }
+    // if (statusCode === 0) {
+    //   return;
+    // }
 
-    const result = await this.commandBus.execute(
-      new UploadAvatarUserCommand({ userId: userInfo.userId, avatarUrl: body.url }),
-    );
+    // const result = await this.commandBus.execute(
+    //   new UploadAvatarUserCommand({ userId: userInfo.userId, avatarUrl: body.url }),
+    // );
 
-    if (!result.isSuccess) throw result.error;
+    // if (!result.isSuccess) throw result.error;
 
     return;
   }

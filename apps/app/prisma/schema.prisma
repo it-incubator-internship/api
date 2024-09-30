@@ -53,7 +53,7 @@ model Session {
 }
 
 model Profile {
-  profileId           String    @id @unique @db.Uuid
+  profileId           String        @id @unique @db.Uuid
   firstName           String
   lastName            String
   dateOfBirth         DateTime?
@@ -62,16 +62,17 @@ model Profile {
   aboutMe             String?
   originalAvatarUrl   String?
   smallAvatarUrl      String?
-  profileStatus       ProfileStatus
-  user                User      @relation(fields: [profileId], references: [id])
+  profileStatus       ProfileStatus @default(READY)
+  user                User          @relation(fields: [profileId], references: [id])
 
   @@map("profile")
 }
 
 model Events {
-  profileId   String      @id @unique @db.Uuid
-  eventStatus EventStatus
-  createdAt   DateTime    @default(now())
+  parentId       String      @id @unique @db.Uuid
+  entity         Entity
+  eventStatus    EventStatus @default(PENDING)
+  proccesingDate DateTime    @default(now())
 
   @@map("events")
 }
@@ -112,4 +113,9 @@ enum EventStatus {
   READY
   PENDING
   REJECT
+}
+
+enum Entity {
+  GALLERY
+  PROFILE
 }

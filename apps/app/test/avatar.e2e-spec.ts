@@ -120,7 +120,7 @@ describe('Auth e2e', () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
     console.log('imageBuffer in avatar tests:', imageBuffer);
 
-    jest.spyOn(controller, 'resensAvatar').mockImplementation(async () => {
+    jest.spyOn(controller, 'streamAvatarToFileMicroservice').mockImplementation(async () => {
       return { statusCode: 201, body: { url: 'https://example.com/avatar.webp' } };
     });
 
@@ -152,7 +152,7 @@ describe('Auth e2e', () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
     console.log('imageBuffer in avatar tests:', imageBuffer);
 
-    jest.spyOn(controller, 'resensAvatar').mockImplementation(async () => {
+    jest.spyOn(controller, 'streamAvatarToFileMicroservice').mockImplementation(async () => {
       return { statusCode: 201, body: { url: 'https://example.com/avatar.webp' } };
     });
 
@@ -161,7 +161,7 @@ describe('Auth e2e', () => {
       .set('Content-Type', 'multipart/form-data')
       .attach('file', imageBuffer)
       .set('Authorization', `Bearer ${accessToken}`)
-      .expect(201);
+      .expect(204);
   }); // 201
 
   it.skip('UPLOAD avatar with incorrect data (wrong format)', async () => {
