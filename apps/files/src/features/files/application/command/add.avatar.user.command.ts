@@ -43,25 +43,24 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       // Используем метод адаптера для изменения размера изображения
       const smallWebpFilePath = await this.imgProcessingAdapter.resizeAvatar(originalWebpFilePath);
 
-      // первоначальный вариант, сейсас он в Promise.all
-      // Создаем поток для сохранения изображения
-      // const fileStream = await this.fileUploadService.createFileStream(originalWebpFilePath);
-      // console.log('fileStream in add avatar user command:', fileStream);
-
       // Создаем потоки для сохранения изображений
-      const [originalFileStream, smallFileStream] = await Promise.all([
-        this.fileUploadService.createFileStream(originalWebpFilePath),
-        this.fileUploadService.createFileStream(smallWebpFilePath),
-      ]);
+      const [originalFileStream, smallFileStream] = await this.createFilesStreams({
+        originalWebpFilePath,
+        smallWebpFilePath,
+      });
 
       // Сохранение изображений на S3
       const originalImageResult = await this.s3StorageAdapter.saveImageFromStream(originalFileStream);
       const smallImageResult = await this.s3StorageAdapter.saveImageFromStream(smallFileStream);
 
       // Удаление локального файла после загрузки
-      await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
-      await this.fileUploadService.deleteFile(originalWebpFilePath);
-      await this.fileUploadService.deleteFile(smallWebpFilePath);
+      try {
+        await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
+        await this.fileUploadService.deleteFile(originalWebpFilePath);
+        await this.fileUploadService.deleteFile(smallWebpFilePath);
+      } catch (error) {
+        console.error('Error deleting files:', error);
+      }
 
       //TODO пока что картинка одного размера
       const newFileEntity = FileEntity.create({
@@ -87,5 +86,32 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
       throw error;
     }
+  }
+
+  private async createFilesStreams({ originalWebpFilePath, smallWebpFilePath }) {
+    let attempts = 0;
+    let originalFileStream: any;
+    let smallFileStream: any;
+
+    while (attempts < 3) {
+      try {
+        [originalFileStream, smallFileStream] = await Promise.all([
+          this.fileUploadService.createFileStream(originalWebpFilePath),
+          this.fileUploadService.createFileStream(smallWebpFilePath),
+        ]);
+        // если выполнение успешно, происходит выход из цикла
+        break;
+      } catch (error) {
+        attempts++;
+        console.error('Error creating file stream:', error);
+
+        // если достигнуто максимальное количество попыток
+        if (attempts >= 3) {
+          // TODO логика с reject
+        }
+      }
+    }
+
+    return [originalFileStream, smallFileStream];
   }
 }

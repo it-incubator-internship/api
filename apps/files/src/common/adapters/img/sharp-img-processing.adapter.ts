@@ -18,7 +18,7 @@ export class SharpImgProcessingAdapter implements ImgProcessingAdapter {
     }
 
     // Создаем новый путь для файла в формате .webp
-    const webpFilePath = filePath.replace(/\.[^/.]+$/, '') + '.webp';
+    const webpFilePath = filePath.replace(/\.[^/.]+$/, '') + '.original.webp';
 
     // Преобразование изображения в формат webp с помощью sharp
     await sharp(filePath)
