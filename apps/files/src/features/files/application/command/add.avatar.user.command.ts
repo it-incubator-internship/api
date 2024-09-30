@@ -17,7 +17,7 @@ type AddAvatarType = {
 };
 
 export class AddAvatarUserCommand {
-  constructor(public inputModel: /* { userId: string; fileData: any } */ AddAvatarType) /* DeleteAvatarType */ {}
+  constructor(public inputModel: AddAvatarType) {}
 }
 
 @CommandHandler(AddAvatarUserCommand)
@@ -32,30 +32,44 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
 
   async execute(command: AddAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
     try {
-      //TODO вынести в константы
-      const TEN_MB = /* 10 * 1024 * 1024 */ maxAvatarSize; // 10 МБ;
+      const TEN_MB = maxAvatarSize; // 10 МБ;
 
       // Используем метод адаптера для конвертации изображения
-      const webpFilePath = await this.imgProcessingAdapter.convertToWebp(command.inputModel.fileData.filePath, TEN_MB);
+      const originalWebpFilePath = await this.imgProcessingAdapter.convertToWebp(
+        command.inputModel.fileData.filePath,
+        TEN_MB,
+      );
 
+      // Используем метод адаптера для изменения размера изображения
+      const smallWebpFilePath = await this.imgProcessingAdapter.resizeAvatar(originalWebpFilePath);
+
+      // первоначальный вариант, сейсас он в Promise.all
       // Создаем поток для сохранения изображения
-      const fileStream = await this.fileUploadService.createFileStream(webpFilePath);
+      // const fileStream = await this.fileUploadService.createFileStream(originalWebpFilePath);
       // console.log('fileStream in add avatar user command:', fileStream);
 
-      // Сохранение изображения на S3
-      const result = await this.s3StorageAdapter.saveImageFromStream(fileStream);
+      // Создаем потоки для сохранения изображений
+      const [originalFileStream, smallFileStream] = await Promise.all([
+        this.fileUploadService.createFileStream(originalWebpFilePath),
+        this.fileUploadService.createFileStream(smallWebpFilePath),
+      ]);
+
+      // Сохранение изображений на S3
+      const originalImageResult = await this.s3StorageAdapter.saveImageFromStream(originalFileStream);
+      const smallImageResult = await this.s3StorageAdapter.saveImageFromStream(smallFileStream);
 
       // Удаление локального файла после загрузки
       await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
-      await this.fileUploadService.deleteFile(webpFilePath);
+      await this.fileUploadService.deleteFile(originalWebpFilePath);
+      await this.fileUploadService.deleteFile(smallWebpFilePath);
 
       //TODO пока что картинка одного размера
       const newFileEntity = FileEntity.create({
         format: FileFormat.webp,
         type: FileType.avatar,
         url: {
-          original: result.url,
-          small: result.url,
+          original: originalImageResult.url,
+          small: smallImageResult.url,
         },
       });
 
@@ -64,8 +78,8 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       //TODO добавить тип
       return {
         success: true,
-        smallUrl: result.url,
-        originalUrl: result.url,
+        smallUrl: originalImageResult.url,
+        originalUrl: smallImageResult.url,
         profileId: command.inputModel.userId,
       };
     } catch (error) {

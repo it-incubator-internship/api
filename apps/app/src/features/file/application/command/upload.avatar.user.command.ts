@@ -8,7 +8,8 @@ import { NotFoundError } from '../../../../../../common/utils/result/custom-erro
 
 type AddAvatarType = {
   userId: string;
-  avatarUrl: string;
+  originalAvatarUrl: string;
+  smallAvatarUrl: string;
 };
 
 export class UploadAvatarUserCommand {
@@ -32,7 +33,10 @@ export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUser
     }
 
     // если profile найден
-    profile.addAvatarUrl({ avatarUrl: command.inputModel.avatarUrl });
+    profile.addAvatarUrl({
+      originalAvatarUrl: command.inputModel.originalAvatarUrl,
+      smallAvatarUrl: command.inputModel.smallAvatarUrl,
+    });
 
     await this.userRepository.updateOne({
       modelName: EntityEnum.profile,
