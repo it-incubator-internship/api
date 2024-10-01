@@ -39,18 +39,22 @@ export class FileController {
   ) {
     // проверка запроса на наличие изображения
     const contentType = req.headers['content-type'];
+    console.log('contentType in app.file.controller (uploadAvatar):', contentType);
 
     // если в запросе нет изображения
     if (!contentType) {
-      console.log('!contentType');
+      console.log('!contentType in app.file.controller (uploadAvatar)');
       throw new BadRequestError('Photo not included in request.', [{ message: 'string', field: 'string' }]);
     }
 
     // получение userId для использования в options
     const userId = userInfo.userId;
+    console.log('userId in app.file.controller (uploadAvatar):', userId);
 
     // получение данных от второго микросервиса
-    const { statusCode } = await this.streamAvatarToFileMicroservice(req, res, userId);
+    // const { statusCode } = await this.streamAvatarToFileMicroservice(req, res, userId);
+    const result = await this.streamAvatarToFileMicroservice(req, res, userId);
+    console.log('result in app.file.controller (uploadAvatar):', result);
 
     // if (statusCode === 0) {
     //   return;
@@ -71,10 +75,7 @@ export class FileController {
     res: Response,
     userId: string,
   ): Promise<{ statusCode: number | undefined; body: any }> {
-    console.log('console.log in app.file.controller (test)');
-    // проверка запроса на наличие изображения
-    const contentType = req.headers['content-type'];
-    console.log('contentType in app.file.controller (test):', contentType);
+    console.log('console.log in app.file.controller (streamAvatarToFileMicroservice)');
 
     // если изображение в запросе есть
     const options = {
@@ -86,7 +87,7 @@ export class FileController {
         ...req.headers,
       },
     };
-    console.log('options in app.file.controller (test):', options);
+    console.log('options in app.file.controller (streamAvatarToFileMicroservice):', options);
 
     return new Promise((resolve, reject) => {
       const forwardRequest = http.request(options, (forwardResponse) => {

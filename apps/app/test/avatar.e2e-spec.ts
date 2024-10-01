@@ -112,9 +112,9 @@ describe('Auth e2e', () => {
       .expect(401);
   }); // 401
 
-  it.skip('UPLOAD avatar without image', async () => {
-    await request(app.getHttpServer()).post('/file/avatar').set('Authorization', `Bearer ${accessToken}`).expect(201);
-  }); // 201
+  it('UPLOAD avatar without image', async () => {
+    await request(app.getHttpServer()).post('/file/avatar').set('Authorization', `Bearer ${accessToken}`).expect(400);
+  }); // 400
 
   it.skip('UPLOAD avatar with correct data (profile not found)', async () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
@@ -132,7 +132,7 @@ describe('Auth e2e', () => {
       .expect(404);
   }); // 404
 
-  it.skip('ADD profile information with correct data (without update userName and mandatory value)', async () => {
+  it('ADD profile information with correct data (without update userName and mandatory value)', async () => {
     await request(app.getHttpServer())
       .put('/user/profile/' + userId)
       .set('Authorization', `Bearer ${accessToken}`)
