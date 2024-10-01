@@ -31,6 +31,6 @@ export class FileUploadController {
     console.log('result in file controller (upload):', result);
     this.gatewayProxyClient.emit({ cmd: 'avatar-saved' }, result);
 
-    return;
+    fileData.sendStatus(204);
   }
 }
