@@ -31,6 +31,9 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
   ) {}
 
   async execute(command: AddAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
+    console.log('console.log in add.avatar.user.command');
+    console.log('command in file-upload.controller:', command);
+
     try {
       const TEN_MB = maxAvatarSize; // 10 МБ;
 
@@ -41,17 +44,23 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       );
 
       // Используем метод адаптера для изменения размера изображения
-      const smallWebpFilePath = await this.imgProcessingAdapter.resizeAvatar(originalWebpFilePath);
+      const smallWebpFilePath = await this.imgProcessingAdapter.resizeAvatar(command.inputModel.fileData.filePath);
 
-      // Создаем потоки для сохранения изображений
-      const [originalFileStream, smallFileStream] = await this.createFilesStreams({
+      // Создаем потоки для сохранения изображений и сохраняем изображения на S3
+      const [originalImageResult, smallImageResult] = await this.createFilesStreams({
         originalWebpFilePath,
         smallWebpFilePath,
       });
 
-      // Сохранение изображений на S3
-      const originalImageResult = await this.s3StorageAdapter.saveImageFromStream(originalFileStream);
-      const smallImageResult = await this.s3StorageAdapter.saveImageFromStream(smallFileStream);
+      // Если при создании потоков для сохранения изображений и сохранении изображений на S3 возникли ошибки
+      if (!originalImageResult || !smallImageResult) {
+        return {
+          success: false,
+          smallUrl: null,
+          originalUrl: null,
+          profileId: command.inputModel.userId,
+        };
+      }
 
       // Удаление локального файла после загрузки
       try {
@@ -62,7 +71,6 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
         console.error('Error deleting files:', error);
       }
 
-      //TODO пока что картинка одного размера
       const newFileEntity = FileEntity.create({
         format: FileFormat.webp,
         type: FileType.avatar,
@@ -90,15 +98,23 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
 
   private async createFilesStreams({ originalWebpFilePath, smallWebpFilePath }) {
     let attempts = 0;
-    let originalFileStream: any;
-    let smallFileStream: any;
+    let originalImageResult: any;
+    let smallImageResult: any;
 
     while (attempts < 3) {
       try {
-        [originalFileStream, smallFileStream] = await Promise.all([
+        // Создание потоков для сохранения изображений
+        const [originalFileStream, smallFileStream] = await Promise.all([
           this.fileUploadService.createFileStream(originalWebpFilePath),
           this.fileUploadService.createFileStream(smallWebpFilePath),
         ]);
+
+        // Сохранение изображений на S3
+        [originalImageResult, smallImageResult] = await Promise.all([
+          this.s3StorageAdapter.saveImageFromStream(originalFileStream),
+          this.s3StorageAdapter.saveImageFromStream(smallFileStream),
+        ]);
+
         // если выполнение успешно, происходит выход из цикла
         break;
       } catch (error) {
@@ -107,11 +123,11 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
 
         // если достигнуто максимальное количество попыток
         if (attempts >= 3) {
-          // TODO логика с reject
+          return [null, null];
         }
       }
     }
 
-    return [originalFileStream, smallFileStream];
+    return [originalImageResult, smallImageResult];
   }
 }

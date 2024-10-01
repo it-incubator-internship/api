@@ -29,12 +29,14 @@ export class SharpImgProcessingAdapter implements ImgProcessingAdapter {
     return webpFilePath;
   }
 
-  async resizeAvatar(filePath: string): Promise<string> {
+  async resizeAvatar(filePath: string, quality: number = 70): Promise<string> {
     // Создаем новый путь для файла в формате .webp
     const webpFilePath = filePath.replace(/\.[^/.]+$/, '') + '.small.webp';
 
     // Изменение размера изображения в формат webp с помощью sharp
     await sharp(filePath)
+      .toFormat('webp') // Конвертируем в формат webp
+      .webp({ quality }) // Устанавливаем качество изображения
       .resize(150, 150) // Устанавливаем размер изображения
       .toFile(webpFilePath); // Сохраняем преобразованное изображение
 
