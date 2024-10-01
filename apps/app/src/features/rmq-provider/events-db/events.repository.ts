@@ -13,12 +13,19 @@ export class EventData {
   data?: NonNullable<unknown>;
 }
 
+export class UpdateEventData {
+  eventId: string;
+  entity: Entity;
+  eventStatus: EventStatus;
+  data?: NonNullable<unknown>;
+}
+
 @Injectable()
 export class EventsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async addEvent(data: EventData) {
-    await this.prisma.events.create({
+    return this.prisma.events.create({
       data: {
         parentId: data.parentId,
         entity: data.entity,
@@ -27,13 +34,13 @@ export class EventsRepository {
     });
   }
 
-  async updateEvent(data: EventData) {
+  async updateEvent(data: UpdateEventData) {
     await this.prisma.events.update({
       where: {
-        parentId: data.parentId,
-        entity: data.entity,
+        id: data.eventId,
       },
       data: {
+        eventStatus: data.eventStatus,
         data: data.data,
       },
     });
@@ -43,6 +50,14 @@ export class EventsRepository {
     return this.prisma.events.findMany({
       where: {
         eventStatus: EventStatus.READY,
+      },
+    });
+  }
+
+  async deleteEvent(eventId: string) {
+    await this.prisma.events.delete({
+      where: {
+        id: eventId,
       },
     });
   }

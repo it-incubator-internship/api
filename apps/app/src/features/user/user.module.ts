@@ -124,5 +124,6 @@ const adapters = [JwtAdapter];
     ...adapters,
     EntityHandler,
   ],
+  exports: [UserRepository],
 })
 export class UserModule {}

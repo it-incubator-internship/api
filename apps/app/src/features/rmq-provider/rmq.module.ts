@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { PrismaService } from '../../common/database_module/prisma-connection.service';
 
@@ -11,21 +10,7 @@ import { RmqConsumer } from './rmq.consumer';
 const commands = [GetAvatarsFromFileMcsHandler];
 
 @Module({
-  imports: [
-    ClientsModule.register([
-      {
-        name: 'MULTICAST_EXCHANGE',
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
-          queue: 'app_queue',
-          queueOptions: {
-            durable: true,
-          },
-        },
-      },
-    ]),
-  ],
+  imports: [],
   controllers: [RmqConsumer],
   providers: [EventsRepository, PrismaService, EventsService, ...commands],
   exports: [EventsService],

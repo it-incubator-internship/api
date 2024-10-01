@@ -16,14 +16,16 @@ export class EventsSheduler {
     private readonly commandBus: CommandBus,
   ) {}
 
-  @Interval(5000) // Интервал в миллисекундах
+  @Interval(10000) // Интервал в миллисекундах
   async handleInterval() {
     console.log('1');
+
     const events = await this.eventsService.getResolvedEvents();
 
     events.forEach((e) => {
       if (e.entity === Entity.PROFILE) {
         this.commandBus.execute(new HandleEventForProfileAvatarCommand(e as Data));
+        this.eventsService.deleteEvent(e.parentId);
       }
     });
   }

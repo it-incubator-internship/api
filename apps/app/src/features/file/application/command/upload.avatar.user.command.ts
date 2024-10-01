@@ -47,12 +47,12 @@ export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUser
       data: profile,
     });
 
-    await this.eventsService.addEvent({
+    const result = await this.eventsService.addEvent({
       parentId: profile.profileId,
       entity: Entity.PROFILE,
       eventStatus: EventStatus.PENDING,
     });
 
-    return ObjResult.Ok();
+    return ObjResult.Ok({ eventId: result.id });
   }
 }

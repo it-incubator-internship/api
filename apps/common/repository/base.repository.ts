@@ -38,6 +38,7 @@ export class BaseRepository {
     return result;
   }
 
+  //TODO подумать
   async findUniqueOne({
     modelName,
     conditions,

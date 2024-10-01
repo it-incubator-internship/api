@@ -12,7 +12,7 @@ import { FileEntity, FileFormat, FileType } from '../../schema/files.schema';
 import { maxAvatarSize } from '../../../../../../common/constants/constants';
 
 type AddAvatarType = {
-  userId: string;
+  eventId: string;
   fileData: any;
 };
 
@@ -58,7 +58,7 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
           success: false,
           smallUrl: null,
           originalUrl: null,
-          profileId: command.inputModel.userId,
+          eventId: command.inputModel.eventId,
         };
       }
 
@@ -87,7 +87,7 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
         success: true,
         smallUrl: originalImageResult.url,
         originalUrl: smallImageResult.url,
-        profileId: command.inputModel.userId,
+        eventId: command.inputModel.eventId,
       };
     } catch (error) {
       // Удаление локального файла в случае ошибки

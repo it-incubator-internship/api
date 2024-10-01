@@ -24,7 +24,7 @@ import { FileUploadController } from './controller/file-upload.controller';
         transport: Transport.RMQ,
         options: {
           urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
-          queue: 'loh',
+          queue: 'multicast_queue',
           queueOptions: {
             durable: true,
           },

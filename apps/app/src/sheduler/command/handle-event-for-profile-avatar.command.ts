@@ -28,10 +28,10 @@ export class HandleEventForProfileAvatarHandler implements ICommandHandler<Handl
 
     if (entity !== Entity.PROFILE) throw new Error('wrong entity in event');
 
-    const profile = (await this.userRepository.findUniqueOne({
+    const profile: ProfileEntityNEW = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.profile,
       conditions: { profileId: parentId },
-    })) as ProfileEntityNEW;
+    });
 
     if (!profile) throw new Error('profile not found');
 

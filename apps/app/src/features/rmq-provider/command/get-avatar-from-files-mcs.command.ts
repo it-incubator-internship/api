@@ -16,10 +16,12 @@ export class GetAvatarsFromFileMcsHandler implements ICommandHandler<GetAvatarsF
   constructor(public eventsService: EventsService) {}
 
   async execute(command: GetAvatarsFromFileMcsCommand) {
-    const { status, profileId, originalUrl, smallUrl } = command.data;
+    console.log(command.data);
+    console.log('++++++++++++++++++++++++++++++');
+    const { status, eventId, originalUrl, smallUrl } = command.data;
 
-    await this.eventsService.updateEvent({
-      parentId: profileId,
+    const data = {
+      eventId: eventId,
       entity: Entity.PROFILE,
       eventStatus: EventStatus.READY,
       data: {
@@ -27,6 +29,8 @@ export class GetAvatarsFromFileMcsHandler implements ICommandHandler<GetAvatarsF
         originalUrl,
         smallUrl,
       },
-    });
+    };
+    console.log(`data: ${JSON.stringify(data, null, 2)}`);
+    await this.eventsService.updateEvent(data);
   }
 }
