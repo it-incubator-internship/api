@@ -58,11 +58,6 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       const originalImageResult = await this.s3StorageAdapter.saveImageFromStream(originalFileStream);
       const smallImageResult = await this.s3StorageAdapter.saveImageFromStream(smallFileStream);
 
-      // Удаление локального файла после загрузки
-      await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
-      await this.fileUploadService.deleteFile(originalWebpFilePath);
-      await this.fileUploadService.deleteFile(smallWebpFilePath);
-
       //TODO пока что картинка одного размера
       const newFileEntity = FileEntity.create({
         format: FileFormat.webp,
@@ -74,6 +69,11 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       });
 
       await this.fileRepository.create(newFileEntity);
+
+      // // Удаление локального файла после загрузки
+      // await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
+      // await this.fileUploadService.deleteFile(originalWebpFilePath);
+      // await this.fileUploadService.deleteFile(smallWebpFilePath);
 
       //TODO добавить тип
       return {

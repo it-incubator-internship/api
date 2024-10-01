@@ -11,6 +11,7 @@ import { UserIdFromRequest } from '../../user/auth/decorators/controller/userIdF
 import { UploadAvatarSwagger } from '../decorators/swagger/upload-avatar/upload-avatar.swagger.decorator';
 import { ConfigurationType } from '../../../../../app/src/common/settings/configuration';
 import { BadRequestError } from '../../../../../common/utils/result/custom-error';
+import { UploadAvatarUserCommand } from '../application/command/upload.avatar.user.command';
 // import { DeleteAvatarSwagger } from '../decorators/swagger/delete-avatar/delete-avatar.swagger.decorator';
 // import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
 
@@ -49,28 +50,15 @@ export class FileController {
     // получение userId для использования в options
     const userId = userInfo.userId;
 
-    // получение данных от второго микросервиса
-    const { statusCode } = await this.streamAvatarToFileMicroservice(req, res, userId);
+    await this.commandBus.execute(new UploadAvatarUserCommand({ userId }));
 
-    // if (statusCode === 0) {
-    //   return;
-    // }
-
-    // const result = await this.commandBus.execute(
-    //   new UploadAvatarUserCommand({ userId: userInfo.userId, avatarUrl: body.url }),
-    // );
-
-    // if (!result.isSuccess) throw result.error;
+    await this.streamAvatarToFileMicroservice(req, res, userId);
 
     return;
   }
 
   // возвращает ответ с того бэкэнда
-  private async streamAvatarToFileMicroservice(
-    req: Request,
-    res: Response,
-    userId: string,
-  ): Promise<{ statusCode: number | undefined; body: any }> {
+  private async streamAvatarToFileMicroservice(req: Request, res: Response, userId: string) {
     console.log('console.log in app.file.controller (test)');
     // проверка запроса на наличие изображения
     const contentType = req.headers['content-type'];

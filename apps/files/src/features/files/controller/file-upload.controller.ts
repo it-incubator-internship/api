@@ -3,7 +3,6 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ClientProxy } from '@nestjs/microservices';
 
 import { FileUploadInterceptor } from '../interceptors/fileUpload.interceptor';
-import { AddAvatarUserCommand } from '../application/command/add.avatar.user.command';
 
 const enum AvatarSavedStatus {
   SUCCESS = 'success',
@@ -27,8 +26,9 @@ export class FileUploadController {
   @Post('avatar/:id')
   @UseInterceptors(FileUploadInterceptor)
   async uploadFile(@Param('id', ParseUUIDPipe) userId: string, @Req() fileData: any) {
-    const result = await this.commandBus.execute<{}, AvatarSavedEvent>(new AddAvatarUserCommand({ userId, fileData }));
-
+    // const result = await this.commandBus.execute<{}, AvatarSavedEvent>(new AddAvatarUserCommand({ userId, fileData }));
+    const result = '123';
+    console.log('result in file controller (upload):', result);
     this.gatewayProxyClient.emit({ cmd: 'avatar-saved' }, result);
 
     return;

@@ -53,17 +53,17 @@ model Session {
 }
 
 model Profile {
-  profileId           String        @id @unique @db.Uuid
-  firstName           String
-  lastName            String
-  dateOfBirth         DateTime?
-  country             String?
-  city                String?
-  aboutMe             String?
-  originalAvatarUrl   String?
-  smallAvatarUrl      String?
-  profileStatus       ProfileStatus @default(READY)
-  user                User          @relation(fields: [profileId], references: [id])
+  profileId         String        @id @unique @db.Uuid
+  firstName         String
+  lastName          String
+  dateOfBirth       DateTime?
+  country           String?
+  city              String?
+  aboutMe           String?
+  originalAvatarUrl String?
+  smallAvatarUrl    String?
+  profileStatus     ProfileStatus @default(READY)
+  user              User          @relation(fields: [profileId], references: [id])
 
   @@map("profile")
 }
@@ -73,6 +73,7 @@ model Events {
   entity         Entity
   eventStatus    EventStatus @default(PENDING)
   proccesingDate DateTime    @default(now())
+  data           Json? // Поле может быть null
 
   @@map("events")
 }
@@ -107,6 +108,7 @@ enum BanStatus {
 enum ProfileStatus {
   READY
   PENDING
+  REJECT
 }
 
 enum EventStatus {
