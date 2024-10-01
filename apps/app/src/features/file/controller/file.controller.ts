@@ -49,15 +49,20 @@ export class FileController {
     // получение userId для использования в options
     const userId = userInfo.userId;
 
-    // await this.commandBus.execute(new UploadAvatarUserCommand({ userId }));
-
+    // получение данных от второго микросервиса
     await this.streamAvatarToFileMicroservice(req, res, userId);
 
     return;
   }
 
   // возвращает ответ с того бэкэнда
-  private async streamAvatarToFileMicroservice(req: Request, res: Response, userId: string) {
+  private async streamAvatarToFileMicroservice(
+    req: Request,
+    res: Response,
+    userId: string,
+  ): Promise<{ statusCode: number | undefined; body: any }> {
+    console.log('console.log in app.file.controller (streamAvatarToFileMicroservice)');
+
     // если изображение в запросе есть
     const options = {
       hostname: this.imageStreamConfiguration.hostname,
@@ -68,7 +73,6 @@ export class FileController {
         ...req.headers,
       },
     };
-    console.log('options in app.file.controller (test):', options);
 
     return new Promise((resolve, reject) => {
       const forwardRequest = http.request(options, (forwardResponse) => {

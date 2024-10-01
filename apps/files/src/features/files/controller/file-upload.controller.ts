@@ -3,6 +3,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { ClientProxy } from '@nestjs/microservices';
 
 import { FileUploadInterceptor } from '../interceptors/fileUpload.interceptor';
+import { AddAvatarUserCommand } from '../application/command/add.avatar.user.command';
 
 const enum AvatarSavedStatus {
   SUCCESS = 'success',
@@ -33,4 +34,14 @@ export class FileUploadController {
 
     fileData.sendStatus(204);
   }
+
+  // @Delete('avatar/:url')
+  // async handleDelete(@Param('id', ParseUUIDPipe) userId: string /* , @Req() req: Request, @Res() res: Response */) {
+  //   console.log('userId in file controller v2(handleDelete):', userId);
+
+  //   // const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId }));
+  //   // console.log('result in file controller v2 (deleteAvatar):', result);
+
+  //   // return /* blog */;
+  // }
 }
