@@ -34,7 +34,7 @@ export class FileUploadController {
     console.log('filePath in file-upload controller:', filePath);
 
     // Выполняем дополнительную логику в фоновом режиме
-    this.processUploadedFile(eventId, filePath);
+    setTimeout(() => this.processUploadedFile(eventId, filePath), 5000);
   }
 
   private async processUploadedFile(eventId: string, filePath: string) {
