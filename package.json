@@ -26,10 +26,12 @@
     "test/payments:e2e": "cross-env NODE_ENV=TEST  jest --config ./apps/payments/test/jest-e2e.json",
     "start:payments": "node dist/apps/payments/main",
     "start:app": "cross-env NODE_ENV=PRODUCTION node dist/apps/app/main",
-    "migrate:app": "dotenv -e .development.env -- npx prisma migrate dev --name add_profile_status_to_profile --schema=./apps/app/prisma/schema.prisma",
-    "migrate:app-testing": "dotenv -e .test.env -- npx prisma migrate dev --name add_profile_status_to_profile --schema=./apps/app/prisma/schema.prisma",
+    "migrate:app": "dotenv -e .development.env -- npx prisma migrate dev --name add_uniqId-for-events-tables --schema=./apps/app/prisma/schema.prisma",
+    "migrate:app-testing": "dotenv -e .test.env -- npx prisma migrate dev --name add_uniqId-for-events-tables --schema=./apps/app/prisma/schema.prisma",
     "generate:app": "npx prisma generate --schema=./apps/app/prisma/schema.prisma",
-    "prisma:rest": "dotenv -e .development.env -- npx prisma migrate reset --schema=./apps/app/prisma/schema.prisma"
+    "prisma:rest": "dotenv -e .development.env -- npx prisma migrate reset --schema=./apps/app/prisma/schema.prisma",
+    "migrate:deploy-app": "dotenv -e .development.env -- npx prisma migrate deploy --schema=./apps/app/prisma/schema.prisma",
+    "migrate:deploy-app-testing": "dotenv -e .test.env -- npx prisma migrate deploy --schema=./apps/app/prisma/schema.prisma"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.651.1",
@@ -46,6 +48,7 @@
     "@nestjs/mongoose": "^10.0.10",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/schedule": "^4.1.1",
     "@nestjs/swagger": "^7.4.0",
     "@nestjs/throttler": "^6.2.1",
     "@prisma/client": "5.19.1",

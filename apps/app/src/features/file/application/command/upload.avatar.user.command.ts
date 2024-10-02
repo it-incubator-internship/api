@@ -5,11 +5,15 @@ import { UserRepository } from '../../../user/user/repository/user.repository';
 import { EntityEnum } from '../../../../../../common/repository/base.repository';
 import { ProfileEntityNEW } from '../../../user/user/domain/account-data.entity';
 import { NotFoundError } from '../../../../../../common/utils/result/custom-error';
+import { $Enums } from '../../../../../prisma/client';
+import { EventsService } from '../../../rmq-provider/events-db/events.service';
+
+import ProfileStatus = $Enums.ProfileStatus;
+import Entity = $Enums.Entity;
+import EventStatus = $Enums.EventStatus;
 
 type AddAvatarType = {
   userId: string;
-  originalAvatarUrl: string;
-  smallAvatarUrl: string;
 };
 
 export class UploadAvatarUserCommand {
@@ -18,7 +22,10 @@ export class UploadAvatarUserCommand {
 
 @CommandHandler(UploadAvatarUserCommand)
 export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUserCommand> {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly eventsService: EventsService,
+  ) {}
 
   async execute(command: UploadAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
     // поиск profile по id
@@ -32,11 +39,7 @@ export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUser
       return ObjResult.Err(new NotFoundError('profile not found'));
     }
 
-    // если profile найден
-    profile.addAvatarUrl({
-      originalAvatarUrl: command.inputModel.originalAvatarUrl,
-      smallAvatarUrl: command.inputModel.smallAvatarUrl,
-    });
+    profile.profileStatus = ProfileStatus.PENDING;
 
     await this.userRepository.updateOne({
       modelName: EntityEnum.profile,
@@ -44,6 +47,12 @@ export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUser
       data: profile,
     });
 
-    return ObjResult.Ok();
+    const result = await this.eventsService.addEvent({
+      parentId: profile.profileId,
+      entity: Entity.PROFILE,
+      eventStatus: EventStatus.PENDING,
+    });
+
+    return ObjResult.Ok({ eventId: result.id });
   }
 }

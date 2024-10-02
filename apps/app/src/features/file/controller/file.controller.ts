@@ -11,6 +11,7 @@ import { UserIdFromRequest } from '../../user/auth/decorators/controller/userIdF
 import { UploadAvatarSwagger } from '../decorators/swagger/upload-avatar/upload-avatar.swagger.decorator';
 import { ConfigurationType } from '../../../../../app/src/common/settings/configuration';
 import { BadRequestError } from '../../../../../common/utils/result/custom-error';
+import { UploadAvatarUserCommand } from '../application/command/upload.avatar.user.command';
 // import { DeleteAvatarSwagger } from '../decorators/swagger/delete-avatar/delete-avatar.swagger.decorator';
 // import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
 
@@ -39,32 +40,18 @@ export class FileController {
   ) {
     // проверка запроса на наличие изображения
     const contentType = req.headers['content-type'];
-    console.log('contentType in app.file.controller (uploadAvatar):', contentType);
 
     // если в запросе нет изображения
     if (!contentType) {
-      console.log('!contentType in app.file.controller (uploadAvatar)');
+      console.log('!contentType');
       throw new BadRequestError('Photo not included in request.', [{ message: 'string', field: 'string' }]);
     }
 
     // получение userId для использования в options
     const userId = userInfo.userId;
-    console.log('userId in app.file.controller (uploadAvatar):', userId);
 
     // получение данных от второго микросервиса
-    // const { statusCode } = await this.streamAvatarToFileMicroservice(req, res, userId);
-    const result = await this.streamAvatarToFileMicroservice(req, res, userId);
-    console.log('result in app.file.controller (uploadAvatar):', result);
-
-    // if (statusCode === 0) {
-    //   return;
-    // }
-
-    // const result = await this.commandBus.execute(
-    //   new UploadAvatarUserCommand({ userId: userInfo.userId, avatarUrl: body.url }),
-    // );
-
-    // if (!result.isSuccess) throw result.error;
+    await this.streamAvatarToFileMicroservice(req, res, userId);
 
     return;
   }
@@ -75,34 +62,37 @@ export class FileController {
     res: Response,
     userId: string,
   ): Promise<{ statusCode: number | undefined; body: any }> {
-    console.log('console.log in app.file.controller (streamAvatarToFileMicroservice)');
+    const result = await this.commandBus.execute(new UploadAvatarUserCommand({ userId }));
+    console.log('result in app-file controller:', result);
+    console.log('result.value.eventId in app-file controller:', result.value.eventId);
 
     // если изображение в запросе есть
     const options = {
       hostname: this.imageStreamConfiguration.hostname,
       port: this.imageStreamConfiguration.port,
-      path: this.imageStreamConfiguration.avatarPath + userId,
+      path: this.imageStreamConfiguration.avatarPath + result.value.eventId,
       method: 'POST',
       headers: {
         ...req.headers,
       },
     };
-    console.log('options in app.file.controller (streamAvatarToFileMicroservice):', options);
+    console.log('options in app-file controller:', options);
 
     return new Promise((resolve, reject) => {
       const forwardRequest = http.request(options, (forwardResponse) => {
         let responseData = '';
+        console.log('responseData in app-file controller:', responseData);
 
         forwardResponse.on('data', (chunk) => {
           responseData += chunk;
         });
+        console.log('responseData in app-file controller:', responseData);
 
         forwardResponse.on('end', () => {
           try {
-            const parsedResponse = JSON.parse(responseData);
             resolve({
-              statusCode: forwardResponse.statusCode,
-              body: parsedResponse,
+              statusCode: 204,
+              body: null,
             });
           } catch (error) {
             console.error('Error parsing response from second server:', error);

@@ -12,7 +12,7 @@ const enum AvatarSavedStatus {
 
 export class AvatarSavedEvent {
   status: AvatarSavedStatus;
-  profileId: string;
+  eventId: string;
   originalUrl: string;
   smallUrl: string;
 }
@@ -26,14 +26,27 @@ export class FileUploadController {
 
   @Post('avatar/:id')
   @UseInterceptors(FileUploadInterceptor)
-  async uploadFile(@Param('id', ParseUUIDPipe) userId: string, @Req() fileData: any) {
+  async uploadFile(@Param('id', ParseUUIDPipe) eventId: string, @Req() req) {
+    console.log('Controller executed');
+    console.log('eventId in file-upload controller:', eventId);
 
-    const result = await this.commandBus.execute<{}, AvatarSavedEvent>(new AddAvatarUserCommand({ userId, fileData }));
-    console.log('result in file-upload.controller:', result);
+    const filePath = req['filePath'];
+    console.log('filePath in file-upload controller:', filePath);
 
-    this.gatewayProxyClient.emit({ cmd: 'avatar-saved' }, result);
+    // Выполняем дополнительную логику в фоновом режиме
+    this.processUploadedFile(eventId, filePath);
+  }
 
-    return;
+  private async processUploadedFile(eventId: string, filePath: string) {
+    try {
+      const result = await this.commandBus.execute<{}, AvatarSavedEvent>(
+        new AddAvatarUserCommand({ eventId, fileData: filePath }),
+      );
+      console.log('result in file controller v1 (uploadFile):', result);
+      this.gatewayProxyClient.emit({ cmd: 'avatar-saved' }, result);
+    } catch (error) {
+      console.error('Error processing uploaded file:', error);
+    }
   }
 
   // @Delete('avatar/:url')
