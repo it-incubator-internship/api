@@ -53,6 +53,6 @@ export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUser
       eventStatus: EventStatus.PENDING,
     });
 
-    return ObjResult.Ok({ eventId: result.id });
+    return ObjResult.Ok({ eventId: result.parentId });
   }
 }

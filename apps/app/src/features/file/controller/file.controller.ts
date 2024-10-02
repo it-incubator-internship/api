@@ -63,25 +63,30 @@ export class FileController {
     userId: string,
   ): Promise<{ statusCode: number | undefined; body: any }> {
     const result = await this.commandBus.execute(new UploadAvatarUserCommand({ userId }));
+    console.log('result in app-file controller:', result);
+    console.log('result.value.eventId in app-file controller:', result.value.eventId);
 
     // если изображение в запросе есть
     const options = {
       hostname: this.imageStreamConfiguration.hostname,
       port: this.imageStreamConfiguration.port,
-      path: this.imageStreamConfiguration.avatarPath + result.eventId,
+      path: this.imageStreamConfiguration.avatarPath + result.value.eventId,
       method: 'POST',
       headers: {
         ...req.headers,
       },
     };
+    console.log('options in app-file controller:', options);
 
     return new Promise((resolve, reject) => {
       const forwardRequest = http.request(options, (forwardResponse) => {
         let responseData = '';
+        console.log('responseData in app-file controller:', responseData);
 
         forwardResponse.on('data', (chunk) => {
           responseData += chunk;
         });
+        console.log('responseData in app-file controller:', responseData);
 
         forwardResponse.on('end', () => {
           try {

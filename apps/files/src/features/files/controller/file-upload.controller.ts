@@ -28,7 +28,10 @@ export class FileUploadController {
   @UseInterceptors(FileUploadInterceptor)
   async uploadFile(@Param('id', ParseUUIDPipe) eventId: string, @Req() req) {
     console.log('Controller executed');
+    console.log('eventId in file-upload controller:', eventId);
+
     const filePath = req['filePath'];
+    console.log('filePath in file-upload controller:', filePath);
 
     // Выполняем дополнительную логику в фоновом режиме
     this.processUploadedFile(eventId, filePath);
