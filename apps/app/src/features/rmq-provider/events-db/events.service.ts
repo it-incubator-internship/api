@@ -18,7 +18,7 @@ export class EventsService {
     return this.eventsRepository.getResolvedEvents();
   }
 
-  async deleteEvent(parentId: string) {
-    return this.eventsRepository.deleteEvent(parentId);
+  async deleteEvent(eventId: string) {
+    return this.eventsRepository.deleteEvent(eventId);
   }
 }

@@ -90,10 +90,9 @@ export class FileController {
 
         forwardResponse.on('end', () => {
           try {
-            const parsedResponse = JSON.parse(responseData);
             resolve({
-              statusCode: forwardResponse.statusCode,
-              body: parsedResponse,
+              statusCode: 204,
+              body: null,
             });
           } catch (error) {
             console.error('Error parsing response from second server:', error);

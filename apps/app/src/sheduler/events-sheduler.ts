@@ -25,7 +25,7 @@ export class EventsSheduler {
     events.forEach((e) => {
       if (e.entity === Entity.PROFILE) {
         this.commandBus.execute(new HandleEventForProfileAvatarCommand(e as Data));
-        this.eventsService.deleteEvent(e.parentId);
+        this.eventsService.deleteEvent(e.id);
       }
     });
   }

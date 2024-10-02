@@ -31,29 +31,29 @@ export class FileUploadInterceptor implements NestInterceptor {
           console.log(`File [${filename}] saved at [${saveFilePath}]`);
           req['filePath'] = saveFilePath;
 
-          // // Отправляем ответ клиенту сразу после сохранения файла
+          // // // Отправляем ответ клиенту сразу после сохранения файла
           // res.status(204).send();
 
           // Вызываем следующий обработчик и подписываемся на его результаты
-          next.handle().subscribe({
-            next: (data) => {
-              observer.next(data); // Передаем результаты обратно в поток
-            },
-            error: (err) => {
-              console.error('Error in controller:', err);
-              observer.error(err); // Обработка ошибок
-            },
-            complete: () => {
-              observer.complete(); // Завершение потока
-            },
-          });
-
-          // // Вызываем контроллер
           // next.handle().subscribe({
-          //   next: (data) => observer.next(data),
-          //   error: (err) => observer.error(err),
-          //   complete: () => observer.complete(),
+          //   next: (data) => {
+          //     observer.next(data); // Передаем результаты обратно в поток
+          //   },
+          //   error: (err) => {
+          //     console.error('Error in controller:', err);
+          //     observer.error(err); // Обработка ошибок
+          //   },
+          //   complete: () => {
+          //     observer.complete(); // Завершение потока
+          //   },
           // });
+
+          // Вызываем контроллер
+          next.handle().subscribe({
+            next: (data) => observer.next(data),
+            error: (err) => observer.error(err),
+            complete: () => observer.complete(),
+          });
         });
 
         writeStream.on('error', (err) => {
