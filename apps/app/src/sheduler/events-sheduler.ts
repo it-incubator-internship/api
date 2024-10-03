@@ -18,8 +18,6 @@ export class EventsSheduler {
 
   @Interval(10000) // Интервал в миллисекундах
   async handleInterval() {
-    console.log('1');
-
     const events = await this.eventsService.getResolvedEvents();
 
     events.forEach((e) => {

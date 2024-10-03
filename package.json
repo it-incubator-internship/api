@@ -8,6 +8,7 @@
   "scripts": {
     "build": "nest build",
     "build:app": "nest build app",
+    "build:files": "nest build files",
     "build:payments": "nest build payments",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
