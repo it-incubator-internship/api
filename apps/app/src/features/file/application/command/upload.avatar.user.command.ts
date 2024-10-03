@@ -33,9 +33,11 @@ export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUser
       modelName: EntityEnum.profile,
       conditions: { profileId: command.inputModel.userId },
     });
+    console.log('profile in upload avatar user command:', profile);
 
     // если profile не найден
     if (!profile) {
+      console.log('!profile in upload avatar user command');
       return ObjResult.Err(new NotFoundError('profile not found'));
     }
 

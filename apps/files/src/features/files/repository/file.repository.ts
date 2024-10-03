@@ -9,13 +9,25 @@ export class FileRepository {
   constructor(@InjectModel(FileEntity.name) private fileModel: Model<FileDocument>) {}
 
   async create(file: FileEntity): Promise<FileEntity> {
-    return await this.fileModel.create(file);
+    const result = await this.fileModel.create(file);
+    await result.save();
+    return result;
   }
 
-  //   async findAvatar({ userId }: { userId: string }) /*:*/ {
-  //     const avatar = await this.fileModel.findOne({ userId }).exec();
-  //     console.log('avatar in file repository:', avatar);
+  async findAvatar({ userId }: { userId: string }): Promise<FileEntity | null> {
+    const avatar = await this.fileModel.findOne({ userId /* , type: FileType.avatar */ }).exec();
+    console.log('avatar in file repository:', avatar);
 
-  //     return avatar;
-  //   }
+    return avatar;
+  }
+
+  async updateAvatar(avatar: FileEntity) /*:*/ {
+    const result = await this.fileModel.updateOne(
+      { userId: avatar.userId, type: avatar.type },
+      { $set: { deletedAt: avatar.deletedAt } },
+    );
+    console.log('result in file repository:', result);
+
+    return result.modifiedCount === 1;
+  }
 }

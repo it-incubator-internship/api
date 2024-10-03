@@ -13,6 +13,7 @@ import { maxAvatarSize } from '../../../../../../common/constants/constants';
 
 type AddAvatarType = {
   eventId: string;
+  userId: string;
   fileData: any;
 };
 
@@ -73,17 +74,18 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       }
 
       // Удаление локального файла после загрузки
-      // try {
-      //   console.log('console.log in try in add.avatar.user.command (deleting)');
-      //   await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
-      //   await this.fileUploadService.deleteFile(originalWebpFilePath);
-      //   await this.fileUploadService.deleteFile(smallWebpFilePath);
-      // } catch (error) {
-      //   console.log('console.log in catch in add.avatar.user.command (deleting)')
-      //   console.error('Error deleting files:', error);
-      // }
+      try {
+        console.log('console.log in try in add.avatar.user.command (deleting)');
+        await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
+        await this.fileUploadService.deleteFile(originalWebpFilePath);
+        await this.fileUploadService.deleteFile(smallWebpFilePath);
+      } catch (error) {
+        console.log('console.log in catch in add.avatar.user.command (deleting)');
+        console.error('Error deleting files:', error);
+      }
 
       const newFileEntity = FileEntity.create({
+        userId: command.inputModel.userId,
         format: FileFormat.webp,
         type: FileType.avatar,
         url: {

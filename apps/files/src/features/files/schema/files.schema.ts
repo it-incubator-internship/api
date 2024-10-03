@@ -24,7 +24,7 @@ export class FileEntity {
     type: String,
     required: true,
   })
-  userId: number;
+  userId: string;
 
   @Prop({
     type: String,
@@ -60,11 +60,13 @@ export class FileEntity {
   deletedAt: Date | null;
 
   static create({
+    userId,
     format,
     type,
     url,
     description,
   }: {
+    userId: string;
     format: FileFormat;
     type: FileType;
     url: ImageUrl;
@@ -72,6 +74,7 @@ export class FileEntity {
   }) {
     const file = new this();
 
+    file.userId = userId;
     file.format = format;
     file.type = type;
     file.url = url;

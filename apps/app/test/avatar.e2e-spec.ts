@@ -132,6 +132,10 @@ describe('Auth e2e', () => {
       .expect(404);
   }); // 404
 
+  it('DELETE avatar with correct data (profile not found)', async () => {
+    await request(app.getHttpServer()).delete('/file/avatar').set('Authorization', `Bearer ${accessToken}`).expect(404);
+  }); // 404
+
   it('ADD profile information with correct data (without update userName and mandatory value)', async () => {
     await request(app.getHttpServer())
       .put('/user/profile/' + userId)
@@ -199,4 +203,8 @@ describe('Auth e2e', () => {
       .attach('file', imageBuffer)
       .expect(201);
   }); // 201
+
+  it('DELETE avatar without authorisation', async () => {
+    await request(app.getHttpServer()).delete('/file/avatar').expect(401);
+  }); // 401
 });
