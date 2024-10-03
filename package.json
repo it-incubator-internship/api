@@ -26,6 +26,7 @@
     "test/payments:e2e": "cross-env NODE_ENV=TEST  jest --config ./apps/payments/test/jest-e2e.json",
     "start:payments": "node dist/apps/payments/main",
     "start:app": "cross-env NODE_ENV=PRODUCTION node dist/apps/app/main",
+    "start:files": "cross-env NODE_ENV=PRODUCTION node dist/apps/files/main",
     "migrate:app": "dotenv -e .development.env -- npx prisma migrate dev --name add_uniqId-for-events-tables --schema=./apps/app/prisma/schema.prisma",
     "migrate:app-testing": "dotenv -e .test.env -- npx prisma migrate dev --name add_uniqId-for-events-tables --schema=./apps/app/prisma/schema.prisma",
     "generate:app": "npx prisma generate --schema=./apps/app/prisma/schema.prisma",
