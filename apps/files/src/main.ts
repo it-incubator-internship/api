@@ -26,6 +26,8 @@ async function bootstrap() {
     swaggerSetting(app);
   }
 
+  app.setGlobalPrefix(`api/v1`);
+
   console.log(port);
 
   await app.init();
