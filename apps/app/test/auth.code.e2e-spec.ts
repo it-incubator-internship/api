@@ -11,8 +11,6 @@ import { MailService } from '../src/providers/mailer/mail.service';
 
 import { MailServiceMock } from './mock/email-service.mock';
 
-jest.setTimeout(15000); // увеличение времени ожидания
-
 describe('Auth e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
@@ -26,7 +24,6 @@ describe('Auth e2e', () => {
       .overrideProvider(MailService)
       .useClass(MailServiceMock)
       .compile();
-
     app = moduleFixture.createNestApplication();
 
     appSettings(app);

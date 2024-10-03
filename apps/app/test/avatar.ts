@@ -13,8 +13,6 @@ import { FileController } from '../src/features/file/controller/file.controller'
 
 import { MailServiceMock } from './mock/email-service.mock';
 
-jest.setTimeout(15000); // увеличение времени ожидания
-
 describe('Auth e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
