@@ -1,9 +1,13 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
-@Controller('files')
-export class FilesController {
+@Controller('')
+export class MainController {
   constructor() {} // private readonly fileUploadService: FileUploadService, // private readonly imageStorageAdapter: ImageStorageAdapter,
 
+  @Get()
+  async getHello() {
+    return `Hello world from files mcs`;
+  }
   // @Post('upload')
   // @UseInterceptors(
   //   FileInterceptor('file', {

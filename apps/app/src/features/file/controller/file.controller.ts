@@ -1,4 +1,4 @@
-import * as http from 'http';
+import * as https from 'https';
 
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
@@ -56,7 +56,6 @@ export class FileController {
     return;
   }
 
-  // возвращает ответ с того бэкэнда
   private async streamAvatarToFileMicroservice(
     req: Request,
     res: Response,
@@ -73,9 +72,10 @@ export class FileController {
 
     // если изображение в запросе есть
     const options = {
+      rejectUnauthorized: false,
       hostname: this.imageStreamConfiguration.hostname,
-      port: this.imageStreamConfiguration.port,
-      path: `api/v1${this.imageStreamConfiguration.avatarPath}${result.value.eventId}/${userId}`,
+      port: this.imageStreamConfiguration.port || 443, // Используем HTTPS порт
+      path: `/api/v1${this.imageStreamConfiguration.avatarPath}${result.value.eventId}/${userId}`,
       method: 'POST',
       headers: {
         ...req.headers,
@@ -84,20 +84,20 @@ export class FileController {
     console.log('options in app-file controller:', options);
 
     return new Promise((resolve, reject) => {
-      const forwardRequest = http.request(options, (forwardResponse) => {
+      // Используем https.request вместо http.request
+      const forwardRequest = https.request(options, (forwardResponse) => {
         let responseData = '';
         console.log('responseData in app-file controller:', responseData);
 
         forwardResponse.on('data', (chunk) => {
           responseData += chunk;
         });
-        console.log('responseData in app-file controller:', responseData);
 
         forwardResponse.on('end', () => {
           try {
             resolve({
-              statusCode: 204,
-              body: null,
+              statusCode: forwardResponse.statusCode,
+              body: responseData,
             });
           } catch (error) {
             console.error('Error parsing response from second server:', error);
