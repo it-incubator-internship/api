@@ -2,7 +2,7 @@ import * as http from 'http';
 
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { Controller, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Delete, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus } from '@nestjs/cqrs';
 
@@ -12,8 +12,8 @@ import { UploadAvatarSwagger } from '../decorators/swagger/upload-avatar/upload-
 import { ConfigurationType } from '../../../../../app/src/common/settings/configuration';
 import { BadRequestError } from '../../../../../common/utils/result/custom-error';
 import { UploadAvatarUserCommand } from '../application/command/upload.avatar.user.command';
-// import { DeleteAvatarSwagger } from '../decorators/swagger/delete-avatar/delete-avatar.swagger.decorator';
-// import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
+import { DeleteAvatarSwagger } from '../decorators/swagger/delete-avatar/delete-avatar.swagger.decorator';
+import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
 
 @ApiTags('file')
 @Controller('file')
@@ -62,9 +62,14 @@ export class FileController {
     res: Response,
     userId: string,
   ): Promise<{ statusCode: number | undefined; body: any }> {
+    console.log('console.log in app-file controller (streamAvatarToFileMicroservice)');
     const result = await this.commandBus.execute(new UploadAvatarUserCommand({ userId }));
     console.log('result in app-file controller:', result);
-    console.log('result.value.eventId in app-file controller:', result.value.eventId);
+
+    if (!result.isSuccess) {
+      console.log('!result.isSuccess in app-file controller');
+      throw result.error;
+    }
 
     // если изображение в запросе есть
     const options = {
@@ -116,17 +121,17 @@ export class FileController {
     });
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @Delete('/avatar')
-  // @DeleteAvatarSwagger()
-  // async deleteAvatar(@UserIdFromRequest() userInfo: { userId: string }) {
-  //   console.log('userInfo.userId in file controller v1 (deleteAvatar):', userInfo.userId);
+  @UseGuards(JwtAuthGuard)
+  @Delete('/avatar')
+  @DeleteAvatarSwagger()
+  async deleteAvatar(@UserIdFromRequest() userInfo: { userId: string }) {
+    console.log('userInfo.userId in app.file.controller(deleteAvatar):', userInfo.userId);
 
-  //   const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
-  //   console.log('result in file controller v1 (deleteAvatar):', result);
+    const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
+    console.log('result in app.file.controller(deleteAvatar):', result);
 
-  //   if (!result.isSuccess) throw result.error;
+    if (!result.isSuccess) throw result.error;
 
-  //   return;
-  // }
+    return;
+  }
 }

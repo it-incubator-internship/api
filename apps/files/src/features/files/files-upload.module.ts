@@ -13,6 +13,7 @@ import { FileRepository } from './repository/file.repository';
 import { FileEntity, FileSchema } from './schema/files.schema';
 import { AddAvatarUserHandler } from './application/command/add.avatar.user.command';
 import { FileUploadController } from './controller/file-upload.controller';
+import { DeleteAvatarUserHandler } from './application/command/delete.avatar.user.command';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { FileUploadController } from './controller/file-upload.controller';
     ImageStorageAdapter,
     FileRepository,
     AddAvatarUserHandler,
+    DeleteAvatarUserHandler,
   ],
   exports: [ImageStorageAdapter, FileUploadService],
 })
