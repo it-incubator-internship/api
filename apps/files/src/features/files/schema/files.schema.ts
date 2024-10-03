@@ -60,13 +60,13 @@ export class FileEntity {
   deletedAt: Date | null;
 
   static create({
-    // userId,
+    userId,
     format,
     type,
     url,
     description,
   }: {
-    // userId: string;
+    userId: string;
     format: FileFormat;
     type: FileType;
     url: ImageUrl;
@@ -74,7 +74,7 @@ export class FileEntity {
   }) {
     const file = new this();
 
-    // file.userId = userId;
+    file.userId = userId;
     file.format = format;
     file.type = type;
     file.url = url;

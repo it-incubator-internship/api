@@ -75,7 +75,7 @@ export class FileController {
     const options = {
       hostname: this.imageStreamConfiguration.hostname,
       port: this.imageStreamConfiguration.port,
-      path: this.imageStreamConfiguration.avatarPath + result.value.eventId,
+      path: `${this.imageStreamConfiguration.avatarPath}${result.value.eventId}/${userId}`,
       method: 'POST',
       headers: {
         ...req.headers,

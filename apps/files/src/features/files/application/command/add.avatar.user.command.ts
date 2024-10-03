@@ -13,7 +13,7 @@ import { maxAvatarSize } from '../../../../../../common/constants/constants';
 
 type AddAvatarType = {
   eventId: string;
-  // userId: string;
+  userId: string;
   fileData: any;
 };
 
@@ -85,7 +85,7 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       }
 
       const newFileEntity = FileEntity.create({
-        // userId: command.inputModel.userId,
+        userId: command.inputModel.userId,
         format: FileFormat.webp,
         type: FileType.avatar,
         url: {

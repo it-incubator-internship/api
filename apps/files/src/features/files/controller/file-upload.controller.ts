@@ -25,9 +25,13 @@ export class FileUploadController {
     @Inject('MULTICAST_EXCHANGE') private readonly gatewayProxyClient: ClientProxy,
   ) {}
 
-  @Post('avatar/:id')
+  @Post('avatar/:id/:userId')
   @UseInterceptors(FileUploadInterceptor)
-  async uploadFile(@Param('id', ParseUUIDPipe) eventId: string, @Req() req) {
+  async uploadFile(
+    @Param('id', ParseUUIDPipe) eventId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Req() req,
+  ) {
     console.log('Controller executed');
     console.log('eventId in file-upload controller:', eventId);
 
@@ -35,13 +39,13 @@ export class FileUploadController {
     console.log('filePath in file-upload controller:', filePath);
 
     // Выполняем дополнительную логику в фоновом режиме
-    setTimeout(() => this.processUploadedFile(eventId, filePath), 5000);
+    setTimeout(() => this.processUploadedFile(eventId, filePath, userId), 5000);
   }
 
-  private async processUploadedFile(eventId: string, filePath: string) {
+  private async processUploadedFile(eventId: string, filePath: string, userId: string) {
     try {
       const result = await this.commandBus.execute<{}, AvatarSavedEvent>(
-        new AddAvatarUserCommand({ eventId, fileData: filePath }),
+        new AddAvatarUserCommand({ eventId, fileData: filePath, userId: userId }),
       );
       console.log('result in file controller v1 (uploadFile):', result);
       this.gatewayProxyClient.emit({ cmd: 'avatar-saved' }, result);
