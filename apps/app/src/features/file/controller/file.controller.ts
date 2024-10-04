@@ -9,7 +9,7 @@ import { CommandBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '../../user/auth/guards/jwt.auth.guard';
 import { UserIdFromRequest } from '../../user/auth/decorators/controller/userIdFromRequest';
 import { UploadAvatarSwagger } from '../decorators/swagger/upload-avatar/upload-avatar.swagger.decorator';
-import { ConfigurationType } from '../../../../../app/src/common/settings/configuration';
+import { ConfigurationType } from '../../../common/settings/configuration';
 import { BadRequestError } from '../../../../../common/utils/result/custom-error';
 import { UploadAvatarUserCommand } from '../application/command/upload.avatar.user.command';
 import { DeleteAvatarSwagger } from '../decorators/swagger/delete-avatar/delete-avatar.swagger.decorator';
