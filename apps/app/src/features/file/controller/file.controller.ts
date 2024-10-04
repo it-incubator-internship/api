@@ -1,5 +1,4 @@
-import * as https from 'https';
-// import * as http from 'http';
+import * as http from 'http';
 
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
@@ -85,22 +84,20 @@ export class FileController {
     // если изображение в запросе есть
     const options = {
       rejectUnauthorized: false,
-      hostname: this.imageStreamConfiguration.hostname /* 'localhost' */,
-      port: this.imageStreamConfiguration.port || 443, // Используем HTTPS порт
-      // port: 3002, // Используем HTTPS порт
+      hostname: this.imageStreamConfiguration.hostname,
+      port: this.imageStreamConfiguration.port || 443,
       path: `/api/v1${this.imageStreamConfiguration.avatarPath}${result.value.eventId}/${userId}`,
-      // path: `api/v1/upload/avatar/${result.value.eventId}/${userId}`,
       method: 'POST',
       headers: {
-        ...req.headers,
+        'Content-Type': req.headers['content-type'],
+        'Content-Length': req.headers['content-length'],
       },
     };
     console.log('options in app.file.controller (streamAvatarToFileMicroservice):', options);
 
     return new Promise((resolve, reject) => {
       // Используем https.request вместо http.request
-      const forwardRequest = https.request(options, (forwardResponse) => {
-      // const forwardRequest = http.request(options, (forwardResponse) => {
+      const forwardRequest = http.request(options, (forwardResponse) => {
         let responseData = '';
         console.log(
           'forwardResponse.statusCode in app.file.controller (streamAvatarToFileMicroservice):',
@@ -114,17 +111,28 @@ export class FileController {
         console.log('responseData in app.file.controller v2 (streamAvatarToFileMicroservice):', responseData);
 
         forwardResponse.on('end', () => {
-          console.log('responseData in app.file.controller v3 (streamAvatarToFileMicroservice):', responseData);
-          try {
-            const parsedResponse = JSON.parse(responseData);
-            console.log('parsedResponse in app.file.controller (streamAvatarToFileMicroservice):', parsedResponse);
+          const contentType = forwardResponse.headers['content-type'];
+          if (responseData.length === 0 && forwardResponse.statusCode === 201) {
+            return resolve({
+              statusCode: forwardResponse.statusCode,
+              body: null, // Указываем, что тело пустое, но запрос успешен
+            });
+          }
+          if (contentType && contentType.includes('application/json')) {
+            try {
+              const parsedResponse = JSON.parse(responseData);
+              resolve({
+                statusCode: forwardResponse.statusCode,
+                body: parsedResponse,
+              });
+            } catch (error) {
+              reject(new Error('Error parsing response from second server'));
+            }
+          } else {
             resolve({
               statusCode: forwardResponse.statusCode,
-              body: parsedResponse,
+              body: responseData,
             });
-          } catch (error) {
-            console.error('Error parsing response from second server:', error);
-            reject(new Error('Error parsing response from second server'));
           }
         });
       });
