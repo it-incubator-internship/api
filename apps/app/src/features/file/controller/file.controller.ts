@@ -1,4 +1,4 @@
-import * as https from 'https';
+import * as http from 'http';
 
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
@@ -38,20 +38,25 @@ export class FileController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
+    console.log('console.log in app.file.controller (uploadAvatar)');
+
     // проверка запроса на наличие изображения
     const contentType = req.headers['content-type'];
+    console.log('contentType in app.file.controller (uploadAvatar):', contentType);
 
     // если в запросе нет изображения
     if (!contentType) {
-      console.log('!contentType');
+      console.log('!contentType in app.file.controller (uploadAvatar)');
       throw new BadRequestError('Photo not included in request.', [{ message: 'string', field: 'string' }]);
     }
 
     // получение userId для использования в options
     const userId = userInfo.userId;
+    console.log('userId in app.file.controller (uploadAvatar):', userId);
 
     // получение данных от второго микросервиса
-    await this.streamAvatarToFileMicroservice(req, res, userId);
+    const result = await this.streamAvatarToFileMicroservice(req, res, userId);
+    console.log('result in app.file.controller (uploadAvatar):', result);
 
     return;
   }
@@ -61,47 +66,73 @@ export class FileController {
     res: Response,
     userId: string,
   ): Promise<{ statusCode: number | undefined; body: any }> {
-    console.log('console.log in app-file controller (streamAvatarToFileMicroservice)');
+    console.log('console.log in app.file.controller (streamAvatarToFileMicroservice)');
+
     const result = await this.commandBus.execute(new UploadAvatarUserCommand({ userId }));
-    console.log('result in app-file controller:', result);
+    console.log('result in app.file.controller (streamAvatarToFileMicroservice):', result);
 
     if (!result.isSuccess) {
-      console.log('!result.isSuccess in app-file controller');
+      console.log('!result.isSuccess in app.file.controller (streamAvatarToFileMicroservice)');
       throw result.error;
     }
+
+    console.log(
+      'this.imageStreamConfiguration in app.file.controller (streamAvatarToFileMicroservice):',
+      this.imageStreamConfiguration,
+    );
 
     // если изображение в запросе есть
     const options = {
       rejectUnauthorized: false,
       hostname: this.imageStreamConfiguration.hostname,
-      port: this.imageStreamConfiguration.port || 443, // Используем HTTPS порт
+      port: this.imageStreamConfiguration.port || 443,
       path: `/api/v1${this.imageStreamConfiguration.avatarPath}${result.value.eventId}/${userId}`,
       method: 'POST',
       headers: {
-        ...req.headers,
+        'Content-Type': req.headers['content-type'],
+        'Content-Length': req.headers['content-length'],
       },
     };
-    console.log('options in app-file controller:', options);
+    console.log('options in app.file.controller (streamAvatarToFileMicroservice):', options);
 
     return new Promise((resolve, reject) => {
       // Используем https.request вместо http.request
-      const forwardRequest = https.request(options, (forwardResponse) => {
+      const forwardRequest = http.request(options, (forwardResponse) => {
         let responseData = '';
-        console.log('responseData in app-file controller:', responseData);
+        console.log(
+          'forwardResponse.statusCode in app.file.controller (streamAvatarToFileMicroservice):',
+          forwardResponse.statusCode,
+        );
+        console.log('responseData in app.file.controller v1 (streamAvatarToFileMicroservice):', responseData);
 
         forwardResponse.on('data', (chunk) => {
           responseData += chunk;
         });
+        console.log('responseData in app.file.controller v2 (streamAvatarToFileMicroservice):', responseData);
 
         forwardResponse.on('end', () => {
-          try {
+          const contentType = forwardResponse.headers['content-type'];
+          if (responseData.length === 0 && forwardResponse.statusCode === 201) {
+            return resolve({
+              statusCode: forwardResponse.statusCode,
+              body: null, // Указываем, что тело пустое, но запрос успешен
+            });
+          }
+          if (contentType && contentType.includes('application/json')) {
+            try {
+              const parsedResponse = JSON.parse(responseData);
+              resolve({
+                statusCode: forwardResponse.statusCode,
+                body: parsedResponse,
+              });
+            } catch (error) {
+              reject(new Error('Error parsing response from second server'));
+            }
+          } else {
             resolve({
               statusCode: forwardResponse.statusCode,
               body: responseData,
             });
-          } catch (error) {
-            console.error('Error parsing response from second server:', error);
-            reject(new Error('Error parsing response from second server'));
           }
         });
       });
