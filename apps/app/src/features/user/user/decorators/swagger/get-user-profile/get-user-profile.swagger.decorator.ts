@@ -5,7 +5,10 @@ import { UserProfileOutputDto } from '../../../dto/output/user.profile.output.dt
 
 export function GetUserProfileSwagger() {
   return applyDecorators(
-    ApiOperation({ summary: 'Получение profile по userId' }),
+    ApiOperation({
+      summary: 'Получение profile по userId',
+      description: ' если статус PENDING значит идет обработка авки',
+    }),
     ApiParam({ name: 'id', description: 'id запрашиваемого профиля', required: true, type: String }),
     ApiResponse({
       status: 200,
