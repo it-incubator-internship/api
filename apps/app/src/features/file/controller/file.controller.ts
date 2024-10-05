@@ -152,17 +152,17 @@ export class FileController {
     });
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Delete('/avatar')
-  @DeleteAvatarSwagger()
-  async deleteAvatar(@UserIdFromRequest() userInfo: { userId: string }) {
-    console.log('userInfo.userId in app.file.controller(deleteAvatar):', userInfo.userId);
+  // @UseGuards(JwtAuthGuard)
+  // @Delete('/avatar')
+  // @DeleteAvatarSwagger()
+  // async deleteAvatar(@UserIdFromRequest() userInfo: { userId: string }) {
+  //   console.log('userInfo.userId in app.file.controller(deleteAvatar):', userInfo.userId);
 
-    const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
-    console.log('result in app.file.controller(deleteAvatar):', result);
+  //   const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
+  //   console.log('result in app.file.controller(deleteAvatar):', result);
 
-    if (!result.isSuccess) throw result.error;
+  //   if (!result.isSuccess) throw result.error;
 
-    return;
-  }
+  //   return;
+  // }
 }
