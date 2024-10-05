@@ -19,6 +19,7 @@ export class DeleteAvatarUserHandler implements ICommandHandler<DeleteAvatarUser
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(command: DeleteAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
+    console.log('console.log in delete avatar user command');
     console.log('command in delete avatar user command:', command);
 
     // поиск profile по id
@@ -30,8 +31,8 @@ export class DeleteAvatarUserHandler implements ICommandHandler<DeleteAvatarUser
 
     // если profile по id не найден
     if (!profile) {
-      console.log('!profile');
-      return ObjResult.Err(new NotFoundError('user not found'));
+      console.log('!profile in delete avatar user command');
+      return ObjResult.Err(new NotFoundError('profile not found'));
     }
 
     profile.deleteAvatarUrl();
