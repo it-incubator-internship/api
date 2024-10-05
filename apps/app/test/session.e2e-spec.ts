@@ -35,6 +35,7 @@ describe('Sessions e2e', () => {
     prisma = moduleFixture.get<PrismaService>(PrismaService);
 
     httpServer = app.getHttpServer();
+
     userHelper = new UserE2EHelper(prisma, httpServer);
 
     // очистка бд

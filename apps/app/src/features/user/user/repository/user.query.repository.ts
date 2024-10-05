@@ -3,6 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
 import { AuthMeOutput } from '../../auth/dto/output/information.output.dto';
 import { UserProfileOutputDto } from '../dto/output/user.profile.output.dto';
+import { $Enums } from '../../../../../prisma/client';
+
+import ProfileStatus = $Enums.ProfileStatus;
 
 @Injectable()
 export class UserQueryRepository {
@@ -44,6 +47,9 @@ export class UserQueryRepository {
             country: true,
             city: true,
             aboutMe: true,
+            originalAvatarUrl: true,
+            smallAvatarUrl: true,
+            profileStatus: true,
           },
         },
       },
@@ -59,6 +65,8 @@ export class UserQueryRepository {
       country: profile.profile?.country ? profile.profile.country : undefined,
       city: profile.profile?.city ? profile.profile.city : undefined,
       aboutMe: profile.profile?.aboutMe ? profile.profile.aboutMe : undefined,
+      originalAvatarUrl: profile.profile?.originalAvatarUrl ? profile.profile.originalAvatarUrl : undefined,
+      profileStatus: profile.profile?.profileStatus ? profile.profile.profileStatus : ProfileStatus.READY,
     };
   }
 }

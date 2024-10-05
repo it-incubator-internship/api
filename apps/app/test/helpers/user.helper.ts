@@ -8,6 +8,7 @@ import { User } from '../../prisma/client';
 export class UserE2EHelper {
   public users: User[] = [];
   public tokens: { accessToken: string; refreshToken: string; number: number }[] = [];
+
   constructor(
     private readonly prismaService: PrismaService,
     private readonly httpServer: any,

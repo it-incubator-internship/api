@@ -10,7 +10,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { BasicBadRequestOutputType } from '../../../../../../../app/src/common/models/basic-badquest.output.type';
+import { BasicBadRequestOutputType } from '../../../../../common/models/basic-badquest.output.type';
 
 export function UploadAvatarSwagger() {
   return applyDecorators(
@@ -32,14 +32,11 @@ export function UploadAvatarSwagger() {
     }),
     ApiResponse({
       status: 204,
-      // description: 'Фото профиля загружено.',
       description: 'Фото в обработке.',
     }),
     ApiBadRequestResponse({
       status: 400,
-      description:
-        //'В случае попытки загрузки фото размером более 10Мб и/или не допустимого формата и/или отсутствия фото в запросе.',
-        'В случае попытки загрузки фото размером более 10Мб и/или не допустимого формата.',
+      description: 'В случае попытки загрузки фото размером более 10Мб и/или не допустимого формата.',
       type: () => BasicBadRequestOutputType,
     }),
     ApiUnauthorizedResponse({
