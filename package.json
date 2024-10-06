@@ -54,6 +54,7 @@
     "@nestjs/swagger": "^7.4.0",
     "@nestjs/throttler": "^6.2.1",
     "@prisma/client": "5.19.1",
+    "@scalar/nestjs-api-reference": "^0.3.160",
     "@types/busboy": "^1.5.4",
     "@types/compression": "^1.7.5",
     "@types/sharp": "^0.32.0",

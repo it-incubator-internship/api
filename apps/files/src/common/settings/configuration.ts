@@ -9,6 +9,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
   return {
     apiSettings: {
       PORT: Number.parseInt(environmentVariables.PORT || '6666'),
+      RMQ_HOST: environmentVariables.RMQ_HOST,
     },
 
     environmentSettings: {
@@ -50,7 +51,14 @@ export const getAllEnvironmentVariables = (allowedVariables: string[]): Environm
 export const configuration = () => {
   console.log('PORT from process.env:', process.env.PORT);
 
-  const allowedVariables = ['NODE_ENV', 'PORT', 'MONGO_URL', 'CLOUD_SECRET_ACCESS_KEY', 'CLOUD_ACCESS_KEY_ID'];
+  const allowedVariables = [
+    'NODE_ENV',
+    'PORT',
+    'MONGO_URL',
+    'CLOUD_SECRET_ACCESS_KEY',
+    'CLOUD_ACCESS_KEY_ID',
+    'RMQ_HOST',
+  ];
 
   //Эти значения выводятся в сваггере
   const environmentVariables = getAllEnvironmentVariables(allowedVariables); //; process.env

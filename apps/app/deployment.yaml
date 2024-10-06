@@ -137,6 +137,11 @@ spec:
                  secretKeyRef:
                    name: app-4-try-production-config-secret
                    key: FILE_MICROSERVICE_PORT
+             - name: RMQ_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: RMQ_HOST
              - name: DATABASE_APP_URL
                valueFrom:
                  secretKeyRef:

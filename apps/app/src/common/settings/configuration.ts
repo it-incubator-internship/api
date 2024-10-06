@@ -10,6 +10,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     apiSettings: {
       PORT: Number.parseInt(environmentVariables.PORT || '6666'),
       API_PREFIX: 'api/v1',
+      RMQ_HOST: environmentVariables.RMQ_HOST,
     },
 
     jwtSetting: {
@@ -112,6 +113,7 @@ export const configuration = () => {
     //FILE_MICROSERVICE
     'FILE_MICROSERVICE_HOSTNAME',
     'FILE_MICROSERVICE_PORT',
+    'RMQ_HOST',
   ];
 
   //Эти значения выводятся в сваггере
