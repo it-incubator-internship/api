@@ -2,7 +2,7 @@ import { applyDecorators } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiForbiddenResponse, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { BasicBadRequestOutputType } from '../../../../../../common/models/basic-badquest.output.type';
-import { BasicForbidenErrorOutput } from '../../../../../../common/models/basic-firbiden-error.output';
+import { BasicForbiddenErrorOutput } from '../../../../../../common/models/basic-forbidden-error.output';
 
 export function NewPasswordSwagger() {
   return applyDecorators(
@@ -16,7 +16,7 @@ export function NewPasswordSwagger() {
     ApiForbiddenResponse({
       status: 403,
       description: 'Если код (jwt) экспарился, email лежит в message',
-      type: () => BasicForbidenErrorOutput,
+      type: () => BasicForbiddenErrorOutput,
     }),
   );
 }

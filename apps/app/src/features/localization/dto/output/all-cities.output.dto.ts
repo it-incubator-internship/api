@@ -2,13 +2,13 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AllCitiesOutput {
   @ApiProperty({
-    example: 12345,
+    example: 1,
     description: 'id города',
   })
   city_id: number;
 
   @ApiProperty({
-    example: 12345,
+    example: 12,
     description: 'id страны',
   })
   country_id: number;
