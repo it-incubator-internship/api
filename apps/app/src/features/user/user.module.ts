@@ -9,11 +9,8 @@ import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
 import { PrismaModule } from '../../common/database_module/prisma.module';
 import { EntityHandler } from '../../../../common/repository/entity.handler';
-import { FileController } from '../file/controller/file.controller';
 import { LocalizationModule } from '../localization/localization.module';
-import { UploadAvatarUserHandler } from '../file/application/command/upload.avatar.user.command';
 import { RmqModule } from '../rmq-provider/rmq.module';
-import { DeleteAvatarUserHandler } from '../file/application/command/delete.avatar.user.command';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
@@ -72,10 +69,8 @@ const userCommands = [
   RegistrationUserByGoogleHandler,
   UpdateProfileUserCommandHandler,
   CodeValidationHandler,
-  UploadAvatarUserHandler,
-  DeleteAvatarUserHandler,
 ];
-const sessionComands = [TerminateSessionByIdHandler];
+const sessionCommands = [TerminateSessionByIdHandler];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler, SendEmailAfterOauthRegistrationEventHandler];
 const strategies = [
   LocalStrategy,
@@ -105,18 +100,11 @@ const adapters = [JwtAdapter];
       },
     ]),
   ],
-  controllers: [
-    AuthController,
-    AuthGoogleController,
-    GithubOauthController,
-    SessionController,
-    UserController,
-    FileController,
-  ],
+  controllers: [AuthController, AuthGoogleController, GithubOauthController, SessionController, UserController],
   providers: [
     ...userRepositories,
     ...sessionRepositories,
-    ...sessionComands,
+    ...sessionCommands,
     ...userService,
     ...userCommands,
     ...strategies,

@@ -1,7 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiForbiddenResponse, ApiOperation, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
-import { BasicForbidenErrorOutput } from '../../../../../../common/models/basic-firbiden-error.output';
+import { BasicForbiddenErrorOutput } from '../../../../../../common/models/basic-forbidden-error.output';
 
 export function RegistrationConfirmationSwagger() {
   return applyDecorators(
@@ -10,7 +10,7 @@ export function RegistrationConfirmationSwagger() {
     ApiForbiddenResponse({
       status: 403,
       description: 'Если код (jwt) экспарился. Email находится message.',
-      type: () => BasicForbidenErrorOutput,
+      type: () => BasicForbiddenErrorOutput,
     }),
     ApiUnauthorizedResponse({ status: 401, description: 'В случае отправки некорректного кода (jwt).' }),
   );

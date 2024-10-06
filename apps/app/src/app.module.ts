@@ -9,6 +9,7 @@ import { getEnvFilePath, isEnvFileIgnored } from './common/settings/determinate-
 import { CleaningModule } from './features/cleaning/cleaning.module';
 import { RmqModule } from './features/rmq-provider/rmq.module';
 import { EventShedulerModule } from './sheduler/event-sheduler.module';
+import { FileModule } from './features/file/file.module';
 
 const environment = process.env.NODE_ENV as Environments;
 
@@ -24,6 +25,7 @@ const environment = process.env.NODE_ENV as Environments;
     RmqModule,
     CleaningModule,
     EventShedulerModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [],
