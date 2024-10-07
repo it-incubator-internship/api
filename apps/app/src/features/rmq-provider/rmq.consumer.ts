@@ -13,6 +13,7 @@ export class RmqConsumer {
   //TODO вынести патерн
   @MessagePattern({ cmd: 'avatar-saved' })
   async getImgFromFiles(data: AvatarSavedEvent) {
+    console.log('console.log in rmq.consumer (avatar-saved)');
     await this.commandBus.execute(new GetAvatarsFromFileMcsCommand(data));
   }
 }

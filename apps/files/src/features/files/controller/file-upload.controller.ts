@@ -4,7 +4,8 @@ import { ClientProxy } from '@nestjs/microservices';
 
 import { FileUploadInterceptor } from '../interceptors/fileUpload.interceptor';
 import { AddAvatarUserCommand } from '../application/command/add.avatar.user.command';
-import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
+import { DeleteAvatarUrlUserCommand } from '../application/command/delete.avatar.url.user.command';
+import { ImageStorageAdapter } from '../../../../../files/src/common/adapters/img/image.storage.adapter';
 
 const enum AvatarSavedStatus {
   SUCCESS = 'success',
@@ -23,6 +24,7 @@ export class FileUploadController {
   constructor(
     private commandBus: CommandBus,
     @Inject('MULTICAST_EXCHANGE') private readonly gatewayProxyClient: ClientProxy,
+    private readonly s3StorageAdapter: ImageStorageAdapter,
   ) {}
 
   @Post('avatar/:id/:userId')
@@ -55,12 +57,28 @@ export class FileUploadController {
   }
 
   @Delete('avatar/:id')
-  async handleDelete(@Param('id', ParseUUIDPipe) userId: string /* , @Req() req: Request, @Res() res: Response */) {
+  async handleDelete(@Param('id', ParseUUIDPipe) userId: string) {
+    console.log('console.log in file.upload.controller (handleDelete)');
     console.log('userId in file.upload.controller (handleDelete):', userId);
 
-    const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId }));
+    const result = await this.commandBus.execute(new DeleteAvatarUrlUserCommand({ userId }));
     console.log('result in file.upload.controller (handleDelete):', result);
 
-    return /* blog */;
+    if (!result.isSuccess) throw result.error;
+
+    return;
+  }
+
+  // тестовый эндпоинт
+  @Delete('avatar')
+  async imgDelete() {
+    console.log('console.log in file.upload.controller (imgDelete)');
+
+    const result = await this.s3StorageAdapter.deleteAvatar({
+      url: 'https://storage.yandexcloud.net/navaibe.1.0/content/images/524ccb0d-d674-47d5-9084-4b451d5b2157.webp',
+    });
+    console.log('result in file.upload.controller (handleDelete):', result);
+
+    return;
   }
 }

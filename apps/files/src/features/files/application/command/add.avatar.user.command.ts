@@ -42,16 +42,11 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       console.log('TEN_MB in add.avatar.user.command:', TEN_MB);
 
       // Используем метод адаптера для конвертации изображения
-      const originalWebpFilePath = await this.imgProcessingAdapter.convertToWebp(
-        command.inputModel.fileData /* .filePath */,
-        TEN_MB,
-      );
+      const originalWebpFilePath = await this.imgProcessingAdapter.convertToWebp(command.inputModel.fileData, TEN_MB);
       console.log('originalWebpFilePath in add.avatar.user.command:', originalWebpFilePath);
 
       // Используем метод адаптера для изменения размера изображения
-      const smallWebpFilePath = await this.imgProcessingAdapter.resizeAvatar(
-        command.inputModel.fileData /* .filePath */,
-      );
+      const smallWebpFilePath = await this.imgProcessingAdapter.resizeAvatar(command.inputModel.fileData);
       console.log('smallWebpFilePath in add.avatar.user.command:', smallWebpFilePath);
 
       // Создаем потоки для сохранения изображений и сохраняем изображения на S3
@@ -74,15 +69,15 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       }
 
       // Удаление локального файла после загрузки
-      try {
-        console.log('console.log in try in add.avatar.user.command (deleting)');
-        await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
-        await this.fileUploadService.deleteFile(originalWebpFilePath);
-        await this.fileUploadService.deleteFile(smallWebpFilePath);
-      } catch (error) {
-        console.log('console.log in catch in add.avatar.user.command (deleting)');
-        console.error('Error deleting files:', error);
-      }
+      // try {
+      //   console.log('console.log in try in add.avatar.user.command (deleting)');
+      //   await this.fileUploadService.deleteFile(command.inputModel.fileData.filePath);
+      //   await this.fileUploadService.deleteFile(originalWebpFilePath);
+      //   await this.fileUploadService.deleteFile(smallWebpFilePath);
+      // } catch (error) {
+      //   console.log('console.log in catch in add.avatar.user.command (deleting)');
+      //   console.error('Error deleting files:', error);
+      // }
 
       const newFileEntity = FileEntity.create({
         userId: command.inputModel.userId,

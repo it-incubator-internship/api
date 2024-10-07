@@ -18,7 +18,8 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
-      queue: 'app_queue',
+      //TODO app_queue
+      queue: 'multicast_queue_local',
       queueOptions: {
         durable: true,
       },

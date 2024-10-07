@@ -1,10 +1,12 @@
-import * as https from 'https';
+// import * as https from 'https';
+import * as http from 'http';
 
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { Controller, Delete, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Delete, HttpCode, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus } from '@nestjs/cqrs';
+import { ClientProxy } from '@nestjs/microservices';
 
 import { JwtAuthGuard } from '../../user/auth/guards/jwt.auth.guard';
 import { UserIdFromRequest } from '../../user/auth/decorators/controller/userIdFromRequest';
@@ -23,12 +25,13 @@ export class FileController {
   constructor(
     private readonly configService: ConfigService<ConfigurationType, true>,
     private commandBus: CommandBus,
+    @Inject('MULTICAST_EXCHANGE') private readonly gatewayProxyClient: ClientProxy 
   ) {
     this.imageStreamConfiguration = this.configService.get<ConfigurationType['fileMicroservice']>('fileMicroservice', {
       infer: true,
     }) as ConfigurationType['fileMicroservice'];
   }
-
+ 
   @UseGuards(JwtAuthGuard)
   @Post('/avatar')
   @HttpCode(204)
@@ -97,7 +100,7 @@ export class FileController {
 
     return new Promise((resolve, reject) => {
       // Используем https.request вместо http.request
-      const forwardRequest = https.request(options, (forwardResponse) => {
+      const forwardRequest = http.request(options, (forwardResponse) => {
         let responseData = '';
         console.log(
           'forwardResponse.statusCode in app.file.controller (streamAvatarToFileMicroservice):',
@@ -161,6 +164,11 @@ export class FileController {
 
     const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
     console.log('result in app.file.controller(deleteAvatar):', result);
+
+    if (result.isSuccess) {
+      console.log('result.isSuccess in app.file.controller(deleteAvatar)');
+      this.gatewayProxyClient.emit({ cmd: 'avatar-deleted' }, result);
+    }
 
     if (!result.isSuccess) throw result.error;
 
