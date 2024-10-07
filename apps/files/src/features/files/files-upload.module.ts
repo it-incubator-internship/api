@@ -10,7 +10,7 @@ import { SharpImgProcessingAdapter } from '../../common/adapters/img/sharp-img-p
 import { ConfigurationType } from '../../common/settings/configuration';
 import { RmqModuleX } from '../rmq-provider/rmq.module';
 
-import { FileUploadService } from './applications/file-upload.service';
+import { FileUploadService } from './application/file-upload.service';
 import { FileRepository } from './repository/file.repository';
 import { FileEntity, FileSchema } from './schema/files.schema';
 import { AddAvatarUserHandler } from './application/command/add.avatar.user.command';
