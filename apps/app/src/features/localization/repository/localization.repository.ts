@@ -9,13 +9,11 @@ export class LocalizationQueryRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findAllCountries(): Promise<AllCountriesOutput[]> {
-    const countries = await this.prismaService.countries.findMany({
+    return this.prismaService.countries.findMany({
       orderBy: {
         country_id: 'asc',
       },
     });
-
-    return countries;
   }
 
   async findAllCitiesByCountryId({ id }: { id: number }): Promise<AllCitiesOutput[] | null> {

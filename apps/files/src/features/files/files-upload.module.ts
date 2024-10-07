@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ClientsModule, Transport } from '@nestjs/microservices';
@@ -7,6 +7,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ImageStorageAdapter } from '../../common/adapters/img/image.storage.adapter';
 import { IMG_PROCESSING_ADAPTER } from '../../common/adapters/img/img-processing-adapter.interface';
 import { SharpImgProcessingAdapter } from '../../common/adapters/img/sharp-img-processing.adapter';
+import { ConfigurationType } from '../../common/settings/configuration';
 import { RmqModuleX } from '../rmq-provider/rmq.module';
 
 import { FileUploadService } from './applications/file-upload.service';
@@ -21,18 +22,20 @@ import { DeleteAvatarUserHandler } from './application/command/delete.avatar.use
   imports: [
     CqrsModule,
     ConfigModule,
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: 'MULTICAST_EXCHANGE',
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
-          //TODO 'multicast_queue
-          queue: 'multicast_queue_local',
-          queueOptions: {
-            durable: true,
+        useFactory: (configService: ConfigService<ConfigurationType, true>) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get('apiSettings.RMQ_HOST', { infer: true }) as string],
+            queue: 'multicast_queue',
+            queueOptions: {
+              durable: true,
+            },
           },
-        },
+        }),
+        inject: [ConfigService],
       },
     ]),
     MongooseModule.forFeature([

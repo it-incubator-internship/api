@@ -6,10 +6,6 @@ import { UserRepository } from '../../../user/user/repository/user.repository';
 import { EntityEnum } from '../../../../../../common/repository/base.repository';
 import { ProfileEntityNEW } from '../../../user/user/domain/account-data.entity';
 
-// type DeleteAvatarType = {
-//   userId: string;
-// };
-
 export class DeleteAvatarUserCommand {
   constructor(public inputModel: { userId: string }) {}
 }

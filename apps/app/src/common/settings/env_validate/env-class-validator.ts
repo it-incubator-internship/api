@@ -58,6 +58,9 @@ export class EnvironmentVariables {
   @Min(0)
   @Max(65535)
   FILE_MICROSERVICE_PORT: number;
+
+  @IsString()
+  RMQ_HOST: string;
 }
 
 export function validate(config: Record<string, unknown>) {

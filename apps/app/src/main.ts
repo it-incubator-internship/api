@@ -13,34 +13,38 @@ async function bootstrap() {
 
   appSettings(app);
   // Подключаем RabbitMQ транспорт
-  //TODO конфиг
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
-    options: {
-      urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
-      //TODO app_queue
-      queue: 'multicast_queue_local',
-      queueOptions: {
-        durable: true,
-      },
-    },
-  });
 
   //достаем env
   const configService = app.get(ConfigService<ConfigurationType, true>);
   const apiPrefix = configService.get('apiSettings.API_PREFIX', { infer: true });
   const port = configService.get('apiSettings.PORT', { infer: true });
   const isTestingENV = configService.get('environmentSettings.isTesting', { infer: true });
+  const RMQ_URL = configService.get('apiSettings.RMQ_HOST', { infer: true }) as string;
+
+  //TODO конфиг
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: [RMQ_URL],
+      queue: 'app_queue',
+      queueOptions: {
+        durable: true,
+      },
+    },
+  });
 
   if (!isTestingENV) {
     swaggerSetting(app, apiPrefix);
   }
+
   app.use(compression());
   app.setGlobalPrefix(apiPrefix);
+
   console.log(port);
   console.log('prefix', apiPrefix);
 
   await app.startAllMicroservices();
   await app.listen(port);
 }
+
 bootstrap();

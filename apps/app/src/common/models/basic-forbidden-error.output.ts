@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class BasicForbidenErrorOutput {
+export class BasicForbiddenErrorOutput {
   @ApiProperty({ description: 'Время ошибки в IsoString', example: '2024-08-15T20:12:27.118Z' })
   timestamp: string;
 

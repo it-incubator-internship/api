@@ -27,6 +27,9 @@ export class EnvironmentVariables {
 
   @IsString()
   CLOUD_ACCESS_KEY_ID: string;
+
+  @IsString()
+  RMQ_HOST: string;
 }
 
 export function validate(config: Record<string, unknown>) {

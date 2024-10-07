@@ -4,6 +4,8 @@ import { ClientProxy } from '@nestjs/microservices';
 
 import { FileUploadInterceptor } from '../interceptors/fileUpload.interceptor';
 import { AddAvatarUserCommand } from '../application/command/add.avatar.user.command';
+import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
+import { RMQ_CMD } from '../../../../../common/constants/enums';
 import { DeleteAvatarUrlUserCommand } from '../application/command/delete.avatar.url.user.command';
 import { ImageStorageAdapter } from '../../../../../files/src/common/adapters/img/image.storage.adapter';
 
@@ -46,11 +48,11 @@ export class FileUploadController {
 
   private async processUploadedFile(eventId: string, filePath: string, userId: string) {
     try {
-      const result = await this.commandBus.execute<{}, AvatarSavedEvent>(
+      const result = await this.commandBus.execute<NonNullable<unknown>, AvatarSavedEvent>(
         new AddAvatarUserCommand({ eventId, fileData: filePath, userId: userId }),
       );
       console.log('result in file controller v1 (uploadFile):', result);
-      this.gatewayProxyClient.emit({ cmd: 'avatar-saved' }, result);
+      this.gatewayProxyClient.emit({ cmd: RMQ_CMD.AVATAR_SAVED }, result);
     } catch (error) {
       console.error('Error processing uploaded file:', error);
     }

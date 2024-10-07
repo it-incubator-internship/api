@@ -32,6 +32,11 @@ spec:
                  secretKeyRef:
                    name: filesmcs-production-config-secret
                    key: CLOUD_ACCESS_KEY_ID
+             - name: RMQ_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: filesmcs-production-config-secret
+                   key: RMQ_HOST
              - name: MONGO_URL
                valueFrom:
                  secretKeyRef:
