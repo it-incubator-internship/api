@@ -11,7 +11,25 @@ import { UploadAvatarUserHandler } from './application/command/upload.avatar.use
 const commands = [DeleteAvatarUserHandler, UploadAvatarUserHandler];
 
 @Module({
-  imports: [PrismaModule, UserModule, RmqModule],
+  imports: [
+    // ClientsModule.register([
+    //   {
+    //     name: 'MULTICAST_EXCHANGE',
+    //     transport: Transport.RMQ,
+    //     options: {
+    //       urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
+    //       //TODO 'multicast_queue
+    //       queue: 'multicast_queue_local_files',
+    //       queueOptions: {
+    //         durable: true,
+    //       },
+    //     },
+    //   },
+    // ]),
+    PrismaModule,
+    UserModule,
+    RmqModule,
+  ],
   providers: [...commands],
   controllers: [FileController],
   exports: [],

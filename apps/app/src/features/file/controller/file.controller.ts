@@ -1,4 +1,5 @@
-import * as https from 'http';
+// import * as https from 'https';
+import * as http from 'http';
 
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
@@ -24,13 +25,13 @@ export class FileController {
   constructor(
     private readonly configService: ConfigService<ConfigurationType, true>,
     private commandBus: CommandBus,
-    @Inject('MULTICAST_EXCHANGE') private readonly gatewayProxyClient: ClientProxy 
+    // @Inject('MULTICAST_EXCHANGE') private readonly gatewayProxyClient: ClientProxy 
   ) {
     this.imageStreamConfiguration = this.configService.get<ConfigurationType['fileMicroservice']>('fileMicroservice', {
       infer: true,
     }) as ConfigurationType['fileMicroservice'];
   }
- 
+
   @UseGuards(JwtAuthGuard)
   @Post('/avatar')
   @HttpCode(204)
@@ -164,10 +165,10 @@ export class FileController {
     const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
     console.log('result in app.file.controller(deleteAvatar):', result);
 
-    if (result.isSuccess) {
-      console.log('result.isSuccess in app.file.controller(deleteAvatar)');
-      this.gatewayProxyClient.emit({ cmd: 'avatar-deleted' }, result);
-    }
+    // if (result.isSuccess) {
+    //   console.log('result.isSuccess in app.file.controller(deleteAvatar)');
+    //   this.gatewayProxyClient.emit({ cmd: 'avatar-deleted' }, result);
+    // }
 
     if (!result.isSuccess) throw result.error;
 

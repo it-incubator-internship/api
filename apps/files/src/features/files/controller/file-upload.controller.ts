@@ -77,7 +77,7 @@ export class FileUploadController {
     console.log('console.log in file.upload.controller (imgDelete)');
 
     const result = await this.s3StorageAdapter.deleteAvatar({
-      url: 'https://storage.yandexcloud.net/navaibe.1.0/content/images/524ccb0d-d674-47d5-9084-4b451d5b2157.webp',
+      url: 'https://storage.yandexcloud.net/navaibe.1.0/content/images/52be7f6c-d538-4cea-9a6e-60cc876b46c6.webp',
     });
     console.log('result in file.upload.controller (handleDelete):', result);
 

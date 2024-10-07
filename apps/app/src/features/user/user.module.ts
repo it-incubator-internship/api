@@ -48,7 +48,7 @@ import { UserController } from './user/controller/user.controller';
 import { UpdateProfileUserCommandHandler } from './user/application/command/update.profile.user.command';
 import { ProfileOwnerGuard } from './user/guards/profile.owner.guard';
 import { CodeValidationHandler } from './auth/application/command/code-validation.user.command';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+// import { ClientsModule, Transport } from '@nestjs/microservices';
 
 const userRepositories = [UserRepository, UserQueryRepository];
 const sessionRepositories = [SessionRepository, SessionQueryRepository];
@@ -86,20 +86,20 @@ const adapters = [JwtAdapter];
 
 @Module({
   imports: [
-    ClientsModule.register([
-      {
-        name: 'MULTICAST_EXCHANGE',
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
-          //TODO 'multicast_queue
-          queue: 'multicast_queue_local_files',
-          queueOptions: {
-            durable: true,
-          },
-        },
-      },
-    ]),
+    // ClientsModule.register([
+    //   {
+    //     name: 'MULTICAST_EXCHANGE',
+    //     transport: Transport.RMQ,
+    //     options: {
+    //       urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
+    //       //TODO 'multicast_queue
+    //       queue: 'multicast_queue_local_files',
+    //       queueOptions: {
+    //         durable: true,
+    //       },
+    //     },
+    //   },
+    // ]),
     RmqModule,
     HttpModule,
     EventEmitterModule.forRoot(),

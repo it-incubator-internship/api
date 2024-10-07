@@ -16,17 +16,17 @@ export class AvatarSheduler {
 
   @Interval(10000) // Интервал в миллисекундах
   async handleInterval() {
-    console.log('console.log in avatar sheduler');
+    // console.log('console.log in avatar sheduler');
 
     const avatars = await this.fileRepository.findDeletedAvatars();
-    console.log('avatars in avatar sheduler:', avatars);
+    // console.log('avatars in avatar sheduler:', avatars);
 
     avatars.forEach((a) => {
       if (a.type === FileType.avatar && a.deletedAt !== null) {
         this.fileRepository.deleteAvatar({ id: a._id }); // удаление из коллекции
-        this.commandBus.execute(
-          new DeleteAvatarUserCommand({ smallAvatarUrl: a.url.small!, originalAvatarUrl: a.url.original! }),
-        );
+        // this.commandBus.execute(
+        //   new DeleteAvatarUserCommand({ smallAvatarUrl: a.url.small!, originalAvatarUrl: a.url.original! }),
+        // );
       }
     });
   }

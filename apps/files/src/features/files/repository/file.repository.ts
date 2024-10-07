@@ -25,13 +25,13 @@ export class FileRepository {
   }
 
   async findDeletedAvatars() /* : Promise<FileEntity[] | []> */ {
-    console.log('console.log in file repository (findDeletedAvatars)');
+    // console.log('console.log in file repository (findDeletedAvatars)');
 
     const avatars = await this.fileModel.find({
       deletedAt: { $ne: null }, // значение не равно null
       type: 'avatar', // тип равен "avatar"
     });
-    console.log('avatars in file repository (findDeletedAvatars):', avatars);
+    // console.log('avatars in file repository (findDeletedAvatars):', avatars);
 
     return avatars;
   }

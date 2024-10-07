@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+// import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 import { FilesModule } from './files.module';
 import { ConfigurationType } from './common/settings/configuration';
@@ -12,17 +12,17 @@ async function bootstrap() {
 
   appSettings(app);
 
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
-    options: {
-      urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
-      //TODO app_queue
-      queue: 'multicast_queue_local_files',
-      queueOptions: {
-        durable: true,
-      },
-    },
-  });
+  // app.connectMicroservice<MicroserviceOptions>({
+  //   transport: Transport.RMQ,
+  //   options: {
+  //     urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
+  //     //TODO app_queue
+  //     queue: 'multicast_queue_local_files',
+  //     queueOptions: {
+  //       durable: true,
+  //     },
+  //   },
+  // });
 
   app.enableCors({
     credentials: true,
