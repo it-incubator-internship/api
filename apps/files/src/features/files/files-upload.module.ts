@@ -9,7 +9,7 @@ import { IMG_PROCESSING_ADAPTER } from '../../common/adapters/img/img-processing
 import { SharpImgProcessingAdapter } from '../../common/adapters/img/sharp-img-processing.adapter';
 import { ConfigurationType } from '../../common/settings/configuration';
 
-import { FileUploadService } from './applications/file-upload.service';
+import { FileUploadService } from './application/file-upload.service';
 import { FileRepository } from './repository/file.repository';
 import { FileEntity, FileSchema } from './schema/files.schema';
 import { AddAvatarUserHandler } from './application/command/add.avatar.user.command';
