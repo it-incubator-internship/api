@@ -14,33 +14,25 @@ export class DeleteAvatarUserCommand {
 export class DeleteAvatarUserHandler implements ICommandHandler<DeleteAvatarUserCommand> {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async execute(command: DeleteAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
-    console.log('console.log in delete avatar user command');
-    console.log('command in delete avatar user command:', command);
-
+  async execute(command: DeleteAvatarUserCommand): Promise<ObjResult<void>> {
     // поиск profile по id
     const profile: ProfileEntityNEW = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.profile,
       conditions: { profileId: command.inputModel.userId },
     });
-    console.log('profile in delete avatar user command:', profile);
 
     // если profile по id не найден
     if (!profile) {
-      console.log('!profile in delete avatar user command');
       return ObjResult.Err(new NotFoundError('profile not found'));
     }
 
     profile.deleteAvatarUrl();
-    console.log('profile in delete avatar user command:', profile);
 
     await this.userRepository.updateOne({
       modelName: EntityEnum.profile,
       conditions: { profileId: profile.profileId },
       data: profile,
     });
-
-    //TODO вызов file microservice
 
     return ObjResult.Ok();
   }

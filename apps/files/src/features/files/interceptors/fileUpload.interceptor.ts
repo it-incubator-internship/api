@@ -8,7 +8,6 @@ import busboy from 'busboy';
 @Injectable()
 export class FileUploadInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    console.log('console.log in file.upload.interceptor');
 
     const req = context.switchToHttp().getRequest();
     const res = context.switchToHttp().getResponse();
@@ -30,7 +29,6 @@ export class FileUploadInterceptor implements NestInterceptor {
         file.pipe(writeStream);
 
         writeStream.on('finish', () => {
-          console.log(`File [${filename}] saved at [${saveFilePath}]`);
           req['filePath'] = saveFilePath;
 
           // Вызываем контроллер

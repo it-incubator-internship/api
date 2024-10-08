@@ -1,5 +1,4 @@
-// import * as https from 'https';
-import * as http from 'http';
+import * as https from 'https';
 
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
@@ -42,25 +41,19 @@ export class FileController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    console.log('console.log in app.file.controller (uploadAvatar)');
-
     // проверка запроса на наличие изображения
     const contentType = req.headers['content-type'];
-    console.log('contentType in app.file.controller (uploadAvatar):', contentType);
 
     // если в запросе нет изображения
     if (!contentType) {
-      console.log('!contentType in app.file.controller (uploadAvatar)');
       throw new BadRequestError('Photo not included in request.', [{ message: 'string', field: 'string' }]);
     }
 
     // получение userId для использования в options
     const userId = userInfo.userId;
-    console.log('userId in app.file.controller (uploadAvatar):', userId);
 
     // получение данных от второго микросервиса
-    const result = await this.streamAvatarToFileMicroservice(req, res, userId);
-    console.log('result in app.file.controller (uploadAvatar):', result);
+    await this.streamAvatarToFileMicroservice(req, res, userId);
 
     return;
   }
@@ -70,20 +63,11 @@ export class FileController {
     res: Response,
     userId: string,
   ): Promise<{ statusCode: number | undefined; body: any }> {
-    console.log('console.log in app.file.controller (streamAvatarToFileMicroservice)');
-
     const result = await this.commandBus.execute(new UploadAvatarUserCommand({ userId }));
-    console.log('result in app.file.controller (streamAvatarToFileMicroservice):', result);
 
     if (!result.isSuccess) {
-      console.log('!result.isSuccess in app.file.controller (streamAvatarToFileMicroservice)');
       throw result.error;
     }
-
-    console.log(
-      'this.imageStreamConfiguration in app.file.controller (streamAvatarToFileMicroservice):',
-      this.imageStreamConfiguration,
-    );
 
     // если изображение в запросе есть
     const options = {
@@ -97,22 +81,15 @@ export class FileController {
         'Content-Length': req.headers['content-length'],
       },
     };
-    console.log('options in app.file.controller (streamAvatarToFileMicroservice):', options);
 
     return new Promise((resolve, reject) => {
       // Используем https.request вместо http.request
-      const forwardRequest = http.request(options, (forwardResponse) => {
+      const forwardRequest = https.request(options, (forwardResponse) => {
         let responseData = '';
-        console.log(
-          'forwardResponse.statusCode in app.file.controller (streamAvatarToFileMicroservice):',
-          forwardResponse.statusCode,
-        );
-        console.log('responseData in app.file.controller v1 (streamAvatarToFileMicroservice):', responseData);
 
         forwardResponse.on('data', (chunk) => {
           responseData += chunk;
         });
-        console.log('responseData in app.file.controller v2 (streamAvatarToFileMicroservice):', responseData);
 
         forwardResponse.on('end', () => {
           const contentType = forwardResponse.headers['content-type'];
@@ -160,14 +137,9 @@ export class FileController {
   @Delete('/avatar')
   @DeleteAvatarSwagger()
   async deleteAvatar(@UserIdFromRequest() userInfo: { userId: string }) {
-    console.log('console.log in app.file.controller (deleteAvatar)');
-    console.log('userInfo.userId in app.file.controller (deleteAvatar):', userInfo.userId);
-
     const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
-    console.log('result in app.file.controller(deleteAvatar):', result);
 
     if (result.isSuccess) {
-      console.log('result.isSuccess in app.file.controller(deleteAvatar)');
       this.gatewayProxyClient.emit({ cmd: RMQ_CMD.AVATAR_DELETED }, userInfo.userId);
     }
 

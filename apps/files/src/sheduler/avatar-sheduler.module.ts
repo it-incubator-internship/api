@@ -7,7 +7,7 @@ import { FileUploadModule } from '../features/files/files-upload.module';
 import { AvatarSheduler } from './avatar-sheduler';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), CqrsModule.forRoot(), /* RmqModule, */ FileUploadModule],
+  imports: [ScheduleModule.forRoot(), CqrsModule.forRoot(), FileUploadModule],
   providers: [AvatarSheduler],
 })
 export class AvatarShedulerModule {}

@@ -35,7 +35,6 @@ describe('User e2e', () => {
     await app.init();
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
-    console.log(process.env.DATABASE_APP_URL);
 
     httpServer = app.getHttpServer();
 

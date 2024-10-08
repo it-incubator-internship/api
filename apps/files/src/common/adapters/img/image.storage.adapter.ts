@@ -13,7 +13,6 @@ export class ImageStorageAdapter {
   constructor(private readonly configService: ConfigService) {
     const REGION = 'ru-central1';
     const cloudSetting = this.configService.get('cloudSettings');
-    console.log('cloudSetting in image storage adapter:', cloudSetting);
 
     this.s3Client = new S3Client({
       region: REGION,
@@ -23,7 +22,6 @@ export class ImageStorageAdapter {
         accessKeyId: cloudSetting.accessKeyId,
       },
     });
-    console.log('this.s3Client in image storage adapter:', this.s3Client);
   }
 
   async saveImageFromStream(stream: Readable) {
@@ -55,11 +53,9 @@ export class ImageStorageAdapter {
       Bucket: 'navaibe.1.0',
       Key: url,
     });
-    console.log('deleteCommand in image storage adapter:', deleteCommand);
+
     try {
-      const result = await this.s3Client.send(deleteCommand);
-      console.log('result in image storage adapter:', result);
-      console.log(`Object ${url} deleted successfully.`, result);
+      await this.s3Client.send(deleteCommand);
     } catch (error) {
       console.error('Error deleting object:', error);
     }

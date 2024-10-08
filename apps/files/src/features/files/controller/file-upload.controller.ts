@@ -1,13 +1,11 @@
-import { Controller, Delete, Inject, Param, ParseUUIDPipe, Post, Req, UseInterceptors } from '@nestjs/common';
+import { Controller, Inject, Param, ParseUUIDPipe, Post, Req, UseInterceptors } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ClientProxy, MessagePattern } from '@nestjs/microservices';
 
 import { FileUploadInterceptor } from '../interceptors/fileUpload.interceptor';
 import { AddAvatarUserCommand } from '../application/command/add.avatar.user.command';
-// import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
 import { RMQ_CMD } from '../../../../../common/constants/enums';
 import { DeleteAvatarUrlUserCommand } from '../application/command/delete.avatar.url.user.command';
-import { ImageStorageAdapter } from '../../../../../files/src/common/adapters/img/image.storage.adapter';
 
 const enum AvatarSavedStatus {
   SUCCESS = 'success',
@@ -26,7 +24,6 @@ export class FileUploadController {
   constructor(
     private commandBus: CommandBus,
     @Inject('MULTICAST_EXCHANGE') private readonly gatewayProxyClient: ClientProxy,
-    private readonly s3StorageAdapter: ImageStorageAdapter,
   ) {}
 
   @Post('avatar/:id/:userId')
@@ -36,11 +33,7 @@ export class FileUploadController {
     @Param('userId', ParseUUIDPipe) userId: string,
     @Req() req,
   ) {
-    console.log('Controller executed');
-    console.log('eventId in file-upload controller:', eventId);
-
     const filePath = req['filePath'];
-    console.log('filePath in file-upload controller:', filePath);
 
     // Выполняем дополнительную логику в фоновом режиме
     setTimeout(() => this.processUploadedFile(eventId, filePath, userId), 5000);
@@ -51,7 +44,6 @@ export class FileUploadController {
       const result = await this.commandBus.execute<NonNullable<unknown>, AvatarSavedEvent>(
         new AddAvatarUserCommand({ eventId, fileData: filePath, userId: userId }),
       );
-      console.log('result in file controller v1 (uploadFile):', result);
       this.gatewayProxyClient.emit({ cmd: RMQ_CMD.AVATAR_SAVED }, result);
     } catch (error) {
       console.error('Error processing uploaded file:', error);
@@ -59,32 +51,11 @@ export class FileUploadController {
   }
 
   @MessagePattern({ cmd: RMQ_CMD.AVATAR_DELETED })
-  // @Delete('avatar/:id')
-  async handleDelete(/* @Param('id', ParseUUIDPipe) userId: string */ userId: string) {
-    console.log('console.log from rmq.consumer (avatar-deleted)');
-    console.log('console.log in file.upload.controller (handleDelete)');
-    console.log('userId in file.upload.controller (handleDelete):', userId);
-
+  async handleDelete(userId: string) {
     const result = await this.commandBus.execute(new DeleteAvatarUrlUserCommand({ userId }));
-    console.log('result in file.upload.controller (handleDelete):', result);
 
     if (!result.isSuccess) throw result.error;
 
     return;
   }
-
-  // тестовый эндпоинт
-  // @Delete('avatar/test')
-  // async imgDelete() {
-  //   console.log('console.log in file.upload.controller (imgDelete)');
-
-  //   const result = await this.s3StorageAdapter.deleteAvatar({
-  //     // url: 'https://storage.yandexcloud.net/navaibe.1.0/content/images/ac926dc5-8f73-437e-b380-17f62653d185.webp',
-  //     // url: 'https://storage.yandexcloud.net/navaibe.1.0/content/images/ac926dc5-8f99-437e-b380-17f62653d185.webp',
-  //     url: 'https://navaibe.1.0.storage.yandexcloud.net/content/images/ac926dc5-8f73-437e-b380-17f62653d185.webp',
-  //   });
-  //   console.log('result in file.upload.controller (handleDelete):', result);
-
-  //   return;
-  // }
 }
