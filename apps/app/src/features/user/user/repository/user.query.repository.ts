@@ -66,6 +66,7 @@ export class UserQueryRepository {
       city: profile.profile?.city ? profile.profile.city : undefined,
       aboutMe: profile.profile?.aboutMe ? profile.profile.aboutMe : undefined,
       originalAvatarUrl: profile.profile?.originalAvatarUrl ? profile.profile.originalAvatarUrl : undefined,
+      smallAvatarUrl: profile.profile?.smallAvatarUrl ? profile.profile.smallAvatarUrl : undefined,
       profileStatus: profile.profile?.profileStatus ? profile.profile.profileStatus : ProfileStatus.READY,
     };
   }
