@@ -8,7 +8,7 @@ import { ImageStorageAdapter } from '../../common/adapters/img/image.storage.ada
 import { IMG_PROCESSING_ADAPTER } from '../../common/adapters/img/img-processing-adapter.interface';
 import { SharpImgProcessingAdapter } from '../../common/adapters/img/sharp-img-processing.adapter';
 import { ConfigurationType } from '../../common/settings/configuration';
-import { RmqModuleX } from '../rmq-provider/rmq.module';
+// import { RmqModuleX } from '../rmq-provider/rmq.module';
 
 import { FileUploadService } from './application/file-upload.service';
 import { FileRepository } from './repository/file.repository';
@@ -51,7 +51,7 @@ import { DeleteAvatarUserHandler } from './application/command/delete.avatar.use
       provide: IMG_PROCESSING_ADAPTER,
       useClass: SharpImgProcessingAdapter, // Используем реализацию на основе sharp
     },
-    RmqModuleX,
+    // RmqModuleX,
     FileUploadService,
     ImageStorageAdapter,
     FileRepository,

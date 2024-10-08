@@ -29,7 +29,7 @@ export class FileRepository {
 
     const avatars = await this.fileModel.find({
       deletedAt: { $ne: null }, // значение не равно null
-      type: 'avatar', // тип равен "avatar"
+      // type: 'avatar', // тип равен "avatar"
     });
     // console.log('avatars in file repository (findDeletedAvatars):', avatars);
 

@@ -1,10 +1,10 @@
 import { Controller, Delete, Inject, Param, ParseUUIDPipe, Post, Req, UseInterceptors } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, MessagePattern } from '@nestjs/microservices';
 
 import { FileUploadInterceptor } from '../interceptors/fileUpload.interceptor';
 import { AddAvatarUserCommand } from '../application/command/add.avatar.user.command';
-import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
+// import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
 import { RMQ_CMD } from '../../../../../common/constants/enums';
 import { DeleteAvatarUrlUserCommand } from '../application/command/delete.avatar.url.user.command';
 import { ImageStorageAdapter } from '../../../../../files/src/common/adapters/img/image.storage.adapter';
@@ -58,8 +58,10 @@ export class FileUploadController {
     }
   }
 
-  @Delete('avatar/:id')
-  async handleDelete(@Param('id', ParseUUIDPipe) userId: string) {
+  @MessagePattern({ cmd: RMQ_CMD.AVATAR_DELETED })
+  // @Delete('avatar/:id')
+  async handleDelete(/* @Param('id', ParseUUIDPipe) userId: string */ userId: string) {
+    console.log('console.log from rmq.consumer (avatar-deleted)');
     console.log('console.log in file.upload.controller (handleDelete)');
     console.log('userId in file.upload.controller (handleDelete):', userId);
 
@@ -72,15 +74,17 @@ export class FileUploadController {
   }
 
   // тестовый эндпоинт
-  @Delete('avatar')
-  async imgDelete() {
-    console.log('console.log in file.upload.controller (imgDelete)');
+  // @Delete('avatar/test')
+  // async imgDelete() {
+  //   console.log('console.log in file.upload.controller (imgDelete)');
 
-    const result = await this.s3StorageAdapter.deleteAvatar({
-      url: 'https://storage.yandexcloud.net/navaibe.1.0/content/images/52be7f6c-d538-4cea-9a6e-60cc876b46c6.webp',
-    });
-    console.log('result in file.upload.controller (handleDelete):', result);
+  //   const result = await this.s3StorageAdapter.deleteAvatar({
+  //     // url: 'https://storage.yandexcloud.net/navaibe.1.0/content/images/ac926dc5-8f73-437e-b380-17f62653d185.webp',
+  //     // url: 'https://storage.yandexcloud.net/navaibe.1.0/content/images/ac926dc5-8f99-437e-b380-17f62653d185.webp',
+  //     url: 'https://navaibe.1.0.storage.yandexcloud.net/content/images/ac926dc5-8f73-437e-b380-17f62653d185.webp',
+  //   });
+  //   console.log('result in file.upload.controller (handleDelete):', result);
 
-    return;
-  }
+  //   return;
+  // }
 }

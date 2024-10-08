@@ -15,6 +15,8 @@ import { ConfigurationType } from '../../../common/settings/configuration';
 import { BadRequestError } from '../../../../../common/utils/result/custom-error';
 import { UploadAvatarUserCommand } from '../application/command/upload.avatar.user.command';
 import { DeleteAvatarSwagger } from '../decorators/swagger/delete-avatar/delete-avatar.swagger.decorator';
+import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
+import { RMQ_CMD } from '../../../../../common/constants/enums';
 
 @ApiTags('file')
 @Controller('file')
@@ -161,15 +163,15 @@ export class FileController {
     console.log('console.log in app.file.controller (deleteAvatar)');
     console.log('userInfo.userId in app.file.controller (deleteAvatar):', userInfo.userId);
 
-    // const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
-    // console.log('result in app.file.controller(deleteAvatar):', result);
+    const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
+    console.log('result in app.file.controller(deleteAvatar):', result);
 
-    // if (result.isSuccess) {
-    // console.log('result.isSuccess in app.file.controller(deleteAvatar)');
-    this.gatewayProxyClient.emit({ cmd: 'avatar-deleted' }, 'lol');
-    // }
+    if (result.isSuccess) {
+      console.log('result.isSuccess in app.file.controller(deleteAvatar)');
+      this.gatewayProxyClient.emit({ cmd: RMQ_CMD.AVATAR_DELETED }, userInfo.userId);
+    }
 
-    // if (!result.isSuccess) throw result.error;
+    if (!result.isSuccess) throw result.error;
 
     return;
   }

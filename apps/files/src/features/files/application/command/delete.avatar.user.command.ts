@@ -21,8 +21,8 @@ export class DeleteAvatarUserHandler implements ICommandHandler<DeleteAvatarUser
     console.log('command in delete avatar user command:', command);
 
     await Promise.all([
-      this.s3StorageAdapter.deleteAvatar({ url: command.inputModel.smallAvatarUrl }),
-      this.s3StorageAdapter.deleteAvatar({ url: command.inputModel.originalAvatarUrl }),
+      this.s3StorageAdapter.deleteAvatar({ url: command.inputModel.smallAvatarUrl.slice(-56) }),
+      this.s3StorageAdapter.deleteAvatar({ url: command.inputModel.originalAvatarUrl.slice(-56) }),
     ]);
 
     return ObjResult.Ok();

@@ -24,9 +24,9 @@ export class AvatarSheduler {
     avatars.forEach((a) => {
       if (a.type === FileType.avatar && a.deletedAt !== null) {
         this.fileRepository.deleteAvatar({ id: a._id }); // удаление из коллекции
-        // this.commandBus.execute(
-        //   new DeleteAvatarUserCommand({ smallAvatarUrl: a.url.small!, originalAvatarUrl: a.url.original! }),
-        // );
+        this.commandBus.execute(
+          new DeleteAvatarUserCommand({ smallAvatarUrl: a.url.small!, originalAvatarUrl: a.url.original! }),
+        );
       }
     });
   }

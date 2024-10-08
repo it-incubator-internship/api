@@ -12,12 +12,18 @@ async function bootstrap() {
   const app = await NestFactory.create(FilesModule);
 
   appSettings(app);
+  // Подключаем RabbitMQ транспорт
+
+  // достаем env
+  const configService = app.get(ConfigService<ConfigurationType, true>);
+  const port = configService.get('apiSettings.PORT', { infer: true });
+  const isTestingENV = configService.get('environmentSettings.isTesting', { infer: true });
+  const RMQ_URL = configService.get('apiSettings.RMQ_HOST', { infer: true }) as string;
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
-      //TODO app_queue
+      urls: [RMQ_URL],
       queue: 'files_mcs_queue',
       queueOptions: {
         durable: true,
@@ -31,11 +37,6 @@ async function bootstrap() {
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
     allowedHeaders: ['Accept', 'Content-Type', 'Authorization'],
   });
-
-  // достаем env
-  const configService = app.get(ConfigService<ConfigurationType, true>);
-  const port = configService.get('apiSettings.PORT', { infer: true });
-  const isTestingENV = configService.get('environmentSettings.isTesting', { infer: true });
 
   if (!isTestingENV) {
     swaggerSetting(app);

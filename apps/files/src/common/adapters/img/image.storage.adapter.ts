@@ -13,6 +13,7 @@ export class ImageStorageAdapter {
   constructor(private readonly configService: ConfigService) {
     const REGION = 'ru-central1';
     const cloudSetting = this.configService.get('cloudSettings');
+    console.log('cloudSetting in image storage adapter:', cloudSetting);
 
     this.s3Client = new S3Client({
       region: REGION,
@@ -57,6 +58,7 @@ export class ImageStorageAdapter {
     console.log('deleteCommand in image storage adapter:', deleteCommand);
     try {
       const result = await this.s3Client.send(deleteCommand);
+      console.log('result in image storage adapter:', result);
       console.log(`Object ${url} deleted successfully.`, result);
     } catch (error) {
       console.error('Error deleting object:', error);

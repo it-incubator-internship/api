@@ -9,7 +9,7 @@ import { configuration } from './common/settings/configuration';
 import { FileUploadModule } from './features/files/files-upload.module';
 import { MainController } from './files.controller';
 import { AvatarShedulerModule } from './sheduler/avatar-sheduler.module';
-import { RmqModuleX } from './features/rmq-provider/rmq.module';
+// import { RmqModuleX } from './features/rmq-provider/rmq.module';
 
 const environment = process.env.NODE_ENV as Environments;
 
@@ -28,7 +28,7 @@ const environment = process.env.NODE_ENV as Environments;
       }),
       inject: [ConfigService],
     }),
-    RmqModuleX,
+    // RmqModuleX,
     FileUploadModule,
     AvatarShedulerModule,
   ],

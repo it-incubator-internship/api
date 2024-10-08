@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 
 import { PrismaModule } from '../../common/database_module/prisma.module';
 import { UserModule } from '../user/user.module';
 import { RmqModule } from '../rmq-provider/rmq.module';
+import { ConfigurationType } from '../../common/settings/configuration';
 
 import { FileController } from './controller/file.controller';
 import { DeleteAvatarUserHandler } from './application/command/delete.avatar.user.command';
@@ -13,17 +15,20 @@ const commands = [DeleteAvatarUserHandler, UploadAvatarUserHandler];
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: 'MULTICAST_EXCHANGE',
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://navaibeadmin:navaibeadmin@91.108.243.169:5672/test_vhost'],
-          queue: 'multicast_queue',
-          queueOptions: {
-            durable: true,
+        useFactory: (configService: ConfigService<ConfigurationType, true>) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get('apiSettings.RMQ_HOST', { infer: true }) as string],
+            queue: 'multicast_queue',
+            queueOptions: {
+              durable: true,
+            },
           },
-        },
+        }),
+        inject: [ConfigService],
       },
     ]),
     PrismaModule,

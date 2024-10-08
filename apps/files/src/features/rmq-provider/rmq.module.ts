@@ -1,17 +1,17 @@
-import { Module } from '@nestjs/common';
+// import { Module } from '@nestjs/common';
 
-import { RmqConsumerX } from './rmq.consumer';
+// import { RmqConsumerX } from './rmq.consumer';
 
-// const commands = [GetAvatarsFromFileMcsHandler];
+// // const commands = [GetAvatarsFromFileMcsHandler];
 
-@Module({
-  imports: [],
-  controllers: [RmqConsumerX],
-  providers: [
-    /* ...commands */
-  ],
-  exports: [
-    /* EventsService */
-  ],
-})
-export class RmqModuleX {}
+// @Module({
+//   imports: [],
+//   controllers: [RmqConsumerX],
+//   providers: [
+//     /* ...commands */
+//   ],
+//   exports: [
+//     /* EventsService */
+//   ],
+// })
+// export class RmqModuleX {}
