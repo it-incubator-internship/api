@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-// import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+
+import { filesMcsQueue } from '../../common/constants/constants';
 
 import { FilesModule } from './files.module';
 import { ConfigurationType } from './common/settings/configuration';
@@ -20,17 +21,6 @@ async function bootstrap() {
   const isTestingENV = configService.get('environmentSettings.isTesting', { infer: true });
   const RMQ_URL = configService.get('apiSettings.RMQ_HOST', { infer: true }) as string;
 
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
-    options: {
-      urls: [RMQ_URL],
-      queue: 'files_mcs_queue',
-      queueOptions: {
-        durable: true,
-      },
-    },
-  });
-
   app.enableCors({
     credentials: true,
     origin: ['http://localhost:3000', 'https://navaibe.ru/'],
@@ -40,6 +30,17 @@ async function bootstrap() {
 
   if (!isTestingENV) {
     swaggerSetting(app);
+
+    app.connectMicroservice<MicroserviceOptions>({
+      transport: Transport.RMQ,
+      options: {
+        urls: [RMQ_URL],
+        queue: filesMcsQueue,
+        queueOptions: {
+          durable: true,
+        },
+      },
+    });
   }
 
   app.setGlobalPrefix(`api/v1`);

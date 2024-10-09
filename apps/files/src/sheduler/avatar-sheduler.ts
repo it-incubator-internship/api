@@ -5,6 +5,7 @@ import { Interval } from '@nestjs/schedule';
 import { FileRepository } from '../features/files/repository/file.repository';
 import { FileType } from '../features/files/schema/files.schema';
 import { DeleteAvatarUserCommand } from '../features/files/application/command/delete.avatar.user.command';
+import { avatarShedulerInterval } from '../common/constants/constants';
 
 @Injectable()
 export class AvatarSheduler {
@@ -13,7 +14,7 @@ export class AvatarSheduler {
     private readonly commandBus: CommandBus,
   ) {}
 
-  @Interval(10000) // Интервал в миллисекундах
+  @Interval(avatarShedulerInterval) // Интервал в миллисекундах
   async handleInterval() {
     const avatars = await this.fileRepository.findDeletedAvatars();
 

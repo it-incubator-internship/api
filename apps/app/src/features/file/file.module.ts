@@ -6,6 +6,7 @@ import { PrismaModule } from '../../common/database_module/prisma.module';
 import { UserModule } from '../user/user.module';
 import { RmqModule } from '../rmq-provider/rmq.module';
 import { ConfigurationType } from '../../common/settings/configuration';
+import { multicastQueue } from '../../../../common/constants/constants';
 
 import { FileController } from './controller/file.controller';
 import { DeleteAvatarUserHandler } from './application/command/delete.avatar.user.command';
@@ -22,7 +23,7 @@ const commands = [DeleteAvatarUserHandler, UploadAvatarUserHandler];
           transport: Transport.RMQ,
           options: {
             urls: [configService.get('apiSettings.RMQ_HOST', { infer: true }) as string],
-            queue: 'multicast_queue',
+            queue: multicastQueue,
             queueOptions: {
               durable: true,
             },

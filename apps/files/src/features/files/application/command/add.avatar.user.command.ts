@@ -41,7 +41,6 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
         command.inputModel.fileData /* .filePath */,
         TEN_MB,
       );
-      console.log('originalWebpFilePath in add.avatar.user.command:', originalWebpFilePath);
 
       // Используем метод адаптера для изменения размера изображения
       const smallWebpFilePath = await this.imgProcessingAdapter.resizeAvatar(command.inputModel.fileData);
