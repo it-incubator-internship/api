@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export const userNameApiProperty = () =>
   ApiProperty({
     type: String,
-    description: 'Имя пользователя',
+    description: 'Ник',
     example: 'FelixArgyle',
     required: true,
     pattern: '^[a-zA-Z0-9_-]+$',

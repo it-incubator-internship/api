@@ -84,6 +84,7 @@ export class ErrorExceptionFilter implements ExceptionFilter {
       response.status(500).json({
         error: exception.message,
         stack: exception.stack,
+        more: exception,
       });
     } else {
       response.status(500).json('kek lol arbedol');

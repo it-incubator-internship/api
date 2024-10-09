@@ -1,0 +1,242 @@
+---
+# Устанавливаем gnupg для работы с GPG-ключами
+- name: Установить gnupg
+  apt:
+    name: gnupg
+    state: present
+    update_cache: yes
+  become: true
+
+# Добавляем GPG-ключ для Erlang Solutions
+- name: Добавить GPG-ключ для Erlang Solutions
+  apt_key:
+    url: https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
+    state: present
+  become: true
+
+# Добавляем репозиторий Erlang Solutions
+- name: Добавить репозиторий Erlang Solutions
+  apt_repository:
+    repo: 'deb https://packages.erlang-solutions.com/ubuntu {{ ansible_distribution_release }} contrib'
+    state: present
+    update_cache: yes
+  become: true
+
+# Устанавливаем Erlang версии 24.3.3-1
+- name: Установить Erlang версии 24.3.3-1
+  apt:
+    name: esl-erlang=1:24.3.3-1
+    state: present
+    update_cache: yes
+  become: true
+
+# Установка RabbitMQ через роль geerlingguy.rabbitmq
+- name: Установить RabbitMQ
+  include_role:
+    name: geerlingguy.rabbitmq
+  vars:
+    rabbitmq_version: '3.11.11'  # Используйте последнюю версию RabbitMQ
+    rabbitmq_erlang_version_requirement: '24.x'
+
+# Включаем необходимые плагины RabbitMQ
+- name: Включить плагины RabbitMQ
+  community.rabbitmq.rabbitmq_plugin:
+    names: rabbitmq_management,rabbitmq_shovel,rabbitmq_shovel_management
+    state: enabled
+  become: true
+
+# Создаем виртуальный хост для тестирования
+- name: Создать виртуальный хост для тестирования
+  community.rabbitmq.rabbitmq_vhost:
+    name: 'test_vhost'
+    state: present
+  become: true
+
+# Создаем виртуальный хост для продакшена
+- name: Создать виртуальный хост для продакшена
+  community.rabbitmq.rabbitmq_vhost:
+    name: 'prod_vhost'
+    state: present
+  become: true
+
+# Создаем пользователя с правами администратора
+- name: Создать пользователя admin с правами администратора
+  community.rabbitmq.rabbitmq_user:
+    user: 'navaibeadmin'
+    password: 'navaibeadmin'
+    tags: administrator
+    state: present
+    force: true
+  become: true
+
+
+
+# Перезапускаем RabbitMQ после создания пользователей и назначения прав
+- name: Перезапустить RabbitMQ после создания пользователей и назначения прав
+  service:
+    name: rabbitmq-server
+    state: restarted
+  become: true
+
+
+# Проверяем статус RabbitMQ
+- name: Проверить статус RabbitMQ
+  command: rabbitmqctl status
+  register: rabbitmq_status
+  changed_when: false
+  become: true
+
+- name: Отобразить статус RabbitMQ
+  debug:
+    var: rabbitmq_status.stdout_lines
+
+
+
+# Назначаем права для пользователя admin
+- name: Назначить права для пользователя admin на виртуальный хост test_vhost
+  community.rabbitmq.rabbitmq_user:
+    user: 'navaibeadmin'
+    password: 'navaibeadmin'
+    tags: administrator
+    configure_priv: '.*'
+    write_priv: '.*'
+    read_priv: '.*'
+    vhost: /
+  become: true
+
+# Назначаем права для пользователя admin на виртуальный хост test_vhost
+- name: Назначить права для пользователя admin на виртуальный хост test_vhost
+  community.rabbitmq.rabbitmq_user:
+    user: 'navaibeadmin'
+    password: 'navaibeadmin'
+    tags: administrator
+    configure_priv: '.*'
+    write_priv: '.*'
+    read_priv: '.*'
+    vhost: 'test_vhost'
+  become: true
+
+# Назначаем права для пользователя admin на виртуальный хост prod_vhost
+- name: Назначить права для пользователя admin на виртуальный хост prod_vhost
+  community.rabbitmq.rabbitmq_user:
+    user: 'navaibeadmin'
+    password: 'navaibeadmin'
+    tags: administrator
+    configure_priv: '.*'
+    write_priv: '.*'
+    read_priv: '.*'
+    vhost: 'prod_vhost'
+  become: true
+
+# Устанавливаем rabbitmqadmin для работы с RabbitMQ
+- name: Установить rabbitmqadmin
+  get_url:
+    url: "https://raw.githubusercontent.com/rabbitmq/rabbitmq-management/v3.8.9/bin/rabbitmqadmin"
+    dest: /usr/local/bin/rabbitmqadmin
+    mode: '0755'
+  become: true
+
+
+- name: Создать multicast-exchange (fallback method)
+  community.rabbitmq.rabbitmq_exchange:
+    login_user: 'navaibeadmin'
+    login_password: 'navaibeadmin'
+    name: "multicast-exchange"
+    type: "fanout"
+    vhost: 'prod_vhost'
+    state: present
+    durable: true
+  environment:
+    RABBITMQ_USER: 'navaibeadmin'
+    RABBITMQ_PASSWORD: 'navaibeadmin'
+  become: true
+
+# Создаем Exchange для тестовой среды (multicast-exchange)
+- name: Создать multicast-exchange для тестовой среды
+  community.rabbitmq.rabbitmq_exchange:
+    login_user: 'navaibeadmin'
+    login_password: 'navaibeadmin'
+    name: "multicast-exchange"
+    type: "fanout"
+    vhost: 'test_vhost'
+    state: present
+    durable: true
+  environment:
+    RABBITMQ_USER: 'navaibeadmin'
+    RABBITMQ_PASSWORD: 'navaibeadmin'
+  become: true
+
+- name: Create a queue on remote host
+  community.rabbitmq.rabbitmq_queue:
+    name: multicast_queue
+    vhost: 'test_vhost'
+    login_user: 'navaibeadmin'
+    login_password: 'navaibeadmin'
+
+- name: Create a queue on remote host ( vprod )
+  community.rabbitmq.rabbitmq_queue:
+    name: multicast_queue
+    vhost: 'prod_vhost'
+    login_user: 'navaibeadmin'
+    login_password: 'navaibeadmin'
+
+# Создаем Shovel для тестовой среды с использованием модуля rabbitmq_parameter
+- name: Создать Shovel для тестовой среды
+  community.rabbitmq.rabbitmq_parameter:
+    vhost: 'test_vhost'
+    component: 'shovel'
+    name: 'multicast-shovel'
+    value: '{
+      "src-uri": "amqp://guest:guest@localhost/test_vhost",
+      "src-queue": "multicast_queue",
+      "dest-uri": "amqp://guest:guest@localhost/test_vhost",
+      "dest-exchange": "multicast-exchange",
+      "ack-mode": "on-confirm",
+      "add-forward-headers": false
+    }'
+  environment:
+    RABBITMQ_USER: 'navaibeadmin'
+    RABBITMQ_PASSWORD: 'navaibeadmin'
+  become: true
+
+# Создаем Shovel для продакшн-среды с использованием модуля rabbitmq_parameter
+- name: Создать Shovel для продакшн-среды
+  community.rabbitmq.rabbitmq_parameter:
+    vhost: 'prod_vhost'
+    component: 'shovel'
+    name: 'multicast-shovel'
+    value: '{
+      "src-uri": "amqp://guest:guest@localhost/prod_vhost",
+      "src-queue": "multicast_queue",
+      "dest-uri": "amqp://guest:guest@localhost/prod_vhost",
+      "dest-exchange": "multicast-exchange",
+      "ack-mode": "on-confirm",
+      "add-forward-headers": false
+    }'
+  environment:
+    RABBITMQ_USER: 'navaibeadmin'
+    RABBITMQ_PASSWORD: 'navaibeadmin'
+  become: true
+
+# Перезагружаем демоны systemd
+- name: Перезагрузить демоны systemd
+  command: systemctl daemon-reload
+  become: true
+
+# Перезапускаем RabbitMQ
+- name: Перезапустить службу RabbitMQ
+  service:
+    name: rabbitmq-server
+    state: restarted
+  become: true
+
+# Финальная проверка статуса RabbitMQ
+- name: Финальная проверка статуса RabbitMQ
+  command: rabbitmqctl status
+  register: final_rabbitmq_status
+  changed_when: false
+  become: true
+
+- name: Отобразить финальный статус RabbitMQ
+  debug:
+    var: final_rabbitmq_status.stdout_lines

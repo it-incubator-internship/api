@@ -40,9 +40,13 @@ export class GithubOauthController {
     const result = await this.oathService.githubAuth(loginData, githubRegistrationData);
 
     if (!result.isSuccess) throw result.error;
-    //TODO указать в куки куда она должна приходить
-    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
+    // Установка refreshToken куки
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true, sameSite: 'none' });
 
-    return { accessToken: result.value.accessToken };
+    // Формирование URL для редиректа
+    const redirectUrl = `https://navaibe.ru/authentication?accessToken=${result.value.accessToken}`;
+
+    // Редирект на фронт с accessToken
+    return res.redirect(redirectUrl);
   }
 }

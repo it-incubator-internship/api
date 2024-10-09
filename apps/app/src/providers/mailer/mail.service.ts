@@ -7,7 +7,7 @@ export class MailService {
 
   async sendUserConfirmation({ email, login, token }: { email: string; login: string; token: string }): Promise<void> {
     //TODO добавить конфиг сервис
-    const url = `https://somesite.com/confirm-email?code=${token}`;
+    const url = `https://navaibe.ru/email-confirmed?code=${token}`;
 
     await this.mailerService.sendMail({
       to: email,
@@ -16,7 +16,6 @@ export class MailService {
       context: {
         name: login,
         url,
-        token,
       },
     });
   }
@@ -51,7 +50,7 @@ export class MailService {
     recoveryCode: string;
   }): Promise<void> {
     //TODO добавить конфиг сервис
-    const url = `https://somesite.com/password-recovery?recoveryCode=${recoveryCode}`;
+    const url = `https://navaibe.ru/create-new-password?recoveryCode=${recoveryCode}`;
 
     await this.mailerService.sendMail({
       to: email,
@@ -60,7 +59,6 @@ export class MailService {
       context: {
         name: login,
         url,
-        token: recoveryCode,
       },
     });
   }

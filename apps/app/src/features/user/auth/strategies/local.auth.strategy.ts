@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { compare } from 'bcryptjs';
 
 import { UserRepository } from '../../user/repository/user.repository';
+import { EntityEnum } from '../../../../../../common/repository/base.repository';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -13,12 +14,15 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(email: string, password: string) /*: Promise<any>*/ {
+  async validate(email: string, password: string) {
     if (typeof email !== 'string' || typeof password !== 'string') {
       return null;
     }
 
-    const user = await this.userRepository.findUserByEmail({ email });
+    const user = await this.userRepository.findFirstOne({
+      modelName: EntityEnum.user,
+      conditions: { email },
+    });
 
     if (!user) {
       return null;

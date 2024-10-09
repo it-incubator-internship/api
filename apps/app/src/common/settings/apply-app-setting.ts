@@ -32,7 +32,7 @@ export const appSettings = (app: INestApplication) => {
 
   app.enableCors({
     credentials: true,
-    origin: ['http://localhost:3000', 'https://navaibe.ru/'],
+    origin: ['http://localhost:3000', 'https://navaibe.ru/', 'https://29e6d4f00fc4acc71876d1a834bcda48.serveo.net/'],
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
     allowedHeaders: ['Accept', 'Content-Type', 'Authorization'],
   });

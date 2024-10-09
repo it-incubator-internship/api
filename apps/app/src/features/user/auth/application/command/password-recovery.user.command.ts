@@ -6,7 +6,7 @@ import { ObjResult } from '../../../../../../../common/utils/result/object-resul
 import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { UserNewPasswordRegCodeEvent } from '../../../user/domain/events/user-new-password-reg-code.event';
-import { UserAccountData } from '../../../user/domain/accoun-data.fabric';
+import { EntityEnum } from '../../../../../../../common/repository/base.repository';
 
 export class PasswordRecoveryCommand {
   constructor(public inputModel: EmailInputModel) {}
@@ -20,7 +20,10 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
     private readonly jwtAdapter: JwtAdapter,
   ) {}
   async execute(command: PasswordRecoveryCommand): Promise<any> {
-    const user = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
+    const user = await this.userRepository.findFirstOne({
+      modelName: EntityEnum.user,
+      conditions: { email: command.inputModel.email },
+    });
 
     if (!user) {
       return ObjResult.Err(
@@ -33,7 +36,10 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
       );
     }
 
-    const userAccountData: UserAccountData | null = await this.userRepository.findAccountDataById({ id: user.id });
+    const userAccountData = await this.userRepository.findUniqueOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: user.id },
+    });
 
     if (!userAccountData) {
       return ObjResult.Err(new BadRequestError('I am teapot', [{ message: '', field: '' }]));
@@ -44,13 +50,21 @@ export class PasswordRecoveryHandler implements ICommandHandler<PasswordRecovery
 
     userAccountData.updateRecoveryCode({ recoveryCode });
 
-    await this.userRepository.updateAccountData(userAccountData);
+    await this.userRepository.updateOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: userAccountData.profileId },
+      data: userAccountData,
+    });
 
-    user.events.push(new UserNewPasswordRegCodeEvent(user.name, user.email, recoveryCode));
+    const event = new UserNewPasswordRegCodeEvent(user.name, user.email, recoveryCode);
 
-    await this.userRepository.updateAccountData(userAccountData);
+    await this.userRepository.updateOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: userAccountData.profileId },
+      data: userAccountData,
+    });
 
-    user.events.forEach((e) => this.eventBus.publish(e));
+    this.eventBus.publish(event);
 
     return ObjResult.Ok();
   }
