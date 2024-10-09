@@ -1,4 +1,4 @@
-import * as process from 'node:process';
+// import * as process from 'node:process';
 
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
@@ -44,7 +44,7 @@ describe('Auth e2e', () => {
     await app.init();
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
-    console.log(process.env.DATABASE_APP_URL);
+    // console.log(process.env.DATABASE_APP_URL);
 
     httpServer = app.getHttpServer();
 

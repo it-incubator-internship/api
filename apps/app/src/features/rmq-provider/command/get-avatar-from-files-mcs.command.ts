@@ -16,8 +16,6 @@ export class GetAvatarsFromFileMcsHandler implements ICommandHandler<GetAvatarsF
   constructor(public eventsService: EventsService) {}
 
   async execute(command: GetAvatarsFromFileMcsCommand) {
-    console.log(command.data);
-    console.log('++++++++++++++++++++++++++++++');
     const { status, eventId, originalUrl, smallUrl } = command.data;
 
     const data = {
@@ -30,7 +28,6 @@ export class GetAvatarsFromFileMcsHandler implements ICommandHandler<GetAvatarsF
         smallUrl,
       },
     };
-    console.log(`data: ${JSON.stringify(data, null, 2)}`);
     await this.eventsService.updateEvent(data);
   }
 }

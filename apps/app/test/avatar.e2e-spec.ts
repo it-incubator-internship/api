@@ -39,7 +39,6 @@ describe('Auth e2e', () => {
     controller = moduleFixture.get<FileController>(FileController);
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
-    console.log(process.env.DATABASE_APP_URL);
 
     httpServer = app.getHttpServer();
 
@@ -96,12 +95,10 @@ describe('Auth e2e', () => {
       .expect(201);
 
     accessToken = response.body.accessToken;
-    console.log('accessToken:', accessToken);
   }); // 201
 
   it('UPLOAD avatar without authorisation', async () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
-    console.log('imageBuffer in avatar tests:', imageBuffer);
 
     await request(app.getHttpServer())
       .post('/file/avatar')
@@ -116,7 +113,6 @@ describe('Auth e2e', () => {
 
   it.skip('UPLOAD avatar with correct data (profile not found)', async () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
-    console.log('imageBuffer in avatar tests:', imageBuffer);
 
     jest.spyOn(controller, 'streamAvatarToFileMicroservice').mockImplementation(async () => {
       return { statusCode: 201, body: { url: 'https://example.com/avatar.webp' } };
@@ -152,7 +148,6 @@ describe('Auth e2e', () => {
 
   it('UPLOAD avatar with correct data', async () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
-    console.log('imageBuffer in avatar tests:', imageBuffer);
 
     jest.spyOn(controller, 'streamAvatarToFileMicroservice').mockImplementation(async () => {
       return { statusCode: 201, body: { url: 'https://example.com/avatar.webp' } };
@@ -168,7 +163,6 @@ describe('Auth e2e', () => {
 
   it.skip('UPLOAD avatar with incorrect data (wrong format)', async () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_false_format.jpeg').toBuffer();
-    console.log('imageBuffer in avatar tests:', imageBuffer);
 
     await request(app.getHttpServer())
       .post('/file/avatar')
@@ -180,7 +174,6 @@ describe('Auth e2e', () => {
 
   it.skip('UPLOAD avatar with incorrect data (wrong size)', async () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_false_size.jpeg').toBuffer();
-    console.log('imageBuffer in avatar tests:', imageBuffer);
 
     await request(app.getHttpServer())
       .post('/file/avatar')
@@ -192,7 +185,6 @@ describe('Auth e2e', () => {
 
   it.skip('UPLOAD avatar with correct data', async () => {
     const imageBuffer = await sharp('apps/app/test/images/avatar/avatar_true.jpeg').toBuffer();
-    console.log('imageBuffer in avatar tests:', imageBuffer);
 
     await request(app.getHttpServer())
       .post('/file/avatar')

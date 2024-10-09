@@ -9,8 +9,6 @@ export class PaymentController {
 
   @MessagePattern({ cmd: 'hello' })
   getHello(data: string): string {
-    console.log('приняли');
-    console.log(data);
     return data + 'PaymentController works!';
   }
 }

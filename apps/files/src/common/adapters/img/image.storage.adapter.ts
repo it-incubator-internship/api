@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 import { randomUUID } from 'crypto';
 
-import { S3Client } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Upload } from '@aws-sdk/lib-storage';
@@ -45,6 +45,19 @@ export class ImageStorageAdapter {
     } catch (error) {
       console.error('Error uploading to S3:', error);
       throw error;
+    }
+  }
+
+  async deleteAvatar({ url }: { url: string }) {
+    const deleteCommand = new DeleteObjectCommand({
+      Bucket: 'navaibe.1.0',
+      Key: url,
+    });
+
+    try {
+      await this.s3Client.send(deleteCommand);
+    } catch (error) {
+      console.error('Error deleting object:', error);
     }
   }
 }
