@@ -7,6 +7,7 @@ import {
   ImgProcessingAdapter,
 } from '../../../../common/adapters/img/img-processing-adapter.interface';
 import { FileUploadService } from '../file-upload.service';
+import { FileUploadService } from '../file-upload.service';
 import { FileRepository } from '../../repository/file.repository';
 import { FileEntity, FileFormat, FileType } from '../../schema/files.schema';
 import { maxAvatarSize } from '../../../../../../common/constants/constants';
@@ -37,7 +38,11 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       const TEN_MB = maxAvatarSize; // 10 МБ;
 
       // Используем метод адаптера для конвертации изображения
-      const originalWebpFilePath = await this.imgProcessingAdapter.convertToWebp(command.inputModel.fileData, TEN_MB);
+      const originalWebpFilePath = await this.imgProcessingAdapter.convertToPng(
+        command.inputModel.fileData /* .filePath */,
+        TEN_MB,
+      );
+      console.log('originalWebpFilePath in add.avatar.user.command:', originalWebpFilePath);
 
       // Используем метод адаптера для изменения размера изображения
       const smallWebpFilePath = await this.imgProcessingAdapter.resizeAvatar(command.inputModel.fileData);
@@ -82,8 +87,8 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
       //TODO добавить тип
       return {
         success: true,
-        smallUrl: originalImageResult.url,
-        originalUrl: smallImageResult.url,
+        smallUrl: smallImageResult.url,
+        originalUrl: originalImageResult.url,
         eventId: command.inputModel.eventId,
       };
     } catch (error) {
