@@ -13,7 +13,6 @@ export class DeleteAvatarUrlUserHandler implements ICommandHandler<DeleteAvatarU
   constructor(private readonly fileRepository: FileRepository) {}
 
   async execute(command: DeleteAvatarUrlUserCommand): Promise<ObjResult<void>> {
-
     // поиск avatar
     const avatar = await this.fileRepository.findAvatar({ userId: command.inputModel.userId });
 

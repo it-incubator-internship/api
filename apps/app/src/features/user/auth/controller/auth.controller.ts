@@ -128,7 +128,8 @@ export class AuthController {
   ): Promise<AccessTokenOutput> {
     const userAgent = req.headers['user-agent'] || 'unknown';
     const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || (req.socket.remoteAddress as string);
-
+    console.log('newIp', req.headers['X-Client-IP']);
+    console.log('headers', JSON.stringify(req.headers, null, 2));
     const result = await this.commandBus.execute(
       new LoginUserCommand({ ipAddress, userAgent, userId: userInfo.userId }),
     );
