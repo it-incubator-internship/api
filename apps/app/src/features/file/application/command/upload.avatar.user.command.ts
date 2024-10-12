@@ -4,7 +4,7 @@ import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { UserRepository } from '../../../user/user/repository/user.repository';
 import { EntityEnum } from '../../../../../../common/repository/base.repository';
 import { ProfileEntityNEW } from '../../../user/user/domain/account-data.entity';
-import { NotFoundError } from '../../../../../../common/utils/result/custom-error';
+import { BadRequestError, NotFoundError } from '../../../../../../common/utils/result/custom-error';
 import { $Enums } from '../../../../../prisma/client';
 import { EventsService } from '../../../rmq-provider/events-db/events.service';
 
@@ -37,6 +37,18 @@ export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUser
     // если profile не найден
     if (!profile) {
       return ObjResult.Err(new NotFoundError('profile not found'));
+    }
+
+    // если profile находится в статусе pending
+    if (profile.profileStatus === ProfileStatus.PENDING) {
+      return ObjResult.Err(
+        new BadRequestError('Image is in the process of loading', [
+          {
+            message: 'Image is in the process of loading',
+            field: '',
+          },
+        ]),
+      );
     }
 
     profile.profileStatus = ProfileStatus.PENDING;
