@@ -1,9 +1,8 @@
-import * as process from 'node:process';
-
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import sharp from 'sharp';
+import * as dotenv from 'dotenv';
 
 import { AppModule } from '../src/app.module';
 import { appSettings } from '../src/common/settings/apply-app-setting';
@@ -12,6 +11,8 @@ import { MailService } from '../src/providers/mailer/mail.service';
 import { FileController } from '../src/features/file/controller/file.controller';
 
 import { MailServiceMock } from './mock/email-service.mock';
+
+dotenv.config({ path: '.test.env' }); // Загружаем тестовую конфигурацию
 
 describe('Auth e2e', () => {
   let app: INestApplication;
