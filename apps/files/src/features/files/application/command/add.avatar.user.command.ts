@@ -10,6 +10,7 @@ import { FileUploadService } from '../file-upload.service';
 import { FileRepository } from '../../repository/file.repository';
 import { FileEntity, FileFormat, FileType } from '../../schema/files.schema';
 import { maxAvatarSize } from '../../../../../../common/constants/constants';
+import { FileUploadResultEntity } from '../../schema/files-upload-result.schema';
 
 type AddAvatarType = {
   eventId: string;
@@ -32,8 +33,17 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
   ) {}
 
   async execute(command: AddAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
-
     try {
+      // поиск уже имеющейся аватарки
+      const avatar = await this.fileRepository.findAvatar({ userId: command.inputModel.userId });
+
+      // если аватарка уже есть
+      if (avatar) {
+        avatar.delete();
+
+        await this.fileRepository.updateAvatar(avatar);
+      }
+
       const TEN_MB = maxAvatarSize; // 10 МБ;
 
       // Используем метод адаптера для конвертации изображения
@@ -53,12 +63,14 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
 
       // Если при создании потоков для сохранения изображений и сохранении изображений на S3 возникли ошибки
       if (!originalImageResult || !smallImageResult) {
-        return {
+        this.createFileUploadResult({
           success: false,
           smallUrl: null,
           originalUrl: null,
           eventId: command.inputModel.eventId,
-        };
+        });
+
+        return;
       }
 
       // Удаление локального файла после загрузки
@@ -82,13 +94,15 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
 
       await this.fileRepository.create(newFileEntity);
 
-      //TODO добавить тип
-      return {
+      this.createFileUploadResult({
         success: true,
         smallUrl: smallImageResult.url,
         originalUrl: originalImageResult.url,
         eventId: command.inputModel.eventId,
-      };
+      });
+
+      //TODO добавить тип
+      return;
     } catch (error) {
       // Удаление локального файла в случае ошибки
       console.error('Error upload files:', error);
@@ -130,5 +144,26 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
     }
 
     return [originalImageResult, smallImageResult];
+  }
+
+  private async createFileUploadResult({
+    success,
+    smallUrl,
+    originalUrl,
+    eventId,
+  }: {
+    success: boolean;
+    smallUrl: string | null;
+    originalUrl: string | null;
+    eventId: string;
+  }) {
+    const fileUploadResultEntity = FileUploadResultEntity.create({
+      success,
+      smallUrl,
+      originalUrl,
+      eventId,
+    });
+
+    await this.fileRepository.createFileUploadResult(fileUploadResultEntity);
   }
 }

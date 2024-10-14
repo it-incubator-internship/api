@@ -16,6 +16,8 @@ import { AddAvatarUserHandler } from './application/command/add.avatar.user.comm
 import { FileUploadController } from './controller/file-upload.controller';
 import { DeleteAvatarUrlUserHandler } from './application/command/delete.avatar.url.user.command';
 import { DeleteAvatarUserHandler } from './application/command/delete.avatar.user.command';
+import { FileUploadResultEntity, FileUploadResultSchema } from './schema/files-upload-result.schema';
+import { SendUploadResultHandler } from './application/command/send.upload.result.command';
 
 @Module({
   imports: [
@@ -42,6 +44,10 @@ import { DeleteAvatarUserHandler } from './application/command/delete.avatar.use
         name: FileEntity.name,
         schema: FileSchema,
       },
+      {
+        name: FileUploadResultEntity.name,
+        schema: FileUploadResultSchema,
+      },
     ]),
   ],
   controllers: [FileUploadController],
@@ -56,6 +62,7 @@ import { DeleteAvatarUserHandler } from './application/command/delete.avatar.use
     AddAvatarUserHandler,
     DeleteAvatarUrlUserHandler,
     DeleteAvatarUserHandler,
+    SendUploadResultHandler,
   ],
   exports: [ImageStorageAdapter, FileUploadService, FileRepository],
 })

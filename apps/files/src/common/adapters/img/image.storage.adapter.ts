@@ -54,6 +54,7 @@ export class ImageStorageAdapter {
   }
 
   async deleteAvatar({ url }: { url: string }) {
+
     const deleteCommand = new DeleteObjectCommand({
       Bucket: 'navaibe.1.0',
       Key: url,
