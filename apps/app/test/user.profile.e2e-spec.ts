@@ -1,8 +1,7 @@
-import * as process from 'node:process';
-
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import * as dotenv from 'dotenv';
 
 import { AppModule } from '../src/app.module';
 import { appSettings } from '../src/common/settings/apply-app-setting';
@@ -11,7 +10,7 @@ import { MailService } from '../src/providers/mailer/mail.service';
 
 import { MailServiceMock } from './mock/email-service.mock';
 
-jest.setTimeout(15000); // увеличение времени ожидания
+dotenv.config({ path: '.test.env' }); // Загружаем тестовую конфигурацию
 
 describe('User e2e', () => {
   let app: INestApplication;

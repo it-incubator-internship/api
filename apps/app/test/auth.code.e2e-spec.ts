@@ -1,8 +1,7 @@
-import * as process from 'node:process';
-
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import * as dotenv from 'dotenv';
 
 import { AppModule } from '../src/app.module';
 import { appSettings } from '../src/common/settings/apply-app-setting';
@@ -10,6 +9,8 @@ import { PrismaService } from '../src/common/database_module/prisma-connection.s
 import { MailService } from '../src/providers/mailer/mail.service';
 
 import { MailServiceMock } from './mock/email-service.mock';
+
+dotenv.config({ path: '.test.env' }); // Загружаем тестовую конфигурацию
 
 describe('Auth e2e', () => {
   let app: INestApplication;

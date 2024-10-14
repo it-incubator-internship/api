@@ -37,10 +37,15 @@ export class ImageStorageAdapter {
         ContentType: 'image/png',
       },
     });
+
     try {
-      const result = await upload.done();
+      await upload.done();
+
+      // Формируем публичную ссылку вручную
+      const publicUrl = `https://storage.yandexcloud.net/navaibe.1.0/${key}`;
+
       return {
-        url: result.Location,
+        url: publicUrl,
       };
     } catch (error) {
       console.error('Error uploading to S3:', error);
