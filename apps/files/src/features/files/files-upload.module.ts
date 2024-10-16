@@ -18,9 +18,9 @@ import { FileUploadController } from './controller/file-upload.controller';
 import { DeleteAvatarUrlUserHandler } from './application/command/delete.avatar.url.user.command';
 import { DeleteAvatarUserHandler } from './application/command/delete.avatar.user.command';
 // import { FileUploadResultEntity, FileUploadResultSchema } from './schema/files-upload-result.schema';
-import { SendUploadResultHandler } from './application/command/send.upload.result.command';
-import { FileUploadRepository } from './repository/file-upload-result.repository';
-import { EventsEntity, EventsSchema } from './schema/files-upload-result.schema';
+import { SendEventHandler } from './application/command/send.event.command';
+import { EventRepository } from './repository/event.repository';
+import { EventEntity, EventSchema } from './schema/files-upload-result.schema';
 
 @Module({
   imports: [
@@ -53,8 +53,8 @@ import { EventsEntity, EventsSchema } from './schema/files-upload-result.schema'
       //   schema: FileUploadResultSchema,
       // },
       {
-        name: EventsEntity.name,
-        schema: EventsSchema,
+        name: EventEntity.name,
+        schema: EventSchema,
       },
     ]),
   ],
@@ -67,12 +67,12 @@ import { EventsEntity, EventsSchema } from './schema/files-upload-result.schema'
     FileUploadService,
     ImageStorageAdapter,
     FileRepository,
-    FileUploadRepository,
+    EventRepository,
     AddAvatarUserHandler,
     DeleteAvatarUrlUserHandler,
     DeleteAvatarUserHandler,
-    SendUploadResultHandler,
+    SendEventHandler,
   ],
-  exports: [ImageStorageAdapter, FileUploadService, FileRepository, FileUploadRepository],
+  exports: [ImageStorageAdapter, FileUploadService, FileRepository, EventRepository],
 })
 export class FileUploadModule {}

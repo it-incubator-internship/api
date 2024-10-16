@@ -4,27 +4,28 @@ import { Interval } from '@nestjs/schedule';
 
 // import { FileRepository } from '../features/files/repository/file.repository';
 import { avatarShedulerInterval } from '../common/constants/constants';
-import { SendUploadResultCommand } from '../features/files/application/command/send.upload.result.command';
-import { FileUploadRepository } from '../features/files/repository/file-upload-result.repository';
+import { SendEventCommand } from '../features/files/application/command/send.event.command';
+import { EventRepository } from '../features/files/repository/event.repository';
 
 @Injectable()
-export class UploadSheduler {
+export class EventSheduler {
   constructor(
     // private readonly fileRepository: FileRepository,
-    private readonly fileUploadRepository: FileUploadRepository,
+    private readonly eventRepository: EventRepository,
     private readonly commandBus: CommandBus,
   ) {}
 
   @Interval(avatarShedulerInterval) // Интервал в миллисекундах
   async handleInterval() {
-    const uploadResults = await this.fileUploadRepository.findUploadResults();
+    const events = await this.eventRepository.findEvents();
+    console.log('events in event.sheduler:', events);
 
-    uploadResults.forEach((u) => {
+    events.forEach((e) => {
       try {
-        this.commandBus.execute(new SendUploadResultCommand(u));
+        this.commandBus.execute(new SendEventCommand(e));
       } catch {
         // TODO logger
-        console.error('error in upload sheduler');
+        console.error('error in event sheduler');
       }
     });
   }

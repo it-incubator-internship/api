@@ -5,10 +5,10 @@ import { Inject } from '@nestjs/common';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 // import { FileRepository } from '../../repository/file.repository';
 import { RMQ_CMD } from '../../../../../../common/constants/enums';
-import { FileUploadRepository } from '../../repository/file-upload-result.repository';
+import { EventRepository } from '../../repository/event.repository';
 import { EventType } from '../../schema/files-upload-result.schema';
 
-export type UploadResultType = {
+export type EventsType = {
   id: string;
   success: boolean;
   type: EventType;
@@ -19,29 +19,33 @@ export type UploadResultType = {
   eventId: string;
 };
 
-export class SendUploadResultCommand {
-  constructor(public inputModel: UploadResultType) {}
+export class SendEventCommand {
+  constructor(public inputModel: EventsType) {}
 }
 
-@CommandHandler(SendUploadResultCommand)
-export class SendUploadResultHandler implements ICommandHandler<SendUploadResultCommand> {
+@CommandHandler(SendEventCommand)
+export class SendEventHandler implements ICommandHandler<SendEventCommand> {
   constructor(
     // private readonly fileRepository: FileRepository,
-    private readonly fileUploadRepository: FileUploadRepository,
+    private readonly eventRepository: EventRepository,
     @Inject('MULTICAST_EXCHANGE') private readonly gatewayProxyClient: ClientProxy,
   ) {}
 
   async execute(command: any): Promise<ObjResult<void>> {
+    console.log('console.log in send.event.command');
+    console.log('command in send.event.command:', command);
+
     const result = {
       success: command.inputModel.success,
-      smallUrl: command.inputModel.smallUrl,
-      originalUrl: command.inputModel.originalUrl,
+      smallUrl: command.inputModel.payload.smallUrl,
+      originalUrl: command.inputModel.payload.originalUrl,
       eventId: command.inputModel.eventId,
     };
+    console.log('result in send.event.command:', result);
 
     this.gatewayProxyClient.emit({ cmd: RMQ_CMD.AVATAR_SAVED }, result);
 
-    await this.fileUploadRepository.deleteUploadResult({ id: command.inputModel.id });
+    await this.eventRepository.deleteEvent({ id: command.inputModel.id });
 
     return ObjResult.Ok();
   }

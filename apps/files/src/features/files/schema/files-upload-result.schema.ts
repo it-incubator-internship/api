@@ -1,4 +1,4 @@
-import { Prop, /* raw, */ Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, raw, /* raw, */ Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 export enum EventType {
@@ -11,10 +11,10 @@ type Payload = {
   originalUrl: string | null;
 };
 
-export type EventsDocument = HydratedDocument<EventsEntity>;
+export type EventDocument = HydratedDocument<EventEntity>;
 
 @Schema()
-export class EventsEntity {
+export class EventEntity {
   @Prop({
     type: Boolean,
     required: true,
@@ -28,14 +28,15 @@ export class EventsEntity {
   })
   type: EventType;
 
-  @Prop({
-    // raw({
-    //   smallUrl: { type: String, nullable: true },
-    //   originalUrl: { type: String, nullable: true },
-    // }),
-    type: Object,
-    required: true,
-  })
+  @Prop(
+    raw({
+      smallUrl: { type: String, nullable: true },
+      originalUrl: { type: String, nullable: true },
+    }),
+  )
+  // type: Object,
+  // required: true,
+  //})
   payload: Payload;
 
   // @Prop({
@@ -85,6 +86,6 @@ export class EventsEntity {
   }
 }
 
-export const EventsSchema = SchemaFactory.createForClass(EventsEntity);
+export const EventSchema = SchemaFactory.createForClass(EventEntity);
 
-EventsSchema.loadClass(EventsEntity);
+EventSchema.loadClass(EventEntity);

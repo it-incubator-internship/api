@@ -5,11 +5,10 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { FileUploadModule } from '../features/files/files-upload.module';
 
 import { AvatarSheduler } from './avatar-sheduler';
-import { UploadSheduler } from './upload-sheduler';
+import { EventSheduler } from './event-sheduler';
 
 @Module({
   imports: [ScheduleModule.forRoot(), CqrsModule.forRoot(), FileUploadModule],
-  providers: [AvatarSheduler, UploadSheduler],
-  
+  providers: [AvatarSheduler, EventSheduler],
 })
 export class AvatarShedulerModule {}
