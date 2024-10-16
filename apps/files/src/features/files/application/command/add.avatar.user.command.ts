@@ -10,7 +10,9 @@ import { FileUploadService } from '../file-upload.service';
 import { FileRepository } from '../../repository/file.repository';
 import { FileEntity, FileFormat, FileType } from '../../schema/files.schema';
 import { maxAvatarSize } from '../../../../../../common/constants/constants';
-import { FileUploadResultEntity } from '../../schema/files-upload-result.schema';
+// import { FileUploadResultEntity } from '../../schema/files-upload-result.schema';
+import { FileUploadRepository } from '../../repository/file-upload-result.repository';
+import { EventsEntity, EventType } from '../../schema/files-upload-result.schema';
 
 type AddAvatarType = {
   eventId: string;
@@ -30,19 +32,27 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
     @Inject(IMG_PROCESSING_ADAPTER) // Инжектируем интерфейс адаптера
     private readonly imgProcessingAdapter: ImgProcessingAdapter,
     private readonly fileRepository: FileRepository,
+    private readonly fileUploadRepository: FileUploadRepository,
   ) {}
 
   async execute(command: AddAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
     try {
       // поиск уже имеющейся аватарки
-      const avatar = await this.fileRepository.findAvatar({ userId: command.inputModel.userId });
+      /* const avatars = await this.fileRepository.findAvatar({ userId: command.inputModel.userId });
+      console.log('avatars in add avatar user command:', avatars); */
 
       // если аватарка уже есть
-      if (avatar) {
-        avatar.delete();
+      // if (avatar) {
+      //   avatar.delete();
 
-        await this.fileRepository.updateAvatar(avatar);
-      }
+      //   await this.fileRepository.updateAvatar(avatar);
+      // }
+      /* avatars.forEach(async (a) => {
+        a.delete();
+        await this.fileRepository.updateAvatar(a);
+      }); */
+
+      await this.checkExistAvatar({ userId: command.inputModel.userId });
 
       const TEN_MB = maxAvatarSize; // 10 МБ;
 
@@ -101,7 +111,6 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
         eventId: command.inputModel.eventId,
       });
 
-      //TODO добавить тип
       return;
     } catch (error) {
       // Удаление локального файла в случае ошибки
@@ -157,13 +166,31 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
     originalUrl: string | null;
     eventId: string;
   }) {
-    const fileUploadResultEntity = FileUploadResultEntity.create({
+    const fileUploadResultEntity = EventsEntity.create({
       success,
+      type: EventType.uploadAvatar,
       smallUrl,
       originalUrl,
       eventId,
     });
 
-    await this.fileRepository.createFileUploadResult(fileUploadResultEntity);
+    await this.fileUploadRepository.createFileUploadResult(fileUploadResultEntity);
+  }
+
+  private async checkExistAvatar({ userId }: { userId: string }) {
+    // поиск уже имеющейся аватарки
+    const avatars = await this.fileRepository.findAvatar({ userId });
+    console.log('avatars in add avatar user command:', avatars);
+
+    // если аватарка уже есть
+    // if (avatar) {
+    //   avatar.delete();
+
+    //   await this.fileRepository.updateAvatar(avatar);
+    // }
+    avatars.forEach(async (a: FileEntity) => {
+      a.delete();
+      await this.fileRepository.updateAvatar(a);
+    });
   }
 }

@@ -8,6 +8,7 @@ import { ImageStorageAdapter } from '../../common/adapters/img/image.storage.ada
 import { IMG_PROCESSING_ADAPTER } from '../../common/adapters/img/img-processing-adapter.interface';
 import { SharpImgProcessingAdapter } from '../../common/adapters/img/sharp-img-processing.adapter';
 import { ConfigurationType } from '../../common/settings/configuration';
+import { RmqModule } from '../rmq-provider/rmq.module';
 
 import { FileUploadService } from './application/file-upload.service';
 import { FileRepository } from './repository/file.repository';
@@ -16,11 +17,14 @@ import { AddAvatarUserHandler } from './application/command/add.avatar.user.comm
 import { FileUploadController } from './controller/file-upload.controller';
 import { DeleteAvatarUrlUserHandler } from './application/command/delete.avatar.url.user.command';
 import { DeleteAvatarUserHandler } from './application/command/delete.avatar.user.command';
-import { FileUploadResultEntity, FileUploadResultSchema } from './schema/files-upload-result.schema';
+// import { FileUploadResultEntity, FileUploadResultSchema } from './schema/files-upload-result.schema';
 import { SendUploadResultHandler } from './application/command/send.upload.result.command';
+import { FileUploadRepository } from './repository/file-upload-result.repository';
+import { EventsEntity, EventsSchema } from './schema/files-upload-result.schema';
 
 @Module({
   imports: [
+    RmqModule,
     CqrsModule,
     ConfigModule,
     ClientsModule.registerAsync([
@@ -44,9 +48,13 @@ import { SendUploadResultHandler } from './application/command/send.upload.resul
         name: FileEntity.name,
         schema: FileSchema,
       },
+      // {
+      //   name: FileUploadResultEntity.name,
+      //   schema: FileUploadResultSchema,
+      // },
       {
-        name: FileUploadResultEntity.name,
-        schema: FileUploadResultSchema,
+        name: EventsEntity.name,
+        schema: EventsSchema,
       },
     ]),
   ],
@@ -59,11 +67,12 @@ import { SendUploadResultHandler } from './application/command/send.upload.resul
     FileUploadService,
     ImageStorageAdapter,
     FileRepository,
+    FileUploadRepository,
     AddAvatarUserHandler,
     DeleteAvatarUrlUserHandler,
     DeleteAvatarUserHandler,
     SendUploadResultHandler,
   ],
-  exports: [ImageStorageAdapter, FileUploadService, FileRepository],
+  exports: [ImageStorageAdapter, FileUploadService, FileRepository, FileUploadRepository],
 })
 export class FileUploadModule {}

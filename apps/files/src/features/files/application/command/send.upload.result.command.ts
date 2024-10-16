@@ -1,17 +1,21 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ClientProxy } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
-import { Types } from 'mongoose';
 
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
-import { FileRepository } from '../../repository/file.repository';
+// import { FileRepository } from '../../repository/file.repository';
 import { RMQ_CMD } from '../../../../../../common/constants/enums';
+import { FileUploadRepository } from '../../repository/file-upload-result.repository';
+import { EventType } from '../../schema/files-upload-result.schema';
 
-type UploadResultType = {
-  _id: Types.ObjectId;
+export type UploadResultType = {
+  id: string;
   success: boolean;
-  smallUrl: string | null;
-  originalUrl: string | null;
+  type: EventType;
+  payload: {
+    smallUrl: string | null;
+    originalUrl: string | null;
+  };
   eventId: string;
 };
 
@@ -22,7 +26,8 @@ export class SendUploadResultCommand {
 @CommandHandler(SendUploadResultCommand)
 export class SendUploadResultHandler implements ICommandHandler<SendUploadResultCommand> {
   constructor(
-    private readonly fileRepository: FileRepository,
+    // private readonly fileRepository: FileRepository,
+    private readonly fileUploadRepository: FileUploadRepository,
     @Inject('MULTICAST_EXCHANGE') private readonly gatewayProxyClient: ClientProxy,
   ) {}
 
@@ -36,7 +41,7 @@ export class SendUploadResultHandler implements ICommandHandler<SendUploadResult
 
     this.gatewayProxyClient.emit({ cmd: RMQ_CMD.AVATAR_SAVED }, result);
 
-    await this.fileRepository.deleteUploadResult({ id: command.inputModel._id });
+    await this.fileUploadRepository.deleteUploadResult({ id: command.inputModel.id });
 
     return ObjResult.Ok();
   }

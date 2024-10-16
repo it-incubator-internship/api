@@ -10,5 +10,6 @@ import { UploadSheduler } from './upload-sheduler';
 @Module({
   imports: [ScheduleModule.forRoot(), CqrsModule.forRoot(), FileUploadModule],
   providers: [AvatarSheduler, UploadSheduler],
+  
 })
 export class AvatarShedulerModule {}

@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { /* mongoose, */ Model, Types } from 'mongoose';
 
 import { FileDocument, FileEntity, FileType } from '../schema/files.schema';
-import { FileUploadResultDocument, FileUploadResultEntity } from '../schema/files-upload-result.schema';
+// import { FileUploadResultDocument, FileUploadResultEntity } from '../schema/files-upload-result.schema';
+// import { UploadResultType } from '../application/command/send.upload.result.command';
 
 @Injectable()
 export class FileRepository {
   constructor(
     @InjectModel(FileEntity.name) private fileModel: Model<FileDocument>,
-    @InjectModel(FileUploadResultEntity.name) private fileUploadResultModel: Model<FileUploadResultDocument>,
+    // @InjectModel(FileUploadResultEntity.name) private fileUploadResultModel: Model<FileUploadResultDocument>,
   ) {}
 
   async create(file: FileEntity): Promise<FileEntity> {
@@ -18,16 +19,18 @@ export class FileRepository {
     return result;
   }
 
-  async createFileUploadResult(uploadResult: FileUploadResultEntity): Promise<FileUploadResultEntity> {
-    const result = await this.fileUploadResultModel.create(uploadResult);
-    await result.save();
-    return result;
-  }
+  // async createFileUploadResult(uploadResult: FileUploadResultEntity): Promise<FileUploadResultEntity> {
+  //   const result = await this.fileUploadResultModel.create(uploadResult);
+  //   await result.save();
+  //   return result;
+  // }
 
-  async findAvatar({ userId }: { userId: string }): Promise<FileEntity | null> {
-    const avatar = await this.fileModel.findOne({ userId, type: FileType.avatar }).exec();
+  async findAvatar({ userId }: { userId: string }): /* Promise<FileEntity | null> */ Promise<FileEntity[] | []> {
+    // const avatar = await this.fileModel.findOne({ userId, type: FileType.avatar }).exec();
+    const avatars = await this.fileModel.find({ userId, type: FileType.avatar }).exec();
+    console.log('avatars in file repository (findAvatar):', avatars);
 
-    return avatar;
+    return avatars;
   }
 
   async findDeletedAvatars() {
@@ -38,11 +41,18 @@ export class FileRepository {
     return avatars;
   }
 
-  async findUploadResults() {
-    const uploadResults = await this.fileUploadResultModel.find();
+  // async findUploadResults(): Promise<UploadResultType[] | []> {
+  //   const uploadResults = await this.fileUploadResultModel.find();
 
-    return uploadResults;
-  }
+  //   const transformedResults = uploadResults.map((u) => ({
+  //     ...u, // Копируем все остальные поля объекта
+  //     id: u._id.toString(), // Преобразуем _id в строку
+  //   }));
+  //   console.log('transformedResults in file repositiry:', transformedResults);
+
+  //   // return uploadResults;
+  //   return transformedResults;
+  // }
 
   async updateAvatar(avatar: FileEntity): Promise<void> {
     await this.fileModel.updateOne(
@@ -59,9 +69,14 @@ export class FileRepository {
     return;
   }
 
-  async deleteUploadResult({ id }: { id: Types.ObjectId }): Promise<void> {
-    await this.fileUploadResultModel.deleteOne({ _id: id });
+  // async deleteUploadResult({ id }: { id: /* Types.ObjectId */ string }): Promise<void> {
+  //   try {
+  //     await this.fileUploadResultModel.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
+  //   } catch {
+  //     console.error('error in file repository (deleteUploadResult)');
+  //   }
+  //   // await this.fileUploadResultModel.deleteOne({ _id });
 
-    return;
-  }
+  //   return;
+  // }
 }

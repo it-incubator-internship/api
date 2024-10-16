@@ -1,10 +1,20 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, /* raw, */ Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type FileUploadResultDocument = HydratedDocument<FileUploadResultEntity>;
+export enum EventType {
+  uploadAvatar = 'UploadAvatar',
+  uploadPost = 'UploadPost',
+}
+
+type Payload = {
+  smallUrl: string | null;
+  originalUrl: string | null;
+};
+
+export type EventsDocument = HydratedDocument<EventsEntity>;
 
 @Schema()
-export class FileUploadResultEntity {
+export class EventsEntity {
   @Prop({
     type: Boolean,
     required: true,
@@ -13,15 +23,32 @@ export class FileUploadResultEntity {
 
   @Prop({
     type: String,
-    nullable: true,
+    enum: Object.values(EventType),
+    required: true,
   })
-  smallUrl: string | null;
+  type: EventType;
 
   @Prop({
-    type: String,
-    nullable: true,
+    // raw({
+    //   smallUrl: { type: String, nullable: true },
+    //   originalUrl: { type: String, nullable: true },
+    // }),
+    type: Object,
+    required: true,
   })
-  originalUrl: string | null;
+  payload: Payload;
+
+  // @Prop({
+  //   type: String,
+  //   nullable: true,
+  // })
+  // smallUrl: string | null;
+
+  // @Prop({
+  //   type: String,
+  //   nullable: true,
+  // })
+  // originalUrl: string | null;
 
   @Prop({
     type: String,
@@ -31,26 +58,33 @@ export class FileUploadResultEntity {
 
   static create({
     success,
+    type,
     smallUrl,
     originalUrl,
     eventId,
   }: {
     success: boolean;
+    type: EventType;
     smallUrl: string | null;
     originalUrl: string | null;
     eventId: string;
   }) {
-    const fileUploadResult = new this();
+    const event = new this();
 
-    fileUploadResult.success = success;
-    fileUploadResult.smallUrl = smallUrl;
-    fileUploadResult.originalUrl = originalUrl;
-    fileUploadResult.eventId = eventId;
+    event.success = success;
+    event.type = type;
+    // event.smallUrl = smallUrl;
+    // event.originalUrl = originalUrl;
+    event.payload = {
+      smallUrl,
+      originalUrl,
+    };
+    event.eventId = eventId;
 
-    return fileUploadResult;
+    return event;
   }
 }
 
-export const FileUploadResultSchema = SchemaFactory.createForClass(FileUploadResultEntity);
+export const EventsSchema = SchemaFactory.createForClass(EventsEntity);
 
-FileUploadResultSchema.loadClass(FileUploadResultEntity);
+EventsSchema.loadClass(EventsEntity);
