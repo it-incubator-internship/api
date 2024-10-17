@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -92,7 +91,6 @@ const adapters = [JwtAdapter];
     MailModule,
     PrismaModule,
     LocalizationModule,
-    CqrsModule,
     JwtModule.register({}),
     ThrottlerModule.forRoot([
       {
