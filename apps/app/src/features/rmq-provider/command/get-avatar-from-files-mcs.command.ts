@@ -16,13 +16,7 @@ export class GetAvatarsFromFileMcsHandler implements ICommandHandler<GetAvatarsF
   constructor(public eventsService: EventsService) {}
 
   async execute(command: GetAvatarsFromFileMcsCommand) {
-    console.log('console.log in get.avatar.from.files.mcs.command (execute)');
-    console.log('command in get.avatar.from.files.mcs.command (execute):', command);
     const { status, eventId, originalUrl, smallUrl } = command.data;
-    console.log('status in get.avatar.from.files.mcs.command (execute):', status);
-    console.log('eventId in get.avatar.from.files.mcs.command (execute):', eventId);
-    console.log('originalUrl in get.avatar.from.files.mcs.command (execute):', originalUrl);
-    console.log('smallUrl in get.avatar.from.files.mcs.command (execute):', smallUrl);
 
     const data = {
       eventId: eventId,
@@ -34,7 +28,7 @@ export class GetAvatarsFromFileMcsHandler implements ICommandHandler<GetAvatarsF
         smallUrl,
       },
     };
-    console.log('data in get.avatar.from.files.mcs.command (execute):', data);
+
     await this.eventsService.updateEvent(data);
   }
 }

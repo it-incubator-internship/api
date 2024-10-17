@@ -11,8 +11,6 @@ export class EventsService {
   }
 
   async updateEvent(data: UpdateEventData) {
-    console.log('console.log in events.service (updateEvent)');
-    console.log('data in events.service (updateEvent):', data);
     await this.eventsRepository.updateEvent(data);
   }
 

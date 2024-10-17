@@ -15,20 +15,13 @@ export class DeleteAvatarUrlUserHandler implements ICommandHandler<DeleteAvatarU
 
   async execute(command: DeleteAvatarUrlUserCommand): Promise<ObjResult<void>> {
     // поиск avatar
-    // const avatar = await this.fileRepository.findAvatar({ userId: command.inputModel.userId });
     const avatars = await this.fileRepository.findAvatar({ userId: command.inputModel.userId });
 
     // если avatar не найден
-    // if (!avatar) {
-    //   return ObjResult.Err(new NotFoundError('avatar not found'));
-    // }
     if (avatars.length === 0) {
       return ObjResult.Err(new NotFoundError('avatar not found'));
     }
 
-    // avatar.delete();
-
-    // await this.fileRepository.updateAvatar(avatar);
     avatars.forEach(async (a: FileEntity) => {
       a.delete();
       await this.fileRepository.updateAvatar(a);

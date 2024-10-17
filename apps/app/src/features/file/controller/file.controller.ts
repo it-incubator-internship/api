@@ -1,5 +1,4 @@
-// import * as https from 'https';
-import * as http from 'http';
+import * as https from 'https';
 
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
@@ -85,7 +84,7 @@ export class FileController {
 
     return new Promise((resolve, reject) => {
       // Используем https.request вместо http.request
-      const forwardRequest = http.request(options, (forwardResponse) => {
+      const forwardRequest = https.request(options, (forwardResponse) => {
         let responseData = '';
 
         forwardResponse.on('data', (chunk) => {

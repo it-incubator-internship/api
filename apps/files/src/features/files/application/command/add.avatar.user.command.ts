@@ -10,9 +10,8 @@ import { FileUploadService } from '../file-upload.service';
 import { FileRepository } from '../../repository/file.repository';
 import { FileEntity, FileFormat, FileType } from '../../schema/files.schema';
 import { maxAvatarSize } from '../../../../../../common/constants/constants';
-// import { FileUploadResultEntity } from '../../schema/files-upload-result.schema';
 import { EventRepository } from '../../repository/event.repository';
-import { EventEntity, EventType } from '../../schema/files-upload-result.schema';
+import { EventEntity, EventType } from '../../schema/events.schema';
 
 type AddAvatarType = {
   eventId: string;
@@ -36,52 +35,28 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
   ) {}
 
   async execute(command: AddAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
-    console.log('console.log in add.avatar.user.command (execute)');
-    console.log('command in add.avatar.user.command (execute):', command);
-
     try {
-      // поиск уже имеющейся аватарки
-      /* const avatars = await this.fileRepository.findAvatar({ userId: command.inputModel.userId });
-      console.log('avatars in add avatar user command:', avatars); */
-
-      // если аватарка уже есть
-      // if (avatar) {
-      //   avatar.delete();
-
-      //   await this.fileRepository.updateAvatar(avatar);
-      // }
-      /* avatars.forEach(async (a) => {
-        a.delete();
-        await this.fileRepository.updateAvatar(a);
-      }); */
-
       await this.checkExistAvatar({ userId: command.inputModel.userId });
 
       const TEN_MB = maxAvatarSize; // 10 МБ;
-      console.log('TEN_MB in add avatar user command (execute):', TEN_MB);
 
       // Используем метод адаптера для конвертации изображения
       const originalWebpFilePath = await this.imgProcessingAdapter.convertToPng(
         command.inputModel.fileData /* .filePath */,
         TEN_MB,
       );
-      console.log('originalWebpFilePath in add avatar user command (execute):', originalWebpFilePath);
 
       // Используем метод адаптера для изменения размера изображения
       const smallWebpFilePath = await this.imgProcessingAdapter.resizeAvatar(command.inputModel.fileData);
-      console.log('smallWebpFilePath in add avatar user command (execute):', smallWebpFilePath);
 
       // Создаем потоки для сохранения изображений и сохраняем изображения на S3
       const [originalImageResult, smallImageResult] = await this.createFilesStreams({
         originalWebpFilePath,
         smallWebpFilePath,
       });
-      console.log('originalImageResult in add avatar user command (execute):', originalImageResult);
-      console.log('smallImageResult in add avatar user command (execute):', smallImageResult);
 
       // Если при создании потоков для сохранения изображений и сохранении изображений на S3 возникли ошибки
       if (!originalImageResult || !smallImageResult) {
-        console.log('!originalImageResult || !smallImageResult in add avatar user command (execute)');
         this.createEvent({
           success: false,
           smallUrl: null,
@@ -110,10 +85,8 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
           small: smallImageResult.url,
         },
       });
-      console.log('newFileEntity in add avatar user command (execute):', newFileEntity);
 
       const result = await this.fileRepository.create(newFileEntity);
-      console.log('result in add avatar user command (execute):', result);
 
       this.createEvent({
         success: true,
@@ -132,10 +105,6 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
   }
 
   private async createFilesStreams({ originalWebpFilePath, smallWebpFilePath }) {
-    console.log('console.log in add avatar user command (createFilesStreams)');
-    console.log('originalWebpFilePath in add avatar user command (createFilesStreams):', originalWebpFilePath);
-    console.log('smallWebpFilePath in add avatar user command (createFilesStreams):', smallWebpFilePath);
-
     let attempts = 0;
     let originalImageResult: any;
     let smallImageResult: any;
@@ -153,8 +122,6 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
           this.s3StorageAdapter.saveImageFromStream(originalFileStream),
           this.s3StorageAdapter.saveImageFromStream(smallFileStream),
         ]);
-        console.log('originalImageResult in add avatar user command (createFilesStreams):', originalImageResult);
-        console.log('smallImageResult in add avatar user command (createFilesStreams):', smallImageResult);
 
         // если выполнение успешно, происходит выход из цикла
         break;
@@ -183,39 +150,21 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
     originalUrl: string | null;
     eventId: string;
   }) {
-    console.log('console.log in add avatar user command (createEvent)');
-    console.log('success in add avatar user command (createEvent):', success);
-    console.log('smallUrl in add avatar user command (createEvent):', smallUrl);
-    console.log('originalUrl in add avatar user command (createEvent):', originalUrl);
-    console.log('eventId in add avatar user command (createEvent):', eventId);
-
-    const eventEntity = EventEntity.create({
+    const eventEntity = EventEntity.createAvatarUploadEvent({
       success,
       type: EventType.uploadAvatar,
       smallUrl,
       originalUrl,
       eventId,
     });
-    console.log('eventEntity in add avatar user command (createEvent):', eventEntity);
 
-    const result = await this.eventRepository.create(eventEntity);
-    console.log('result in add avatar user command (createEvent):', result);
+    await this.eventRepository.create(eventEntity);
   }
 
   private async checkExistAvatar({ userId }: { userId: string }) {
-    console.log('console.log in add.avatar.user.command (checkExistAvatar)');
-    console.log('userId in add.avatar.user.command (checkExistAvatar):', userId);
-
     // поиск уже имеющейся аватарки
     const avatars = await this.fileRepository.findAvatar({ userId });
-    console.log('avatars in add avatar user command (checkExistAvatar):', avatars);
 
-    // если аватарка уже есть
-    // if (avatar) {
-    //   avatar.delete();
-
-    //   await this.fileRepository.updateAvatar(avatar);
-    // }
     avatars.forEach(async (a: FileEntity) => {
       a.delete();
       await this.fileRepository.updateAvatar(a);

@@ -1,4 +1,4 @@
-import { Prop, raw, /* raw, */ Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 export enum EventType {
@@ -13,7 +13,7 @@ type Payload = {
 
 export type EventDocument = HydratedDocument<EventEntity>;
 
-@Schema()
+@Schema({ timestamps: { createdAt: 'createdAt' } })
 export class EventEntity {
   @Prop({
     type: Boolean,
@@ -34,22 +34,7 @@ export class EventEntity {
       originalUrl: { type: String, nullable: true },
     }),
   )
-  // type: Object,
-  // required: true,
-  //})
   payload: Payload;
-
-  // @Prop({
-  //   type: String,
-  //   nullable: true,
-  // })
-  // smallUrl: string | null;
-
-  // @Prop({
-  //   type: String,
-  //   nullable: true,
-  // })
-  // originalUrl: string | null;
 
   @Prop({
     type: String,
@@ -57,7 +42,10 @@ export class EventEntity {
   })
   eventId: string;
 
-  static create({
+  @Prop({ type: Date })
+  createdAt: Date;
+
+  static createAvatarUploadEvent({
     success,
     type,
     smallUrl,
@@ -74,8 +62,6 @@ export class EventEntity {
 
     event.success = success;
     event.type = type;
-    // event.smallUrl = smallUrl;
-    // event.originalUrl = originalUrl;
     event.payload = {
       smallUrl,
       originalUrl,

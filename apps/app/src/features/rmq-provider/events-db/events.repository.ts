@@ -35,8 +35,6 @@ export class EventsRepository {
   }
 
   async updateEvent(data: UpdateEventData) {
-    console.log('console.log in events.repository (updateEvent)');
-    console.log('data in events.repository (updateEvent):', data);
     await this.prisma.events.update({
       where: {
         id: data.eventId,

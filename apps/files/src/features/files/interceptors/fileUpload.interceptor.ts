@@ -8,7 +8,6 @@ import busboy from 'busboy';
 @Injectable()
 export class FileUploadInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    console.log('console.log in file.upload.interceptor');
 
     const req = context.switchToHttp().getRequest();
     const res = context.switchToHttp().getResponse();
