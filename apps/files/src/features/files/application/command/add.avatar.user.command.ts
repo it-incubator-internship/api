@@ -10,6 +10,8 @@ import { FileUploadService } from '../file-upload.service';
 import { FileRepository } from '../../repository/file.repository';
 import { FileEntity, FileFormat, FileType } from '../../schema/files.schema';
 import { maxAvatarSize } from '../../../../../../common/constants/constants';
+import { EventRepository } from '../../repository/event.repository';
+import { EventEntity, EventType } from '../../schema/events.schema';
 
 type AddAvatarType = {
   eventId: string;
@@ -29,11 +31,13 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
     @Inject(IMG_PROCESSING_ADAPTER) // Инжектируем интерфейс адаптера
     private readonly imgProcessingAdapter: ImgProcessingAdapter,
     private readonly fileRepository: FileRepository,
+    private readonly eventRepository: EventRepository,
   ) {}
 
   async execute(command: AddAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
-
     try {
+      await this.checkExistAvatar({ userId: command.inputModel.userId });
+
       const TEN_MB = maxAvatarSize; // 10 МБ;
 
       // Используем метод адаптера для конвертации изображения
@@ -53,12 +57,14 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
 
       // Если при создании потоков для сохранения изображений и сохранении изображений на S3 возникли ошибки
       if (!originalImageResult || !smallImageResult) {
-        return {
+        this.createEvent({
           success: false,
           smallUrl: null,
           originalUrl: null,
           eventId: command.inputModel.eventId,
-        };
+        });
+
+        return;
       }
 
       // Удаление локального файла после загрузки
@@ -80,15 +86,16 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
         },
       });
 
-      await this.fileRepository.create(newFileEntity);
+      const result = await this.fileRepository.create(newFileEntity);
 
-      //TODO добавить тип
-      return {
+      this.createEvent({
         success: true,
         smallUrl: smallImageResult.url,
         originalUrl: originalImageResult.url,
         eventId: command.inputModel.eventId,
-      };
+      });
+
+      return;
     } catch (error) {
       // Удаление локального файла в случае ошибки
       console.error('Error upload files:', error);
@@ -130,5 +137,37 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
     }
 
     return [originalImageResult, smallImageResult];
+  }
+
+  private async createEvent({
+    success,
+    smallUrl,
+    originalUrl,
+    eventId,
+  }: {
+    success: boolean;
+    smallUrl: string | null;
+    originalUrl: string | null;
+    eventId: string;
+  }) {
+    const eventEntity = EventEntity.createAvatarUploadEvent({
+      success,
+      type: EventType.uploadAvatar,
+      smallUrl,
+      originalUrl,
+      eventId,
+    });
+
+    await this.eventRepository.create(eventEntity);
+  }
+
+  private async checkExistAvatar({ userId }: { userId: string }) {
+    // поиск уже имеющейся аватарки
+    const avatars = await this.fileRepository.findAvatar({ userId });
+
+    avatars.forEach(async (a: FileEntity) => {
+      a.delete();
+      await this.fileRepository.updateAvatar(a);
+    });
   }
 }

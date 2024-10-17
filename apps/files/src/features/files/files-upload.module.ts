@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { ImageStorageAdapter } from '../../common/adapters/img/image.storage.adapter';
 import { IMG_PROCESSING_ADAPTER } from '../../common/adapters/img/img-processing-adapter.interface';
 import { SharpImgProcessingAdapter } from '../../common/adapters/img/sharp-img-processing.adapter';
-import { ConfigurationType } from '../../common/settings/configuration';
+import { RmqModule } from '../rmq-provider/rmq.module';
+import { BrokerModule } from '../broker/broker.module';
 
 import { FileUploadService } from './application/file-upload.service';
 import { FileRepository } from './repository/file.repository';
@@ -16,31 +16,24 @@ import { AddAvatarUserHandler } from './application/command/add.avatar.user.comm
 import { FileUploadController } from './controller/file-upload.controller';
 import { DeleteAvatarUrlUserHandler } from './application/command/delete.avatar.url.user.command';
 import { DeleteAvatarUserHandler } from './application/command/delete.avatar.user.command';
+import { SendEventHandler } from './application/command/send.event.command';
+import { EventRepository } from './repository/event.repository';
+import { EventEntity, EventSchema } from './schema/events.schema';
 
 @Module({
   imports: [
+    RmqModule,
     CqrsModule,
     ConfigModule,
-    ClientsModule.registerAsync([
-      {
-        name: 'MULTICAST_EXCHANGE',
-        useFactory: (configService: ConfigService<ConfigurationType, true>) => ({
-          transport: Transport.RMQ,
-          options: {
-            urls: [configService.get('apiSettings.RMQ_HOST', { infer: true }) as string],
-            queue: 'multicast_queue',
-            queueOptions: {
-              durable: true,
-            },
-          },
-        }),
-        inject: [ConfigService],
-      },
-    ]),
+    BrokerModule,
     MongooseModule.forFeature([
       {
         name: FileEntity.name,
         schema: FileSchema,
+      },
+      {
+        name: EventEntity.name,
+        schema: EventSchema,
       },
     ]),
   ],
@@ -53,10 +46,12 @@ import { DeleteAvatarUserHandler } from './application/command/delete.avatar.use
     FileUploadService,
     ImageStorageAdapter,
     FileRepository,
+    EventRepository,
     AddAvatarUserHandler,
     DeleteAvatarUrlUserHandler,
     DeleteAvatarUserHandler,
+    SendEventHandler,
   ],
-  exports: [ImageStorageAdapter, FileUploadService, FileRepository],
+  exports: [ImageStorageAdapter, FileUploadService, FileRepository, EventRepository],
 })
 export class FileUploadModule {}

@@ -14,10 +14,10 @@ export class FileRepository {
     return result;
   }
 
-  async findAvatar({ userId }: { userId: string }): Promise<FileEntity | null> {
-    const avatar = await this.fileModel.findOne({ userId, type: FileType.avatar }).exec();
+  async findAvatar({ userId }: { userId: string }): Promise<FileEntity[] | []> {
+    const avatars = await this.fileModel.find({ userId, type: FileType.avatar }).exec();
 
-    return avatar;
+    return avatars;
   }
 
   async findDeletedAvatars() {

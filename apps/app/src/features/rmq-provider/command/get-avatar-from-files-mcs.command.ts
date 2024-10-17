@@ -28,6 +28,7 @@ export class GetAvatarsFromFileMcsHandler implements ICommandHandler<GetAvatarsF
         smallUrl,
       },
     };
+
     await this.eventsService.updateEvent(data);
   }
 }
