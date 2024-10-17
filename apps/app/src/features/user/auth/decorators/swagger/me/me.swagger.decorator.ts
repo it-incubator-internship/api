@@ -1,5 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiSecurity, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 
 import { AuthMeOutput } from '../../../dto/output/information.output.dto';
 
@@ -11,6 +11,6 @@ export function MeSwagger() {
       status: 401,
       description: 'В случае отправки некорректного или просроченного accessToken.',
     }),
-    ApiSecurity('accessToken'),
+    ApiBearerAuth(),
   );
 }

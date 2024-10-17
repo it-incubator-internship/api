@@ -11,6 +11,8 @@ import { PrismaModule } from '../../src/common/database_module/prisma.module';
 import { UserRepository } from '../../src/features/user/user/repository/user.repository';
 import { SessionRepository } from '../../src/features/user/auth/repository/session.repository';
 import { PrismaService } from '../../src/common/database_module/prisma-connection.service';
+import { CleaningModule } from '../../src/features/cleaning/cleaning.module';
+import { CleaningService } from '../../src/features/cleaning/cleaning.service';
 
 dotenv.config({ path: '.test.env' }); // Загружаем тестовую конфигурацию
 
@@ -20,32 +22,29 @@ const mockUser = {
   email: 'vlad@mail.ru',
 };
 
+//TODO пофиксить тесты
 describe('GithubOauthHandler (Integration)', () => {
   let handler: GithubOauthHandler;
   let prismaService: PrismaService;
-  let userRepository: UserRepository;
-  let sessionRepository: SessionRepository;
+  let cleaningService: CleaningService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [PrismaModule],
+      imports: [PrismaModule, CleaningModule],
       providers: [GithubOauthHandler, UserRepository, SessionRepository],
     }).compile();
 
     handler = module.get<GithubOauthHandler>(GithubOauthHandler);
-    userRepository = module.get<UserRepository>(UserRepository);
-    sessionRepository = module.get<SessionRepository>(SessionRepository);
     prismaService = module.get<PrismaService>(PrismaService); // Получаем PrismaService для прямого доступа к базе данных
+    cleaningService = module.get<CleaningService>(CleaningService);
   });
 
   beforeEach(async () => {
-    await sessionRepository.deleteAllSessions();
-    await userRepository.deleteAllUsers();
+    await cleaningService.cleanDB();
   });
 
   afterEach(async () => {
-    await sessionRepository.deleteAllSessions();
-    await userRepository.deleteAllUsers();
+    await cleaningService.cleanDB();
   });
 
   afterAll(async () => {

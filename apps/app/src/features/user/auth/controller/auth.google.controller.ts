@@ -1,4 +1,3 @@
-// import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { Controller, Get, Ip, Req, Res, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
@@ -45,8 +44,13 @@ export class AuthGoogleController {
 
     if (!result.isSuccess) throw result.error;
 
-    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
+    // Установка refreshToken куки
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true, sameSite: 'none' });
 
-    return { accessToken: result.value.accessToken };
+    // Формирование URL для редиректа
+    const redirectUrl = `https://navaibe.ru/authentication?accessToken=${result.value.accessToken}`;
+
+    // Редирект на фронт с accessToken
+    return res.redirect(redirectUrl);
   }
 }

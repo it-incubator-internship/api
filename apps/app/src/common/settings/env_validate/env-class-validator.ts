@@ -6,7 +6,7 @@ export enum Environments {
   STAGING = 'STAGING',
   PRODUCTION = 'PRODUCTION',
   LOCAL = 'LOCAL',
-  TEST = 'TEST',
+  TEST = 'test',
 }
 
 export class EnvironmentVariables {
@@ -47,6 +47,20 @@ export class EnvironmentVariables {
 
   @IsString()
   JWT_LIFE_TIME_RECOVERY_CODE: string;
+
+  @IsString()
+  RECAPTCHA_SECRET: string;
+
+  @IsString()
+  FILE_MICROSERVICE_HOSTNAME: string;
+
+  @IsNumber()
+  @Min(0)
+  @Max(65535)
+  FILE_MICROSERVICE_PORT: number;
+
+  @IsString()
+  RMQ_HOST: string;
 }
 
 export function validate(config: Record<string, unknown>) {

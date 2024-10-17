@@ -1,52 +1,32 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../../common/database_module/prisma-connection.service';
-import { UserSession } from '../../user/domain/session.fabric';
+import { Prisma } from '../../../../../prisma/client';
+import { BaseRepository } from '../../../../../../common/repository/base.repository';
+import { EntityHandler } from '../../../../../../common/repository/entity.handler';
 
 @Injectable()
-export class SessionRepository {
-  constructor(private readonly prismaService: PrismaService) {}
-
-  async createSession(session: Omit<UserSession, 'id'>) {
-    return this.prismaService.session.create({
-      data: {
-        profileId: session.profileId,
-        deviceUuid: session.deviceUuid,
-        deviceName: session.deviceName,
-        ip: session.ip,
-        lastActiveDate: session.lastActiveDate,
-      },
-    });
+export class SessionRepository extends BaseRepository {
+  constructor(prismaService: PrismaService, entityHandler: EntityHandler) {
+    super(prismaService, entityHandler);
   }
 
-  async updateLastActiveDataInSession(session: UserSession) {
-    return this.prismaService.session.update({
-      where: {
-        id: session.id,
-      },
-      data: {
-        lastActiveDate: session.lastActiveDate,
-      },
-    });
-  }
-
-  async findSessionByDeviceUuid({ deviceUuid }: { deviceUuid: string }): Promise<UserSession | null> {
-    const session = await this.prismaService.session.findFirst({
-      where: {
-        deviceUuid: deviceUuid,
-      },
-    });
-
-    if (!session) {
-      return null;
-    }
-
-    return UserSession.convert(session);
+  async createSession(session: Prisma.SessionCreateInput) {
+    return this.prismaService.session.create({ data: session });
   }
 
   async deleteSession({ id }: { id: string }) {
     await this.prismaService.session.delete({
       where: { id },
+    });
+  }
+
+  async deleteOtherSessions({ deviceUuid, profileId }: { deviceUuid: string; profileId: string }) {
+    await this.prismaService.session.deleteMany({
+      where: {
+        deviceUuid: { not: deviceUuid },
+        profileId: profileId,
+      },
     });
   }
 

@@ -10,6 +10,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
     apiSettings: {
       PORT: Number.parseInt(environmentVariables.PORT || '6666'),
       API_PREFIX: 'api/v1',
+      RMQ_HOST: environmentVariables.RMQ_HOST,
     },
 
     jwtSetting: {
@@ -17,6 +18,7 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       refreshTokenSecret: environmentVariables.JWT_SECRET_REFRESH as string,
       confirmationCodeSecret: environmentVariables.JWT_SECRET_CONFIRMATION_CODE as string,
       recoveryCodeSecret: environmentVariables.JWT_SECRET_RECOVERY_CODE as string,
+      codeForEmailSecret: environmentVariables.JWT_SECRET_CODE_FOR_EMAIL as string,
       accessTokenLifeTime: environmentVariables.JWT_LIFE_TIME_ACCESS as string,
       refreshTokenLifeTime: environmentVariables.JWT_LIFE_TIME_REFRESH as string,
       confirmationCodeLifeTime: environmentVariables.JWT_LIFE_TIME_CONFIRMATION_CODE as string,
@@ -49,6 +51,17 @@ const getConfig = (environmentVariables: EnvironmentVariable, currentEnvironment
       callbackURL: environmentVariables.GITHUB_CALLBACK_URL,
     },
 
+    recaptchaSettings: {
+      recaptchaSecret: environmentVariables.RECAPTCHA_SECRET,
+      recaptchaURL: 'https://www.google.com/recaptcha/api/siteverify',
+    },
+
+    fileMicroservice: {
+      hostname: environmentVariables.FILE_MICROSERVICE_HOSTNAME,
+      port: environmentVariables.FILE_MICROSERVICE_PORT,
+      avatarPath: '/upload/avatar/',
+    },
+
     getAllVariables: {
       ...environmentVariables,
     },
@@ -67,24 +80,27 @@ export const getAllEnvironmentVariables = (allowedVariables: string[]): Environm
   allowedVariables.reduce((acc, key) => ({ ...acc, [key]: getEnvironmentVariable(key) }), {});
 
 export const configuration = () => {
-  console.log('Configuration function called. NODE_ENV:', process.env.NODE_ENV);
   console.log('PORT from process.env:', process.env.PORT);
 
   const allowedVariables = [
     'NODE_ENV',
     'PORT',
+    //DATABASE
     'DATABASE_APP_URL',
+    'SHADOW_DATABASE_URL',
+    //JWT
     'JWT_SECRET_ACCESS',
     'JWT_SECRET_REFRESH',
     'JWT_SECRET_CONFIRMATION_CODE',
     'JWT_SECRET_RECOVERY_CODE',
-    'GMAIL_USER',
-    'GMAIL_PASS',
-    'SHADOW_DATABASE_URL',
+    'JWT_SECRET_CODE_FOR_EMAIL',
     'JWT_LIFE_TIME_ACCESS',
     'JWT_LIFE_TIME_REFRESH',
     'JWT_LIFE_TIME_CONFIRMATION_CODE',
     'JWT_LIFE_TIME_RECOVERY_CODE',
+    //MAIL
+    'GMAIL_USER',
+    'GMAIL_PASS',
     //OAUTH
     'GITHUB_CLIENT_ID',
     'GITHUB_CLIENT_SECRET',
@@ -92,14 +108,20 @@ export const configuration = () => {
     'GOOGLE_CLIENT_ID',
     'GOOGLE_CLIENT_SECRET',
     'GOOGLE_CALLBACK_URL',
+    //RECAPTCHA
+    'RECAPTCHA_SECRET',
+    //FILE_MICROSERVICE
+    'FILE_MICROSERVICE_HOSTNAME',
+    'FILE_MICROSERVICE_PORT',
+    'RMQ_HOST',
   ];
 
   //Эти значения выводятся в сваггере
   const environmentVariables = getAllEnvironmentVariables(allowedVariables); //; process.env
 
   const currentEnvironment: Environments = environmentVariables.NODE_ENV as Environments;
-  //Валидация переменных с помощью class validator
 
+  //Валидация переменных с помощью class validator
   validate(environmentVariables);
 
   return getConfig(environmentVariables, currentEnvironment);

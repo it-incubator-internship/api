@@ -8,7 +8,6 @@ export class SendNewPasswordRecoveryEmailWhenUserAskIt implements IEventHandler<
   constructor(private readonly mailService: MailService) {}
 
   handle(event: UserNewPasswordRegCodeEvent): any {
-    console.log('сработало');
     this.mailService.sendPasswordRecovery({
       email: event.email,
       login: event.login,

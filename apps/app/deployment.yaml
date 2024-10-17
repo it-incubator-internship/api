@@ -117,6 +117,31 @@ spec:
                  secretKeyRef:
                    name: app-4-try-production-config-secret
                    key: GITHUB_CALLBACK_URL
+             - name: RECAPTCHA_SECRET
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: RECAPTCHA_SECRET
+             - name: JWT_SECRET_CODE_FOR_EMAIL
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: JWT_SECRET_CODE_FOR_EMAIL
+             - name: FILE_MICROSERVICE_HOSTNAME
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: FILE_MICROSERVICE_HOSTNAME
+             - name: FILE_MICROSERVICE_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: FILE_MICROSERVICE_PORT
+             - name: RMQ_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: app-4-try-production-config-secret
+                   key: RMQ_HOST
              - name: DATABASE_APP_URL
                valueFrom:
                  secretKeyRef:

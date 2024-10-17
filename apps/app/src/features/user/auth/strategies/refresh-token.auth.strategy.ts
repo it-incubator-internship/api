@@ -5,8 +5,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 
 import { SessionRepository } from '../repository/session.repository';
-import { secondToMillisecond } from '../../../../common/constants/constants';
+import { secondToMillisecond } from '../../../../../../common/constants/constants';
 import { ConfigurationType } from '../../../../common/settings/configuration';
+import { EntityEnum } from '../../../../../../common/repository/base.repository';
 
 @Injectable()
 export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh-token') {
@@ -29,7 +30,10 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh-tok
   }
 
   async validate(payload: any) {
-    const session = await this.sessionRepository.findSessionByDeviceUuid({ deviceUuid: payload.deviceUuid });
+    const session = await this.sessionRepository.findUniqueOne({
+      modelName: EntityEnum.session,
+      conditions: { deviceUuid: payload.deviceUuid },
+    });
 
     if (!session) {
       return null;
