@@ -86,7 +86,7 @@ export class AddAvatarUserHandler implements ICommandHandler<AddAvatarUserComman
         },
       });
 
-      const result = await this.fileRepository.create(newFileEntity);
+      await this.fileRepository.create(newFileEntity);
 
       this.createEvent({
         success: true,

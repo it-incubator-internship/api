@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { CqrsModule } from '@nestjs/cqrs';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppController } from './app.controller';
 import { UserModule } from './features/user/user.module';
@@ -22,6 +24,8 @@ const environment = process.env.NODE_ENV as Environments;
       load: [configuration],
     }),
     UserModule,
+    CqrsModule.forRoot(),
+    ScheduleModule.forRoot(),
     RmqModule,
     CleaningModule,
     EventShedulerModule,

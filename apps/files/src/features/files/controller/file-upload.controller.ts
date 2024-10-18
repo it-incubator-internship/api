@@ -34,7 +34,6 @@ export class FileUploadController {
   }
 
   private async processUploadedFile(eventId: string, filePath: string, userId: string) {
-
     try {
       await this.commandBus.execute<NonNullable<unknown>, AvatarSavedEvent>(
         new AddAvatarUserCommand({ eventId, fileData: filePath, userId: userId }),

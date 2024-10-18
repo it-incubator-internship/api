@@ -27,6 +27,7 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
   ) {}
   async execute(command: LoginUserCommand): Promise<ObjResult<{ accessToken: string; refreshToken: string }>> {
     const deviceUuid = randomUUID();
+    console.log('WTFFFFFFFF');
 
     const user = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.accountData,

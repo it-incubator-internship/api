@@ -27,7 +27,7 @@ export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUser
     private readonly eventsService: EventsService,
   ) {}
 
-  async execute(command: UploadAvatarUserCommand) /* : Promise<ObjResult<void>> */ {
+  async execute(command: UploadAvatarUserCommand) {
     // поиск profile по id
     const profile: ProfileEntityNEW = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.profile,

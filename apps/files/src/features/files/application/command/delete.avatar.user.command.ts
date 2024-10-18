@@ -1,12 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Types } from 'mongoose';
 
 import { ImageStorageAdapter } from '../../../../../../files/src/common/adapters/img/image.storage.adapter';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { FileRepository } from '../../repository/file.repository';
 
 type DeleteAvatarType = {
-  id: Types.ObjectId;
+  id: string;
   smallAvatarUrl: string;
   originalAvatarUrl: string;
 };
