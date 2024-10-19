@@ -1,4 +1,4 @@
-import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
 export enum EventType {
@@ -28,12 +28,9 @@ export class EventEntity {
   })
   type: EventType;
 
-  @Prop(
-    raw({
-      smallUrl: { type: String, nullable: true },
-      originalUrl: { type: String, nullable: true },
-    }),
-  )
+  @Prop({
+    type: Object,
+  })
   payload: Payload;
 
   @Prop({

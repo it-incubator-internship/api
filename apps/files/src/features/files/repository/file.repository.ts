@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 
 import { FileDocument, FileEntity, FileType } from '../schema/files.schema';
 
@@ -14,7 +14,7 @@ export class FileRepository {
     return result;
   }
 
-  async findAvatar({ userId }: { userId: string }): Promise<FileEntity[] | []> {
+  async findAvatar({ userId }: { userId: string }): Promise<FileEntity[]> {
     const avatars = await this.fileModel.find({ userId, type: FileType.avatar }).exec();
 
     return avatars;
@@ -25,7 +25,22 @@ export class FileRepository {
       deletedAt: { $ne: null }, // значение не равно null
     });
 
-    return avatars;
+    const transformedResults = avatars.map((a) => ({
+      id: a._id.toString(), // Преобразуем _id в строку
+      url: {
+        small: a.url.small,
+        original: a.url.original,
+      },
+      description: a.description,
+      userId: a.userId,
+      format: a.format,
+      type: a.type,
+      createdAt: a.createdAt,
+      updatedAt: a.updatedAt,
+      deletedAt: a.deletedAt,
+    }));
+
+    return transformedResults;
   }
 
   async updateAvatar(avatar: FileEntity): Promise<void> {
@@ -37,8 +52,12 @@ export class FileRepository {
     return;
   }
 
-  async deleteAvatar({ id }: { id: Types.ObjectId }): Promise<void> {
-    await this.fileModel.deleteOne({ _id: id });
+  async deleteAvatar({ id }: { id: string }): Promise<void> {
+    try {
+      await this.fileModel.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
+    } catch {
+      console.error('error in file repository (deleteAvatar)');
+    }
 
     return;
   }

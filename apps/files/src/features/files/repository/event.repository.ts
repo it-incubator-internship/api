@@ -35,7 +35,7 @@ export class EventRepository {
     try {
       await this.eventModel.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
     } catch {
-      console.error('error in file repository (deleteUploadResult)');
+      console.error('error in event repository (deleteEvent)');
     }
 
     return;
