@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags } from '@nestjs/swagger';
-import { Body, Controller, Get, Ip, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, NotFoundException, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { RegistrationUserInputModel } from '../dto/input/registration.user.dto';
 import { CodeInputModel } from '../dto/input/confirmation-code.user.dto';
@@ -34,6 +35,11 @@ import { AuthMeOutput } from '../dto/output/information.output.dto';
 import { AccessTokenOutput } from '../dto/output/login.output.dto';
 import { ObjResult } from '../../../../../../common/utils/result/object-result';
 import { MeSwagger } from '../decorators/swagger/me/me.swagger.decorator';
+import { PasswordRecoveryInputModel } from '../dto/input/password-recovery.user.dto';
+import { RecaptchaAuthGuard } from '../guards/recaptcha.auth.guard';
+import { PasswordRecoveryResendingSwagger } from '../decorators/swagger/password-recovery-resend/password-recovery-resending.swagger.decorator';
+import { CodeValidationCommand } from '../application/command/code-validation.user.command';
+import { CodeValidationSwagger } from '../decorators/swagger/code-validattion/code-validation.swagger.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -43,6 +49,7 @@ export class AuthController {
     private userRepository: UserQueryRepository,
   ) {}
 
+  @UseGuards(ThrottlerGuard)
   @Post('registration')
   @UserRegitsrationSwagger()
   async registration(@Body() inputModel: RegistrationUserInputModel): Promise<UserRegistrationOutputDto> {
@@ -53,6 +60,7 @@ export class AuthController {
     return { email: inputModel.email };
   }
 
+  @UseGuards(ThrottlerGuard)
   @Post('registration-email-resending')
   @RegistrationEmailResendingSwagger()
   async registrationEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
@@ -63,6 +71,14 @@ export class AuthController {
     return { email: inputModel.email };
   }
 
+  @Post('code-validation')
+  @CodeValidationSwagger()
+  async codeValidation(@Body() inputModel: CodeInputModel) {
+    const result = await this.commandBus.execute(new CodeValidationCommand(inputModel));
+
+    if (!result.isSuccess) throw result.error;
+  }
+
   @Post('registration-confirmation')
   @RegistrationConfirmationSwagger()
   async registrationConfirmation(@Body() inputModel: CodeInputModel) {
@@ -71,9 +87,22 @@ export class AuthController {
     if (!result.isSuccess) throw result.error;
   }
 
+  @UseGuards(ThrottlerGuard)
+  @UseGuards(RecaptchaAuthGuard)
   @Post('password-recovery')
   @PasswordRecoverySwagger()
-  async passwordRecovery(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
+  async passwordRecovery(@Body() inputModel: PasswordRecoveryInputModel): Promise<UserRegistrationOutputDto> {
+    const result = await this.commandBus.execute(new PasswordRecoveryCommand(inputModel));
+
+    if (!result.isSuccess) throw result.error;
+
+    return { email: inputModel.email };
+  }
+
+  @UseGuards(ThrottlerGuard)
+  @Post('password-recovery-email-resending')
+  @PasswordRecoveryResendingSwagger()
+  async passwordRecoveryEmailResending(@Body() inputModel: EmailInputModel): Promise<UserRegistrationOutputDto> {
     const result = await this.commandBus.execute(new PasswordRecoveryCommand(inputModel));
 
     if (!result.isSuccess) throw result.error;
@@ -93,20 +122,20 @@ export class AuthController {
   @Post('login')
   @LoginSwagger()
   async login(
-    @Ip() ipAddress: string,
     @UserIdFromRequest() userInfo: { userId: string },
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AccessTokenOutput> {
-    const userAgent = req.headers['user-agent'] || 'unknown';
-
+    const userAgent: string = req.headers['user-agent'] || 'unknown';
+    const ipAddress: string = (req.headers['x-client-ip'] as string) || ('unknown' as string);
+    console.log('newIp', req.headers['x-client-ip']);
     const result = await this.commandBus.execute(
       new LoginUserCommand({ ipAddress, userAgent, userId: userInfo.userId }),
     );
 
     if (!result.isSuccess) throw result.error;
     //TODO указать в куки куда она должна приходить
-    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true, sameSite: 'none' });
 
     return { accessToken: result.value.accessToken };
   }
@@ -124,7 +153,7 @@ export class AuthController {
 
     if (!result.isSuccess) throw result.error;
 
-    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true });
+    res.cookie('refreshToken', result.value.refreshToken, { httpOnly: true, secure: true, sameSite: 'none' });
 
     return { accessToken: result.value.accessToken };
   }

@@ -4,12 +4,15 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { SessionRepository } from '../../repository/session.repository';
-import { secondToMillisecond } from '../../../../../common/constants/constants';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
-import { UserSession } from '../../../user/domain/session.fabric';
 import { UserRepository } from '../../../user/repository/user.repository';
-import { UserConfirmationStatusEnum } from '../../../user/domain/accoun-data.fabric';
 import { ForbiddenError } from '../../../../../../../common/utils/result/custom-error';
+import { $Enums } from '../../../../../../prisma/client';
+import { SessionEntityNEW } from '../../../user/domain/account-data.entity';
+import { EntityEnum } from '../../../../../../../common/repository/base.repository';
+import { secondToMillisecond } from '../../../../../../../common/constants/constants';
+
+import ConfirmationStatus = $Enums.ConfirmationStatus;
 
 export class LoginUserCommand {
   constructor(public inputModel: { ipAddress: string; userAgent: string; userId: string }) {}
@@ -24,10 +27,14 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
   ) {}
   async execute(command: LoginUserCommand): Promise<ObjResult<{ accessToken: string; refreshToken: string }>> {
     const deviceUuid = randomUUID();
+    console.log('WTFFFFFFFF');
 
-    const user = await this.userRepository.findAccountDataById({ id: command.inputModel.userId });
+    const user = await this.userRepository.findUniqueOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: command.inputModel.userId },
+    });
 
-    if (user!.confirmationStatus === UserConfirmationStatusEnum.NOT_CONFIRM) {
+    if (user!.confirmationStatus === ConfirmationStatus.NOT_CONFIRM) {
       return ObjResult.Err(new ForbiddenError(`User with this email doesn't exist`));
     }
 
@@ -39,12 +46,12 @@ export class LoginUserHandler implements ICommandHandler<LoginUserCommand> {
 
     const lastActiveDate = new Date(payload.iat * secondToMillisecond).toISOString();
 
-    const session = UserSession.create({
+    const session = SessionEntityNEW.createForDatabase({
       profileId: command.inputModel.userId,
       deviceUuid,
       deviceName: command.inputModel.userAgent,
       ip: command.inputModel.ipAddress,
-      lastActiveDate,
+      lastActiveDate: new Date(lastActiveDate),
     });
 
     await this.sessionRepository.createSession(session);

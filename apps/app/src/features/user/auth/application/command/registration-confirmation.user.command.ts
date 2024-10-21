@@ -4,8 +4,15 @@ import { CodeInputModel } from '../../dto/input/confirmation-code.user.dto';
 import { UserRepository } from '../../../user/repository/user.repository';
 import { JwtAdapter } from '../../../../../providers/jwt/jwt.adapter';
 import { ObjResult } from '../../../../../../../common/utils/result/object-result';
-import { BadRequestError } from '../../../../../../../common/utils/result/custom-error';
-import { UserConfirmationStatusEnum } from '../../../user/domain/accoun-data.fabric';
+import {
+  BadRequestError,
+  ForbiddenError,
+  UnauthorizedError,
+} from '../../../../../../../common/utils/result/custom-error';
+import { $Enums } from '../../../../../../prisma/client';
+import { EntityEnum } from '../../../../../../../common/repository/base.repository';
+
+import ConfirmationStatus = $Enums.ConfirmationStatus;
 
 export class RegistrationConfirmationCommand {
   constructor(public inputModel: CodeInputModel) {}
@@ -26,29 +33,36 @@ export class RegistrationConfirmationHandler implements ICommandHandler<Registra
     if (verificationError) return verificationError;
 
     // Поиск данных аккаунта пользователя
-    const userAccountData = await this.userRepository.findAccountDataByConfirmationCode({ confirmationCode: code });
+    const userAccountData = await this.userRepository.findFirstOne({
+      modelName: EntityEnum.accountData,
+      conditions: { confirmationCode: code },
+    });
 
     if (!userAccountData) {
       return this.createError('UserAccountData not found', 'UserAccountData not found', 'code');
     }
 
-    if (userAccountData.confirmationStatus === UserConfirmationStatusEnum.CONFIRM) {
+    if (userAccountData.confirmationStatus === ConfirmationStatus.CONFIRM) {
       return this.createError('Email has already been confirmed', 'Email has already been confirmed', 'code');
     }
 
     // Подтверждение регистрации и обновление данных аккаунта
     userAccountData.confirmationRegistration();
-    await this.userRepository.updateAccountData(userAccountData);
+    await this.userRepository.updateOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: userAccountData.profileId },
+      data: userAccountData,
+    });
 
     return ObjResult.Ok();
   }
 
   private async verifyConfirmationCode(code: string) {
-    try {
-      await this.jwtAdapter.verifyConfirmationCode({ confirmationCode: code });
-    } catch (error) {
-      return this.createError('Invalid confirmation code', 'The provided confirmation code is invalid', 'code');
-    }
+    const result = await this.jwtAdapter.verifyConfirmationCode({ confirmationCode: code });
+    const payload = await this.jwtAdapter.decodeToken({ token: code });
+
+    if (!result && payload?.email) return ObjResult.Err(new ForbiddenError(payload.email));
+    if (!result) return ObjResult.Err(new UnauthorizedError(`The code ${code} is incorrect`));
   }
 
   private createError(title: string, message: string, field: string) {

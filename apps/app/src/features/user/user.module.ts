@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { CqrsModule } from '@nestjs/cqrs';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 import { JwtAdapter } from '../../providers/jwt/jwt.adapter';
 import { MailModule } from '../../providers/mailer/mail.module';
 import { PrismaModule } from '../../common/database_module/prisma.module';
+import { EntityHandler } from '../../../../common/repository/entity.handler';
+import { LocalizationModule } from '../localization/localization.module';
+import { RmqModule } from '../rmq-provider/rmq.module';
 
 import { UserRepository } from './user/repository/user.repository';
 import { SessionRepository } from './auth/repository/session.repository';
@@ -18,7 +21,7 @@ import { SetNewPasswordHandler } from './auth/application/command/set-new-passwo
 import { LoginUserHandler } from './auth/application/command/login.user.command';
 import { RefreshTokenHandler } from './auth/application/command/refresh-token.command';
 import { LogoutUserHandler } from './auth/application/command/logout.user.command';
-import { DeletionSessionsHandler } from './auth/application/command/deletion-sessions.command';
+import { DeletionSessionsHandler } from './auth/application/command/session/deletion-sessions.command';
 import { SendConfirmEmailWhenUserRegisteredEventHandler } from './auth/application/events-handlers/send-confirm-email-when-user-registered.event.handler';
 import { LocalStrategy } from './auth/strategies/local.auth.strategy';
 import { RefreshStrategy } from './auth/strategies/refresh-token.auth.strategy';
@@ -34,13 +37,27 @@ import { GithubOauthHandler } from './auth/application/command/oauth/github-oaut
 import { UserQueryRepository } from './user/repository/user.query.repository';
 import { JwtAuthStrategy } from './auth/strategies/jwt.auth.strategy';
 import { SendEmailAfterOauthRegistrationEventHandler } from './auth/application/events-handlers/oauth/send-email-afret-oauth-registration.event.handler';
+import { RecaptchaAuthGuard } from './auth/guards/recaptcha.auth.guard';
+import { SendNewPasswordRecoveryEmailWhenUserAskIt } from './auth/application/events-handlers/send-password-change-code-when-user-ask-it.event.handler';
+import { SendNewConfirmEmailWhenUserAskItEventHandler } from './auth/application/events-handlers/send-new-confirm-email-when-user-ask-it.event.handler';
+import { SessionQueryRepository } from './auth/repository/session.query.repository';
+import { SessionController } from './auth/controller/session.controller';
+import { TerminateSessionByIdHandler } from './auth/application/command/session/terminate-session-by-id.command';
+import { UserController } from './user/controller/user.controller';
+import { UpdateProfileUserCommandHandler } from './user/application/command/update.profile.user.command';
+import { ProfileOwnerGuard } from './user/guards/profile.owner.guard';
+import { CodeValidationHandler } from './auth/application/command/code-validation.user.command';
+// import { ClientsModule, Transport } from '@nestjs/microservices';
 
-const userRepositories = [UserRepository, SessionRepository, UserQueryRepository];
+const userRepositories = [UserRepository, UserQueryRepository];
+const sessionRepositories = [SessionRepository, SessionQueryRepository];
 const userService = [OauthService];
 const userCommands = [
   RegistrationUserHandler,
   RegistrationEmailResendingHandler,
   RegistrationConfirmationHandler,
+  SendNewConfirmEmailWhenUserAskItEventHandler,
+  SendNewPasswordRecoveryEmailWhenUserAskIt,
   PasswordRecoveryHandler,
   SetNewPasswordHandler,
   LoginUserHandler,
@@ -50,14 +67,50 @@ const userCommands = [
   GoogleAuthHandler,
   GithubOauthHandler,
   RegistrationUserByGoogleHandler,
+  UpdateProfileUserCommandHandler,
+  CodeValidationHandler,
 ];
+const sessionCommands = [TerminateSessionByIdHandler];
 const events = [SendConfirmEmailWhenUserRegisteredEventHandler, SendEmailAfterOauthRegistrationEventHandler];
-const strategies = [LocalStrategy, RefreshStrategy, GoogleAuthStrategy, GithubOauthStrategy, JwtAuthStrategy];
+const strategies = [
+  LocalStrategy,
+  RefreshStrategy,
+  GoogleAuthStrategy,
+  GithubOauthStrategy,
+  JwtAuthStrategy,
+  RecaptchaAuthGuard,
+  ProfileOwnerGuard,
+];
 const adapters = [JwtAdapter];
 
 @Module({
-  imports: [HttpModule, EventEmitterModule.forRoot(), MailModule, PrismaModule, CqrsModule, JwtModule.register({})],
-  controllers: [AuthController, AuthGoogleController, GithubOauthController],
-  providers: [...userRepositories, ...userService, ...userCommands, ...strategies, ...events, ...adapters],
+  imports: [
+    RmqModule,
+    HttpModule,
+    EventEmitterModule.forRoot(),
+    MailModule,
+    PrismaModule,
+    LocalizationModule,
+    JwtModule.register({}),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 10000, // время
+        limit: 5, // количество попыток
+      },
+    ]),
+  ],
+  controllers: [AuthController, AuthGoogleController, GithubOauthController, SessionController, UserController],
+  providers: [
+    ...userRepositories,
+    ...sessionRepositories,
+    ...sessionCommands,
+    ...userService,
+    ...userCommands,
+    ...strategies,
+    ...events,
+    ...adapters,
+    EntityHandler,
+  ],
+  exports: [UserRepository],
 })
 export class UserModule {}

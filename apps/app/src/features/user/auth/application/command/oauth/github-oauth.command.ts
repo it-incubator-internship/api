@@ -3,13 +3,16 @@ import { randomBytes, randomUUID } from 'crypto';
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { hashSync } from 'bcryptjs';
 
+import { EntityEnum } from '../../../../../../../../common/repository/base.repository';
 import { GithubData } from '../../../controller/passport/github/github-oauth.strategy';
 import { UserRepository } from '../../../../user/repository/user.repository';
-import { UserEntity } from '../../../../user/domain/user.fabric';
-import { UserAccountData, UserConfirmationStatusEnum } from '../../../../user/domain/accoun-data.fabric';
 import { generatePassword } from '../../../../../../../../common/utils/password-generator';
 import { ObjResult } from '../../../../../../../../common/utils/result/object-result';
 import { UserOauthRegisreationEvent } from '../../events/user-oauth-regisreation.event';
+import { AccountDataEntityNEW, UserEntityNEW } from '../../../../user/domain/account-data.entity';
+import { $Enums } from '../../../../../../../prisma/client';
+
+import ConfirmationStatus = $Enums.ConfirmationStatus;
 
 export class GithubOauthCommand {
   constructor(public data: GithubData) {}
@@ -41,35 +44,56 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   }
 
   private async addProviderToUser({ userId, providerId }) {
-    await this.userRepository.addAccountDataGitHubProvider({ userId, providerId });
+    // await this.userRepository.addAccountDataGitHubProvider({ userId, providerId });
+    await this.userRepository.updateOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: userId },
+      data: { githubId: providerId },
+    });
+
+    await this.userRepository.updateOne({
+      modelName: EntityEnum.accountData,
+      conditions: { profileId: userId },
+      data: { githubId: providerId },
+    });
   }
 
   private async createNewUser({ id, displayName, email }): Promise<{ userId: string }> {
     const password = generatePassword();
     const userName = await this.generateUserName(displayName);
 
-    const accountData = UserAccountData.create({ confirmationCode: randomUUID() });
-    accountData.confirmationStatus = UserConfirmationStatusEnum.CONFIRM;
-    accountData.githubId = id;
-
-    const newUser = UserEntity.create({
+    const newUser = UserEntityNEW.createForDatabase({
       name: userName,
       email: email ?? '',
       passwordHash: hashSync(password, 10),
     });
-    newUser.accountData = accountData as UserAccountData;
+
+    const userFromDb = await this.userRepository.createUser(newUser);
+
+    const accountData = AccountDataEntityNEW.createForDatabase({
+      profileId: userFromDb.id,
+      confirmationCode: randomUUID(),
+      confirmationStatus: ConfirmationStatus.CONFIRM,
+      recoveryCode: null,
+      githubId: id,
+      googleId: null,
+    });
+
+    await this.userRepository.createAccountData(accountData);
 
     if (newUser.email.length > 2) {
       const event = new UserOauthRegisreationEvent(newUser.name, newUser.email, 'github');
       this.eventBus.publish(event);
     }
 
-    const createdUser = await this.userRepository.createUser(newUser);
-    return { userId: createdUser.id };
+    return { userId: userFromDb.id };
   }
 
   private async generateUserName(userName: string): Promise<string> {
-    const existingUser = await this.userRepository.findUserByUserName({ userName });
+    const existingUser = await this.userRepository.findUniqueOne({
+      modelName: EntityEnum.user,
+      conditions: { name: userName },
+    });
 
     if (existingUser) {
       const randomSuffix = randomBytes(3).toString('hex');
@@ -80,7 +104,10 @@ export class GithubOauthHandler implements ICommandHandler<GithubOauthCommand> {
   }
 
   private async checkExistUser({ email }: { email: string }) {
-    const user = await this.userRepository.findUserByEmail({ email });
+    const user = await this.userRepository.findFirstOne({
+      modelName: EntityEnum.user,
+      conditions: { email: email.toLowerCase() },
+    });
     return user ? { userId: user.id } : null;
   }
 }

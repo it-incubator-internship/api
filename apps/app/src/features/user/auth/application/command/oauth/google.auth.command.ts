@@ -2,10 +2,10 @@ import { randomBytes, randomUUID } from 'crypto';
 
 import { CommandBus, CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
-// import { LoginUserCommand } from './login.user.command';
 import { ObjResult } from '../../../../../../../../common/utils/result/object-result';
 import { UserRepository } from '../../../../user/repository/user.repository';
 import { RegistrationUserByGoogleCommand } from '../registration-by-google.user.command';
+import { EntityEnum } from '../../../../../../../../common/repository/base.repository';
 
 export class GoogleAuthCommand {
   constructor(
@@ -24,8 +24,9 @@ export class GoogleAuthHandler implements ICommandHandler<GoogleAuthCommand> {
   ) {}
   async execute(command: GoogleAuthCommand): Promise<any> {
     // поиск user по googleId
-    const accountDataByGoogleId = await this.userRepository.findAccountDataByGoogleId({
-      googleId: command.inputModel.googleId,
+    const accountDataByGoogleId = await this.userRepository.findUniqueOne({
+      modelName: EntityEnum.accountData,
+      conditions: { googleId: command.inputModel.googleId },
     });
 
     // если user по googleId найден
@@ -58,15 +59,25 @@ export class GoogleAuthHandler implements ICommandHandler<GoogleAuthCommand> {
     // если user по googleId не найден, но приходит email
     if (command.inputModel.email) {
       // поиск user по email
-      const userByEmail = await this.userRepository.findUserByEmail({ email: command.inputModel.email });
+      const userByEmail = await this.userRepository.findFirstOne({
+        modelName: EntityEnum.user,
+        conditions: { email: command.inputModel.email },
+      });
 
       // если user по email найден
       if (userByEmail) {
-        const accountData = await this.userRepository.findAccountDataById({ id: userByEmail.id });
+        const accountData = await this.userRepository.findUniqueOne({
+          modelName: EntityEnum.accountData,
+          conditions: { profileId: userByEmail.id },
+        });
 
         accountData!.addGoogleId({ googleId: command.inputModel.googleId });
 
-        await this.userRepository.updateAccountData(accountData!);
+        await this.userRepository.updateOne({
+          modelName: EntityEnum.accountData,
+          conditions: { profileId: accountData.profileId },
+          data: accountData,
+        });
 
         return ObjResult.Ok({ userId: accountData!.profileId });
       }
@@ -81,7 +92,10 @@ export class GoogleAuthHandler implements ICommandHandler<GoogleAuthCommand> {
           userName = email.slice(0, index);
         }
 
-        const userByUserName = await this.userRepository.findUserByUserName({ userName });
+        const userByUserName = await this.userRepository.findUniqueOne({
+          modelName: EntityEnum.user,
+          conditions: { name: userName },
+        });
 
         if (userByUserName) {
           const random = randomBytes(3).toString('hex');

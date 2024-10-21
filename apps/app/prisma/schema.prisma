@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider      = "prisma-client-js"
   output        = "../prisma/client"
@@ -39,6 +33,7 @@ model User {
   banStatus    BanStatus    @default(NOT_BANNED)
   banDate      DateTime?
   accountData  AccountData?
+  profile      Profile?
 
   sessions Session[]
 
@@ -57,6 +52,50 @@ model Session {
   @@map("session")
 }
 
+model Profile {
+  profileId         String        @id @unique @db.Uuid
+  firstName         String
+  lastName          String
+  dateOfBirth       DateTime?
+  country           String?
+  city              String?
+  aboutMe           String?
+  originalAvatarUrl String?
+  smallAvatarUrl    String?
+  profileStatus     ProfileStatus @default(READY)
+  user              User          @relation(fields: [profileId], references: [id])
+
+  @@map("profile")
+}
+
+model Events {
+  id             String      @id @default(uuid()) @db.Uuid
+  parentId       String      @db.Uuid
+  entity         Entity
+  eventStatus    EventStatus @default(PENDING)
+  proccesingDate DateTime    @default(now())
+  data           Json?
+
+  @@map("events")
+}
+
+model cities {
+  city_id    Int     @id(map: "pk_city_cid")
+  country_id Int
+  title_ru   String? @db.VarChar(150)
+
+  @@index([country_id])
+  @@map("_cities")
+}
+
+model countries {
+  country_id Int     @id(map: "pk_country_cid")
+  title_ru   String? @db.VarChar(60)
+  title_en   String? @db.VarChar(60)
+
+  @@map("_countries")
+}
+
 enum ConfirmationStatus {
   CONFIRM
   NOT_CONFIRM
@@ -65,4 +104,21 @@ enum ConfirmationStatus {
 enum BanStatus {
   BANNED
   NOT_BANNED
+}
+
+enum ProfileStatus {
+  READY
+  PENDING
+  REJECT
+}
+
+enum EventStatus {
+  READY
+  PENDING
+  REJECT
+}
+
+enum Entity {
+  GALLERY
+  PROFILE
 }
