@@ -4,11 +4,13 @@ import { PrismaService } from '../../../common/database_module/prisma-connection
 import { $Enums } from '../../../../prisma/client';
 
 import Entity = $Enums.Entity;
+import EventType = $Enums.EventType;
 import EventStatus = $Enums.EventStatus;
 
 export class EventData {
   parentId: string;
   entity: Entity;
+  eventType: EventType;
   eventStatus: EventStatus;
   data?: NonNullable<unknown>;
 }
@@ -29,6 +31,7 @@ export class EventsRepository {
       data: {
         parentId: data.parentId,
         entity: data.entity,
+        eventType: data.eventType,
         eventStatus: data.eventStatus,
       },
     });

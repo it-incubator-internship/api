@@ -10,6 +10,7 @@ import { EventsService } from '../../../rmq-provider/events-db/events.service';
 
 import ProfileStatus = $Enums.ProfileStatus;
 import Entity = $Enums.Entity;
+import EventType = $Enums.EventType;
 import EventStatus = $Enums.EventStatus;
 
 type AddAvatarType = {
@@ -63,6 +64,7 @@ export class UploadAvatarUserHandler implements ICommandHandler<UploadAvatarUser
       parentId: profile.profileId,
       entity: Entity.PROFILE,
       eventStatus: EventStatus.PENDING,
+      eventType: EventType.CREATE,
     });
 
     return ObjResult.Ok({ eventId: result.id });
