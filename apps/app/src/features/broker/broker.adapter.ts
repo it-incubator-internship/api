@@ -7,6 +7,7 @@ import { RMQ_CMD } from '../../../../common/constants/enums';
 export class BrokerAdapter {
   constructor(@Inject('MULTICAST_EXCHANGE') private readonly gatewayProxyClient: ClientProxy) {}
 
+  // в этом методе parentId === userId
   async sendDeleteAvatarEvent({ parentId }: { parentId: string }) {
     this.gatewayProxyClient.emit({ cmd: RMQ_CMD.AVATAR_DELETED }, parentId);
   }
