@@ -6,11 +6,13 @@ import { EntityEnum } from '../../../../common/repository/base.repository';
 import { ProfileEntityNEW } from '../../features/user/user/domain/account-data.entity';
 
 import Entity = $Enums.Entity;
+import EventType = $Enums.EventType;
 
 export type Data = {
   parentId: string;
   entity: Entity;
   eventStatus: $Enums.EventStatus;
+  eventType: $Enums.EventType;
   proccesingDate: Date;
   data: { originalUrl: string; smallUrl: string } | null;
 };
@@ -24,9 +26,9 @@ export class HandleEventForProfileAvatarHandler implements ICommandHandler<Handl
   constructor(public userRepository: UserRepository) {}
 
   async execute(command: HandleEventForProfileAvatarCommand) {
-    const { parentId, entity, eventStatus, proccesingDate, data } = command.data;
+    const { parentId, entity, eventStatus, eventType, proccesingDate, data } = command.data;
 
-    if (entity !== Entity.PROFILE) throw new Error('wrong entity in event');
+    if (entity !== Entity.PROFILE && eventType !== EventType.CREATE) throw new Error('wrong entity in event');
 
     const profile: ProfileEntityNEW = await this.userRepository.findUniqueOne({
       modelName: EntityEnum.profile,

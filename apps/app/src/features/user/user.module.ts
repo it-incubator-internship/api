@@ -47,7 +47,6 @@ import { UserController } from './user/controller/user.controller';
 import { UpdateProfileUserCommandHandler } from './user/application/command/update.profile.user.command';
 import { ProfileOwnerGuard } from './user/guards/profile.owner.guard';
 import { CodeValidationHandler } from './auth/application/command/code-validation.user.command';
-// import { ClientsModule, Transport } from '@nestjs/microservices';
 
 const userRepositories = [UserRepository, UserQueryRepository];
 const sessionRepositories = [SessionRepository, SessionQueryRepository];

@@ -2,10 +2,9 @@ import * as https from 'https';
 
 import { Request, Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { Controller, Delete, HttpCode, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Delete, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CommandBus } from '@nestjs/cqrs';
-import { ClientProxy } from '@nestjs/microservices';
 
 import { JwtAuthGuard } from '../../user/auth/guards/jwt.auth.guard';
 import { UserIdFromRequest } from '../../user/auth/decorators/controller/userIdFromRequest';
@@ -15,7 +14,6 @@ import { BadRequestError } from '../../../../../common/utils/result/custom-error
 import { UploadAvatarUserCommand } from '../application/command/upload.avatar.user.command';
 import { DeleteAvatarSwagger } from '../decorators/swagger/delete-avatar/delete-avatar.swagger.decorator';
 import { DeleteAvatarUserCommand } from '../application/command/delete.avatar.user.command';
-import { RMQ_CMD } from '../../../../../common/constants/enums';
 
 @ApiTags('file')
 @Controller('file')
@@ -25,7 +23,6 @@ export class FileController {
   constructor(
     private readonly configService: ConfigService<ConfigurationType, true>,
     private commandBus: CommandBus,
-    @Inject('MULTICAST_EXCHANGE') private readonly gatewayProxyClient: ClientProxy,
   ) {
     this.imageStreamConfiguration = this.configService.get<ConfigurationType['fileMicroservice']>('fileMicroservice', {
       infer: true,
@@ -138,10 +135,6 @@ export class FileController {
   @DeleteAvatarSwagger()
   async deleteAvatar(@UserIdFromRequest() userInfo: { userId: string }) {
     const result = await this.commandBus.execute(new DeleteAvatarUserCommand({ userId: userInfo.userId }));
-
-    if (result.isSuccess) {
-      this.gatewayProxyClient.emit({ cmd: RMQ_CMD.AVATAR_DELETED }, userInfo.userId);
-    }
 
     if (!result.isSuccess) throw result.error;
 
